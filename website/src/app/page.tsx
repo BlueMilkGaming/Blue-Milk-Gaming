@@ -12,8 +12,8 @@ export default function Home() {
       <Image
         src="/brand/logo-horizontal.png"
         alt="Blue Milk Gaming"
-        width={4000}
-        height={1512}
+        width={1200}
+        height={453}
         className="h-auto w-full max-w-lg"
         priority
       />
