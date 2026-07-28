@@ -6,6 +6,10 @@
   --color-deep-space: #000342;
   --color-naboo: #ffe81f;
   --color-hoth: #eefbff;
+
+  /* Club Season Program surface tones — derived from Deep Space (DESIGN.md) */
+  --color-panel: #0a1352;
+  --color-recess: #00021c;
 }
 
 /* `inline` so the next/font variable (set on <body>) resolves at use site
@@ -18,4 +22,58 @@ body {
   background: var(--color-deep-space);
   color: var(--color-hoth);
   font-family: var(--font-hubot-sans), system-ui, sans-serif;
+}
+
+/* Broadcast label: the grammar that names every section. */
+.kicker {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  color: var(--color-blue-milk);
+}
+
+/* Tabular figures for times, ranks, points — measurement, not decoration. */
+.nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Live status dot. */
+.pulse-dot {
+  position: relative;
+}
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-naboo);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Broadcast lower-third: the one authored entrance, staggered on the hero.
+   Starts from a visible default so no-JS / reduced-motion sees full content. */
+.rise {
+  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; }
+  .pulse-dot::after { animation: none; }
+}
+
+/* Keyboard focus — visible on the dark ground. */
+:focus-visible {
+  outline: 2px solid var(--color-naboo);
+  outline-offset: 3px;
 }
