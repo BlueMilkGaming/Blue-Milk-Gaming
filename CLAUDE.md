@@ -26,7 +26,6 @@ Monorepo for Blue Milk Gaming (BMG), a gaming team/organization that runs weekly
 
 ## Conventions
 
-- Paths contain spaces (`Workspace/BMG Website/Blue Milk Gaming`) — always quote in shell commands.
 - Default branch `main`; commit at phase checkpoints.
 - Pin exact versions for `next` and `sst` (OpenNext compatibility; Auth.js v5 churn).
 - Avoid edge-runtime-only Next.js features (OpenNext target); no Lambda image optimization at this scale.
