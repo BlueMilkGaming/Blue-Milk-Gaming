@@ -7,6 +7,8 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 - `docs/org.md` — who we are, channels, tournament format, reach
 - `docs/brand.md` — colors, fonts, logo inventory (canonical files in `assets/brand/`)
 - `docs/setup.md` — AWS access, secrets handling, external accounts, domain decision
+- `docs/melee-api.md` — melee.gg endpoints, auth, response shapes, **PII constraints**, rate limits
+- `docs/reference/` — melee OpenAPI spec and tournament inventory (no player data)
 - `docs/decisions/` — ADRs; 0001 is the stack, 0002 corrects V1 plan assumptions
 - V1 plan: home (roster, content feed, tournament feed), tournaments page, leaderboard (auto-updated from melee.gg), prize wall (Discord-login redemptions), external Fourthwall shop link
 
@@ -38,4 +40,5 @@ Production: **https://d3fdgelj2nhbqw.cloudfront.net** (stage `production`, regio
 - Cost discipline: everything must be free-tier/scale-to-zero; billing alarm before first deploy.
 - Don't use the bare "BMG" acronym in outward-facing copy — spell out Blue Milk Gaming.
 - Secrets live in `website/.env.local` (local) and SST secrets (deployed). Never commit real values; `website/.env.example` is the template.
+- **melee.gg standings responses contain player PII** (real names, Discord usernames, DCI numbers, pronouns). Drop everything except melee player ID, display name, and result at the ingest boundary; never log or commit raw responses; never render more than a display name publicly.
 - Brand gotchas that will bite: the Tailwind block referencing the font variable must be `@theme inline`, and the wordmark SVGs contain live text so they can't be used via `<img>`. Both documented in `docs/brand.md`.

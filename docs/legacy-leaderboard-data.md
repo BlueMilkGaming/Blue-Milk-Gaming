@@ -10,6 +10,8 @@ Analysis of the three season exports that the site's leaderboard replaces. The r
 | 2 | 7 (LAW) | Online Local #10–20 | 39 | 16,100 |
 | 3 (current) | 8 (ASH) | Online Local #21–present | 30 | 10,100 |
 
+Season 3 is ongoing — the sheet's "#21–??" and "present" mean the same thing. There is no gap between seasons, and the melee.gg inventory confirms Online Locals run #1–28 with no missing numbers.
+
 86 distinct names case-insensitively across all three, so roughly 80 real people once aliases are merged.
 
 ### These are season aggregates, not tournament results
@@ -18,13 +20,17 @@ Analysis of the three season exports that the site's leaderboard replaces. The r
 
 The consequence: these files alone cannot populate per-tournament `Placement` records. They can only seed one opening balance per player per season. See "Import strategy" below for what to do instead.
 
+### Status: superseded as a data source
+
+All discrepancies below were explained by the owner and none require action. **The leaderboard will be rebuilt from the melee.gg API** (see [melee-api.md](melee-api.md)); these sheets are kept only as a sanity check. Read this document as a record of why the sheets are not authoritative, not as an import specification.
+
 ### Season 1 has a different shape
 
 Season 1 has `Place` and `Total Packs Won` columns that Seasons 2 and 3 lack, and its `Place` column contains ties (seven players tied at 8th, sixteen tied at 31st).
 
-`BMG Points == Total Packs Won × 100` holds for **every** row in Season 1. So the historical scheme was packs-per-placement, converted at 100 points per pack — the same economics as the current rule (4/3/2/2/1/1/1/1 packs → 400/300/200/200/100/100/100/100 points), just recorded in packs rather than points. Scoring has been consistent throughout; only the bookkeeping changed.
+`BMG Points == Total Packs Won × 100` holds for **every** row in Season 1. Packs were the original prizing before the switch to a point system, and the points column was derived from them at 100 per pack. The economics match the current rule (4/3/2/2/1/1/1/1 packs → 400/300/200/200/100/100/100/100 points), so scoring has been consistent throughout; only the prize mechanism and the bookkeeping changed.
 
-### Totals don't reconcile exactly
+### Totals don't reconcile exactly — explained
 
 At 1,500 points per event under the top-8 rule:
 
@@ -34,11 +40,13 @@ At 1,500 points per event under the top-8 rule:
 | 2 | 11 | 16,500 | 16,100 | −400 |
 | 3 | 7 | 10,500 | 10,100 | −400 |
 
-Small discrepancies, consistent with events that had ties, fewer than eight finishers, or manual adjustments. Worth understanding before treating the sheet as authoritative, but not alarming.
+Explained by the owner: shortfalls come from events with fewer than eight players, and the +100 from a week where 9th place was also awarded points. Artifacts of manual bookkeeping, not errors worth chasing.
 
-### Unexplained sidebar numbers
+**Resolution:** rebuild from melee.gg standings and apply the top-8 rule uniformly. Historical totals will differ slightly from the sheets, and that is accepted — the owner may revisit any missed adjustments later, but likely will not.
 
-Seasons 2 and 3 have a lone number in a far-right column — `13000` and `7600` respectively — that matches neither the points sum nor events × 1,500. Purpose unknown. **Open question for the owner.**
+### Sidebar numbers — explained
+
+The lone numbers in a far-right column of Seasons 2 and 3 (`13000`, `7600`) were a manual running tally used to check that points were being awarded, left over from before the switch. **Ignore them.**
 
 ## Name and identity quirks (all confirmed in the data)
 
@@ -46,7 +54,7 @@ The alias design in [ADR 0004](decisions/0004-data-model.md) exists because of e
 
 - **Case drift:** `RCR_jack1best` (S1) vs `RCR_Jack1best` (S2, S3). Matching must be case-insensitive.
 - **Team prefix changes:** `BN_Chrispy` (S1) becomes `ECL_Chrispy` (S2). Players carry team tags that change when they switch teams — observed prefixes include `RCR_`, `CST_`, `BN_`, `MND_`, `ECL_`, `F8_`, `CBG_`. A prefix is not part of a player's identity.
-- **Possible same player, two entries:** `Vorath` and `Voraththefallen` both appear in Season 2 with separate totals (600 and 400), and `Vorath` also appears in Seasons 1 and 3. If these are one person, Season 2 split their points. **Open question for the owner.**
+- **`Vorath` and `Voraththefallen` are two different people** — father and son. Confirmed by the owner. A useful reminder that near-identical handles must never be auto-merged by similarity; melee's stable player ID is the only safe join key.
 - **Non-ASCII names:** `Viktor Edström`. Read files as UTF-8 and normalize before comparison; don't strip accents.
 - **Mixed conventions:** melee handles (`th3connman23`) sit alongside real names (`Easton Daniel`, `Kyle Renfro`). Both are legitimate melee.gg display names.
 

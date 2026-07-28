@@ -38,6 +38,10 @@ Boundaries follow SWU set releases, and event counts per season vary — nothing
 
 SWU's release cadence is changing, so season boundaries must be editable data rather than anything derived or hardcoded.
 
+Confirmed against melee.gg: Online Locals run #1–28 with no gaps (#28 is upcoming). Season breaks line up with pauses in the weekly cadence — #9 on 2026-02-16 to #10 on 2026-03-09, and #20 on 2026-05-25 to #21 on 2026-06-08 — which is consistent with set-release timing. Full inventory in `docs/reference/melee-tournaments.json`.
+
+**Not every tournament counts.** The melee account also sees Patreon Tournaments, Sealed and Draft events, Online Showdowns, and GC Drafts. Only events named `BMG Online Local #<n>` with status `Ended` feed the leaderboard.
+
 ## Storage
 
 A handful of purpose-shaped DynamoDB tables with **on-demand billing** — not strict single-table design.
@@ -51,25 +55,33 @@ The leaderboard is computed by reading a season's rows and sorting in memory. At
 ### Identity
 
 **Player** — a person, independent of any login.
-`playerId` (ULID) · `displayName` · `discordUserId?` · `createdAt` · `status`
+`playerId` (ULID) · `meleePlayerId` (integer, unique) · `displayName` · `discordUserId?` · `createdAt` · `status`
 
-A Player exists as soon as they appear in an import, long before they ever sign in. Discord linking is a later, optional step. This is what keeps historical results attributable to people who have never visited the site.
+A Player exists as soon as they appear in an import, long before they ever sign in. This is what keeps historical results attributable to people who have never visited the site.
+
+`meleePlayerId` is the identity anchor — melee returns a stable integer ID per player, so imports join on that rather than on a name. This is much stronger than originally assumed and removes most of the fuzzy-matching risk.
+
+**Do not persist the rest of what melee returns.** Standings payloads include real names, DCI numbers, Arena/MTGO handles, and pronouns. Only the melee player ID, display name, and competitive result are stored; everything else is dropped at the ingest boundary. See [melee-api.md](../melee-api.md).
 
 **PlayerAlias** — every name a player has appeared under.
 `alias` (PK, normalized) · `playerId` · `source` (`melee` | `sheet` | `manual`) · `verified` · `linkedAt`
 
-The hard problem in this system is that the Google Sheet keys players by display name, melee.gg may use different usernames, and Discord adds a third identity. Aliases make that mapping explicit and auditable rather than guessed at import time. An unrecognized alias never silently creates points — it lands in the review queue.
+Still needed, but for a narrower job than originally planned: reconciling the legacy Google Sheets rows (which have only display names) against players, and preserving old handles so people recognize themselves. Live imports key on `meleePlayerId`.
+
+Names must never be merged by similarity. `Vorath` and `Voraththefallen` are a father and son, not a duplicate — an unrecognized alias goes to the review queue rather than being guessed.
 
 ### Competition
 
 **Season** — `seasonId` · `name` · `startsAt` · `endsAt` · `status` (`upcoming` | `active` | `archived`)
 
-**Tournament** — `tournamentId` (ULID) · `externalId` · `source` (`melee` | `csv` | `manual`) · `name` · `completedAt` · `seasonId` · `playerCount` · `scoringVersion` · `status`
+**Tournament** — `tournamentId` (ULID) · `externalId` (melee integer ID) · `source` (`melee` | `csv` | `manual`) · `name` · `completedAt` · `seasonId` · `playerCount` · `scoringVersion` · `status`
 
 `externalId` is the idempotency key: importing the same melee.gg tournament twice is a no-op.
 
 **Placement** — one row per player per tournament.
 `tournamentId` + `playerId` (composite key) · `finishRank` · `rankingPointsAwarded` · `currencyPointsAwarded` · `recordWins` · `recordLosses`
+
+Melee's standings are team-shaped — each row carries a `Team.Players[]` array, with exactly one player for singles events. The importer must unwrap that array rather than assuming a flat player field. `Rank` maps to `finishRank`; melee's own `Points` field is Swiss match points and is deliberately not stored.
 
 Awarded points are **stored, not recomputed**. When the scoring table changes, history stays as it was actually awarded; `scoringVersion` on the tournament records which rules applied.
 
@@ -137,9 +149,15 @@ export const SCORING_V1 = {
 
 Each entry carries separate `ranking` and `currency` values even though they are currently identical, so the two economies can diverge later without a migration.
 
+## Discord account linking
+
+Melee's player records include `DiscordUsername`, so when someone signs in with Discord their username can be matched against imported players to **suggest** a link — far better than the blind self-claim flow originally planned.
+
+It stays a suggestion the player or an admin confirms. Discord usernames are mutable and not unique over time, and melee only holds whatever the player typed at registration. Once confirmed, the durable link is the immutable Discord user ID that Auth.js provides at login, stored on `Player.discordUserId`; `DiscordUsername` is never stored, only matched against in memory.
+
 ## melee.gg API constraints
 
-The API returns stable player identifiers, so imported placements key on a real ID rather than a display name. Aliases remain necessary for reconciling historical sheet data and for showing players a name they recognize.
+Full details in [melee-api.md](../melee-api.md). Auth is HTTP Basic (the issued ID and secret are the username and password), not OAuth.
 
 Melee's terms ask that the API not be polled constantly and warn that excessive requests may get credentials revoked. This shapes the design:
 
@@ -151,10 +169,9 @@ Melee's terms ask that the API not be polled constantly and warn that excessive 
 
 ## Open questions
 
-- **Unexplained sheet totals.** Seasons 2 and 3 carry a sidebar number (`13000`, `7600`) matching neither the points sum nor events × 1,500. What are they?
-- **`Vorath` vs `Voraththefallen`.** Both hold separate Season 2 totals. Same person with split points, or two people?
-- **Season total discrepancies.** Season 2 and 3 each fall 400 short of events × 1,500, Season 1 runs 100 over. Ties, short events, or manual adjustments?
-- **Participation point values.** Deferred until the owner decides.
+- **Participation point values.** Deferred until the owner decides; nothing awards them today.
+
+Previously open, now resolved: the sheet sidebar numbers were a manual tally and can be ignored; `Vorath` and `Voraththefallen` are two people (father and son); the season total discrepancies come from short events and one week where 9th place was also paid. History will be rebuilt from melee.gg with the top-8 rule applied uniformly, so recomputed totals will differ slightly from the sheets — accepted.
 
 ## Consequences
 

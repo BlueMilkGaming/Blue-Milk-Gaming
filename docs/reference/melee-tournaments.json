@@ -1,0 +1,326 @@
+{
+  "fetchedAt": "2026-07-28",
+  "recordsTotal": 40,
+  "tournaments": [
+    {
+      "meleeId": 385630,
+      "name": "BMG Sealed Tournament 11/24",
+      "status": "Ended",
+      "lastPairDate": "2025-11-25",
+      "game": "StarWarsUnlimited",
+      "organizationId": 17427
+    },
+    {
+      "meleeId": 387107,
+      "name": "BMG Sealed Tournament 11/30",
+      "status": "Ended",
+      "lastPairDate": "2025-12-01",
+      "game": "StarWarsUnlimited",
+      "organizationId": 17427
+    },
+    {
+      "meleeId": 387130,
+      "name": "L8 draft",
+      "status": "Ended",
+      "lastPairDate": "2025-12-01",
+      "game": "Other",
+      "organizationId": 17427
+    },
+    {
+      "meleeId": 379943,
+      "name": "BMG Patreon Tournament #0",
+      "status": "Ended",
+      "lastPairDate": "2025-12-08",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 389041,
+      "name": "BMG Online Local #1",
+      "status": "Ended",
+      "lastPairDate": "2025-12-15",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 390989,
+      "name": "BMG Online Local #2",
+      "status": "Ended",
+      "lastPairDate": "2025-12-22",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 392377,
+      "name": "BMG Online Local #3",
+      "status": "Ended",
+      "lastPairDate": "2025-12-29",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 393194,
+      "name": "BMG Online Local #4",
+      "status": "Ended",
+      "lastPairDate": "2026-01-05",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 394506,
+      "name": "BMG Online Local #5",
+      "status": "Ended",
+      "lastPairDate": "2026-01-12",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 396524,
+      "name": "BMG Online Local #6",
+      "status": "Ended",
+      "lastPairDate": "2026-01-19",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 387762,
+      "name": "BMG Patreon Tournament #1",
+      "status": "Ended",
+      "lastPairDate": "2026-01-22",
+      "game": "StarWarsUnlimited",
+      "organizationId": 17427
+    },
+    {
+      "meleeId": 398144,
+      "name": "BMG Online Local #7",
+      "status": "Ended",
+      "lastPairDate": "2026-01-26",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 399935,
+      "name": "BMG Online Local #8",
+      "status": "Ended",
+      "lastPairDate": "2026-02-02",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 404016,
+      "name": "BMG Sealed Practice",
+      "status": "Ended",
+      "lastPairDate": "2026-02-12",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 403489,
+      "name": "BMG Online Local #9",
+      "status": "Ended",
+      "lastPairDate": "2026-02-16",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 408801,
+      "name": "BMG Online Showdown #1",
+      "status": "Ended",
+      "lastPairDate": "2026-03-02",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 411712,
+      "name": "BMG Online Local #10",
+      "status": "Ended",
+      "lastPairDate": "2026-03-09",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 413899,
+      "name": "BMG Online Local #11",
+      "status": "Ended",
+      "lastPairDate": "2026-03-16",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 393690,
+      "name": "BMG Patreon Tournament #2",
+      "status": "Ended",
+      "lastPairDate": "2026-03-20",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 414328,
+      "name": "BMG Online Local #12",
+      "status": "Ended",
+      "lastPairDate": "2026-03-23",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 415904,
+      "name": "BMG Online Local #13",
+      "status": "Ended",
+      "lastPairDate": "2026-03-30",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 418098,
+      "name": "BMG Online Local #14",
+      "status": "Ended",
+      "lastPairDate": "2026-04-06",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 421564,
+      "name": "BMG Online Local #15",
+      "status": "Ended",
+      "lastPairDate": "2026-04-20",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 424065,
+      "name": "BMG Online Local #16",
+      "status": "Ended",
+      "lastPairDate": "2026-04-27",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 426034,
+      "name": "BMG Online Local #17",
+      "status": "Ended",
+      "lastPairDate": "2026-05-04",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 428058,
+      "name": "BMG Online Local #18",
+      "status": "Ended",
+      "lastPairDate": "2026-05-11",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 429587,
+      "name": "BMG Online Local #19",
+      "status": "Ended",
+      "lastPairDate": "2026-05-18",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 406100,
+      "name": "BMG Patreon Tournament #3",
+      "status": "Ended",
+      "lastPairDate": "2026-05-19",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 431035,
+      "name": "BMG Online Local #20",
+      "status": "Ended",
+      "lastPairDate": "2026-05-25",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 434971,
+      "name": "BMG Online Local #21",
+      "status": "Ended",
+      "lastPairDate": "2026-06-08",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 436577,
+      "name": "BMG Online Local #22",
+      "status": "Ended",
+      "lastPairDate": "2026-06-15",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 438250,
+      "name": "BMG Online Local #23",
+      "status": "Ended",
+      "lastPairDate": "2026-06-22",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 438513,
+      "name": "GC Draft Week 2",
+      "status": "Ended",
+      "lastPairDate": "2026-06-23",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 439990,
+      "name": "BMG Online Local #24",
+      "status": "Ended",
+      "lastPairDate": "2026-06-29",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 442021,
+      "name": "BMG Online Local #25",
+      "status": "Ended",
+      "lastPairDate": "2026-07-06",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 444327,
+      "name": "BMG Online Local #26",
+      "status": "Ended",
+      "lastPairDate": "2026-07-13",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 445226,
+      "name": "BMG Online Local #27",
+      "status": "Ended",
+      "lastPairDate": "2026-07-20",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 387108,
+      "name": "BMG Draft Tournament 12/1",
+      "status": "Canceled",
+      "lastPairDate": "",
+      "game": "StarWarsUnlimited",
+      "organizationId": 17427
+    },
+    {
+      "meleeId": 436757,
+      "name": "GC Draft Week 1",
+      "status": "Registration",
+      "lastPairDate": "",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    },
+    {
+      "meleeId": 446537,
+      "name": "BMG Online Local #28",
+      "status": "Registration",
+      "lastPairDate": "",
+      "game": "StarWarsUnlimited",
+      "organizationId": 16829
+    }
+  ]
+}

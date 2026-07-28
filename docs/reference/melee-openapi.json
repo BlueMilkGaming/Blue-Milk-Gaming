@@ -1,0 +1,1315 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v0.3.64.64",
+    "title": "Melee.gg API",
+    "description": "The Melee.gg API provides access to tournament management and other features."
+  },
+  "host": "melee.gg",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/api/reports/{id}": {
+      "get": {
+        "tags": [
+          "AdminReportsApi"
+        ],
+        "summary": "Executes a saved admin report identified by its GUID string, applies pagination,\r\nand returns the result set as dynamic objects.",
+        "operationId": "AdminReportsApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The GUID string of the report to execute.",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report executed and results returned.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated or not authorized for the report."
+          },
+          "404": {
+            "description": "Report definition or user not found."
+          }
+        }
+      }
+    },
+    "/api/tournament/{id}": {
+      "get": {
+        "tags": [
+          "TournamentApi"
+        ],
+        "summary": "Retrieves detailed information about a specific tournament by its ID.",
+        "description": "This endpoint is protected and requires staff-level authorization to access. It returns a comprehensive\r\ndata transfer object (DTO) representing the tournament, including all relevant details for display or further processing.",
+        "operationId": "TournamentApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the tournament to retrieve.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the tournament data transfer object (DTO) if the tournament is found and the request is authorized.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the requesting user does not have the necessary staff-level authorization to access tournament details."
+          },
+          "404": {
+            "description": "Not Found - If a tournament with the specified ID does not exist."
+          }
+        }
+      }
+    },
+    "/api/tournament/list": {
+      "get": {
+        "tags": [
+          "TournamentApi"
+        ],
+        "summary": "Lists tournaments accessible to the authenticated staff member, with support for pagination.",
+        "description": "This endpoint requires staff-level authorization and utilizes basic authentication to determine the requesting user's identity.\r\nIt returns tournaments where the authenticated user is listed as staff directly or through an organization.\r\n\r\nThe response is a list of tournament DTOs (Data Transfer Objects), providing a standardized view of tournament details suitable for external consumption.",
+        "operationId": "TournamentApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "startDateFrom",
+            "in": "query",
+            "description": "Earliest tournament start date (inclusive).  \r\nIf omitted, no lower bound is applied.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "startDateTo",
+            "in": "query",
+            "description": "Latest tournament start date (inclusive).  \r\nIf omitted, no upper bound is applied.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "tournamentId",
+            "in": "query",
+            "description": "Optional tournamentId to search for.",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "lastUpdatedDate",
+            "in": "query",
+            "description": "Optional filter for tournaments on this date or after.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a paginated list of tournament DTOs accessible to the authenticated staff member.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - If the authentication fails or the user does not have the required authorization level."
+          }
+        }
+      }
+    },
+    "/api/decklist/{id}": {
+      "get": {
+        "tags": [
+          "TournamentDecklistApi"
+        ],
+        "summary": "Retrieves a decklist by its unique identifier.",
+        "operationId": "TournamentDecklistApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the decklist.",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "includeCardAttributes",
+            "in": "query",
+            "description": "Flag to include gameplay attributes for each card in the decklist.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested decklist as JSON.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the requester does not have the required staff-level authorization."
+          },
+          "404": {
+            "description": "Not Found - If no decklist exists with the given identifier."
+          }
+        }
+      }
+    },
+    "/api/decklist/player/{id}": {
+      "get": {
+        "tags": [
+          "TournamentDecklistApi"
+        ],
+        "summary": "Retrieves a decklist for a specific player and format.",
+        "operationId": "TournamentDecklistApi_GetPlayer",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The player's unique identifier.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "formatId",
+            "in": "query",
+            "description": "The id of the format of the decklist to retrieve.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "includeCardAttributes",
+            "in": "query",
+            "description": "Flag to include gameplay attributes for each card in the decklist.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested player's decklist as JSON.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Forbidden - If the organization associated with the decklist does not have the permission to download decklists."
+          },
+          "404": {
+            "description": "Not Found - If no decklist exists for the player in the given format."
+          }
+        }
+      }
+    },
+    "/api/decklist/list/{id}": {
+      "get": {
+        "tags": [
+          "TournamentDecklistApi"
+        ],
+        "summary": "Lists all decklists for a given tournament, with optional filtering by format.\r\nSupports pagination through query parameters.",
+        "operationId": "TournamentDecklistApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The tournament's unique identifier.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "formatId",
+            "in": "query",
+            "description": "Optional parameter to filter decklists by their format.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a paginated list of decklists as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Forbidden - If the organization associated with the decklists does not have the permission to download decklists."
+          }
+        }
+      }
+    },
+    "/api/decklist/list/player/{id}": {
+      "get": {
+        "tags": [
+          "TournamentDecklistApi"
+        ],
+        "summary": "Lists all decklists for a specific player within a tournament.\r\nAuthorization is required to access this information.",
+        "operationId": "TournamentDecklistApi_ListPlayer",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the player.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of decklists for the player as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Forbidden - If the organization associated with the player does not have the permission to download decklists."
+          },
+          "404": {
+            "description": "Not Found - If no player exists with the given identifier."
+          }
+        }
+      }
+    },
+    "/api/decklist/list/team/{id}": {
+      "get": {
+        "tags": [
+          "TournamentDecklistApi"
+        ],
+        "summary": "Lists all decklists associated with a specific team within a tournament.\r\nSupports optional filtering by decklist format and requires authorization.",
+        "operationId": "TournamentDecklistApi_ListTeam",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the team.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "formatId",
+            "in": "query",
+            "description": "Optional parameter to filter decklists by their format.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of decklists for the team as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Forbidden - If the organization associated with the team does not have the permission to download decklists."
+          },
+          "404": {
+            "description": "Not Found - If no team exists with the given identifier."
+          }
+        }
+      }
+    },
+    "/api/match/{id}": {
+      "get": {
+        "tags": [
+          "TournamentMatchApi"
+        ],
+        "summary": "Retrieves details for a specific tournament match by its GUID.",
+        "operationId": "TournamentMatchApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The GUID of the tournament match.",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the match details as JSON.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the match."
+          },
+          "404": {
+            "description": "Not Found - If no match with the specified GUID exists."
+          }
+        }
+      }
+    },
+    "/api/match/list/{id}": {
+      "get": {
+        "tags": [
+          "TournamentMatchApi"
+        ],
+        "summary": "Lists all matches for a specific tournament, supporting pagination.",
+        "operationId": "TournamentMatchApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the tournament.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of tournament matches as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the tournament matches."
+          }
+        }
+      }
+    },
+    "/api/match/list/current/{id}": {
+      "get": {
+        "tags": [
+          "TournamentMatchApi"
+        ],
+        "summary": "Lists current matches for a given tournament, determined by the tournament's current round.",
+        "operationId": "TournamentMatchApi_ListCurrent",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The tournament ID to fetch current matches for.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the current round's matches as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the matches."
+          },
+          "404": {
+            "description": "Not Found - If no current round exists for the tournament."
+          }
+        }
+      }
+    },
+    "/api/match/list/round/{id}": {
+      "get": {
+        "tags": [
+          "TournamentMatchApi"
+        ],
+        "summary": "Lists matches for a specific tournament round.",
+        "operationId": "TournamentMatchApi_ListRound",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The round ID to list matches for.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the matches for the specified round as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the matches."
+          },
+          "404": {
+            "description": "Not Found - If the specified round does not exist."
+          }
+        }
+      }
+    },
+    "/api/player/{id}": {
+      "get": {
+        "tags": [
+          "TournamentPlayerApi"
+        ],
+        "summary": "Retrieves detailed information about a specific player by their unique identifier.\r\nRequires staff-level authorization.",
+        "description": "The endpoint performs an authorization check to ensure that the requestor has the necessary staff-level permissions.\r\nIt returns detailed player information, utilizing a mapper to handle player metadata and other sensitive data according to\r\ntournament operations data handling standards.",
+        "operationId": "TournamentPlayerApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier for the player.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns a detailed player DTO.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The request lacks valid authentication credentials for the requested resource or if the authorization check fails."
+          },
+          "404": {
+            "description": "Not Found - A player with the specified ID does not exist."
+          }
+        }
+      }
+    },
+    "/api/player/list/{id}": {
+      "get": {
+        "tags": [
+          "TournamentPlayerApi"
+        ],
+        "summary": "Lists all players in a specific tournament.",
+        "description": "GET: /players/list/{id}\r\nThis method performs authorization checks to verify that the requesting user has permission\r\nto access the list of players. It supports pagination through `ApiPaginationVariables` to efficiently manage the size of the returned data.",
+        "operationId": "TournamentPlayerApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the tournament for which to list players.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of players within the specified tournament.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user does not have permission to view the list of players."
+          }
+        }
+      }
+    },
+    "/api/player/metadata/{id}": {
+      "get": {
+        "tags": [
+          "TournamentPlayerApi"
+        ],
+        "summary": "Retrieves detailed information about a single player and their associated metadata in key-value form.\r\nRequires staff-level authorization.",
+        "description": "The endpoint performs an authorization check to ensure that the requestor has the necessary staff-level permissions.\r\nIt returns detailed player information, utilizing a mapper to handle player metadata and other sensitive data according to\r\ntournament operations data handling standards.\r\nThis method performs authorization checks to verify that the requesting user has permission\r\nto access the list of players. It supports pagination through `ApiPaginationVariables` to efficiently manage the size of the returned data.",
+        "operationId": "TournamentPlayerApi_Metadata",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the player.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns a detailed player DTO.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The request lacks valid authentication credentials for the requested resource or if the authorization check fails."
+          },
+          "404": {
+            "description": "Not Found - A player with the specified ID does not exist."
+          }
+        }
+      }
+    },
+    "/api/player/metadata/list/{id}": {
+      "get": {
+        "tags": [
+          "TournamentPlayerApi"
+        ],
+        "summary": "Retrieves detailed information about players in a specific tournament and their associated metadata in key-value form.\r\nRequires staff-level authorization.",
+        "description": "The endpoint performs an authorization check to ensure that the requestor has the necessary staff-level permissions.\r\nIt returns detailed player information, utilizing a mapper to handle player metadata and other sensitive data according to\r\ntournament operations data handling standards.\r\nThis method performs authorization checks to verify that the requesting user has permission\r\nto access the list of players. It supports pagination through `ApiPaginationVariables` to efficiently manage the size of the returned data.",
+        "operationId": "TournamentPlayerApi_MetadataList",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the tournament for which to list players.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns a detailed player DTO.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The request lacks valid authentication credentials for the requested resource or if the authorization check fails."
+          },
+          "404": {
+            "description": "Not Found - A player with the specified ID does not exist."
+          }
+        }
+      }
+    },
+    "/api/standing/{id}": {
+      "get": {
+        "tags": [
+          "TournamentStandingApi"
+        ],
+        "summary": "Retrieves the most current standings for a specific team within a tournament.",
+        "operationId": "TournamentStandingApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the team to retrieve standings for.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns the current standings for the team.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - The user does not have permission to access the standings."
+          },
+          "404": {
+            "description": "Not Found - No standings exist for the given team ID."
+          }
+        }
+      }
+    },
+    "/api/standing/list/current/{id}": {
+      "get": {
+        "tags": [
+          "TournamentStandingApi"
+        ],
+        "summary": "Lists the current standings for a specific tournament.\r\nSupports pagination through query parameters.",
+        "operationId": "TournamentStandingApi_ListCurrent",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the tournament to list current standings for.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns a paginated list of current standings.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - The user does not have permission to access the standings."
+          }
+        }
+      }
+    },
+    "/api/standing/list/round/{id}": {
+      "get": {
+        "tags": [
+          "TournamentStandingApi"
+        ],
+        "summary": "Lists standings for a specific round of a tournament.",
+        "operationId": "TournamentStandingApi_ListRound",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the round to list standings for.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Returns a paginated list of standings for the round.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - The user does not have permission to access the standings."
+          },
+          "404": {
+            "description": "Not Found - The round does not exist or has no standings."
+          }
+        }
+      }
+    },
+    "/api/team/{id}": {
+      "get": {
+        "tags": [
+          "TournamentTeamApi"
+        ],
+        "summary": "Retrieves detailed information for a specific team by its ID.",
+        "operationId": "TournamentTeamApi_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the team.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the team details as JSON.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the team's details."
+          },
+          "404": {
+            "description": "Not Found - If a team with the specified ID does not exist."
+          }
+        }
+      }
+    },
+    "/api/team/list/{id}": {
+      "get": {
+        "tags": [
+          "TournamentTeamApi"
+        ],
+        "summary": "Lists all teams in a specific tournament.",
+        "operationId": "TournamentTeamApi_List",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The unique identifier of the tournament.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "variables.page",
+            "in": "query",
+            "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.pageSize",
+            "in": "query",
+            "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "variables.ignoreCache",
+            "in": "query",
+            "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of teams as JSON.",
+            "schema": {
+              "$ref": "#/definitions/ApiResult"
+            }
+          },
+          "403": {
+            "description": "Unauthorized - If the user is not authorized to view the list of teams."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiPaginationVariables": {
+      "description": "Defines pagination variables for API requests, including page number and page size with defaults and constraints.",
+      "type": "object",
+      "properties": {
+        "page": {
+          "format": "int32",
+          "description": "The requested page number, which may be null. Defaults to 1 if not specified.",
+          "type": "integer"
+        },
+        "pageSize": {
+          "format": "int32",
+          "description": "The requested size of the page, which may be null.\r\nMinimum size is 5, maximum size is 250, and default size is 25.",
+          "type": "integer"
+        },
+        "ignoreCache": {
+          "description": "Whether to ignore the cache and fetch fresh data. Defaults to false.",
+          "type": "boolean"
+        },
+        "getPage": {
+          "format": "int32",
+          "description": "Gets the effective page number, defaulting to 1 if not specified.",
+          "type": "integer",
+          "readOnly": true
+        },
+        "getPageSize": {
+          "format": "int32",
+          "description": "Gets the effective page size, applying default, minimum, and maximum constraints.",
+          "type": "integer",
+          "readOnly": true
+        },
+        "getOffset": {
+          "format": "int32",
+          "description": "Gets the offset for the current page based on the page number and page size.",
+          "type": "integer",
+          "readOnly": true
+        }
+      }
+    },
+    "ApiResult": {
+      "description": "Represents a custom API result incorporating pagination details and supporting sensitive data handling.",
+      "type": "object",
+      "properties": {
+        "statusCode": {
+          "enum": [
+            "Continue",
+            "SwitchingProtocols",
+            "OK",
+            "Created",
+            "Accepted",
+            "NonAuthoritativeInformation",
+            "NoContent",
+            "ResetContent",
+            "PartialContent",
+            "MultipleChoices",
+            "Ambiguous",
+            "MovedPermanently",
+            "Moved",
+            "Found",
+            "Redirect",
+            "SeeOther",
+            "RedirectMethod",
+            "NotModified",
+            "UseProxy",
+            "Unused",
+            "TemporaryRedirect",
+            "RedirectKeepVerb",
+            "BadRequest",
+            "Unauthorized",
+            "PaymentRequired",
+            "Forbidden",
+            "NotFound",
+            "MethodNotAllowed",
+            "NotAcceptable",
+            "ProxyAuthenticationRequired",
+            "RequestTimeout",
+            "Conflict",
+            "Gone",
+            "LengthRequired",
+            "PreconditionFailed",
+            "RequestEntityTooLarge",
+            "RequestUriTooLong",
+            "UnsupportedMediaType",
+            "RequestedRangeNotSatisfiable",
+            "ExpectationFailed",
+            "UpgradeRequired",
+            "InternalServerError",
+            "NotImplemented",
+            "BadGateway",
+            "ServiceUnavailable",
+            "GatewayTimeout",
+            "HttpVersionNotSupported"
+          ],
+          "type": "string",
+          "readOnly": true
+        },
+        "ignoreCache": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "page": {
+          "format": "int32",
+          "type": "integer",
+          "readOnly": true
+        },
+        "pageSize": {
+          "format": "int32",
+          "type": "integer",
+          "readOnly": true
+        },
+        "recordsFiltered": {
+          "format": "int64",
+          "type": "integer",
+          "readOnly": true
+        },
+        "recordsTotal": {
+          "format": "int64",
+          "type": "integer",
+          "readOnly": true
+        },
+        "content": {
+          "type": "object",
+          "readOnly": true
+        },
+        "hasMore": {
+          "description": "Indicates whether there are more records beyond the current page.",
+          "type": "boolean",
+          "readOnly": true
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic",
+      "description": "The Melee API uses Basic access authentication. Authentication is per-user and requests using these credentials will have access to tournaments that user has access to on the Melee site."
+    }
+  },
+  "security": [
+    {
+      "basic": []
+    }
+  ]
+}
