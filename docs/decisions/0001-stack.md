@@ -4,7 +4,7 @@ Date: 2026-07-21 · Status: Accepted
 
 ## Context
 
-Greenfield website for Blue Milk Gaming with mixed needs: static marketing pages, a dynamic sortable/searchable leaderboard auto-updated from melee.gg results, Discord-authenticated prize redemptions, and scheduled result syncing. Owner is a senior backend/cloud engineer; hosting on AWS is fixed; cost must stay at hobby-project levels (free tier / scale-to-zero).
+Greenfield website for Blue Milk Gaming, a Star Wars: Unlimited content org, with mixed needs: static marketing pages, a dynamic sortable/searchable leaderboard auto-updated from melee.gg results, Discord-authenticated prize redemptions, and scheduled result syncing. Owner is a senior backend/cloud engineer; hosting on AWS is fixed; cost must stay at hobby-project levels (free tier / scale-to-zero).
 
 ## Decision
 

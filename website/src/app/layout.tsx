@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const hubotSans = localFont({
+  src: [
+    { path: "./fonts/HubotSans-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/HubotSans-ExtraBold.ttf", weight: "800", style: "normal" },
+  ],
+  variable: "--font-hubot-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Blue Milk Gaming",
   description:
-    "Blue Milk Gaming — tournaments, leaderboard, and community. Home of the weekly Online Local.",
+    "Blue Milk Gaming — Star Wars: Unlimited content, the weekly Online Local tournament, and our community leaderboard.",
 };
 
 export default function RootLayout({
@@ -25,11 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${hubotSans.variable} antialiased`}>{children}</body>
     </html>
   );
 }
