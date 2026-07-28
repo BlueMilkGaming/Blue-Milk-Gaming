@@ -14,7 +14,7 @@ const hubotSans = localFont({
 export const metadata: Metadata = {
   title: "Blue Milk Gaming",
   description:
-    "Blue Milk Gaming — Star Wars: Unlimited content, the weekly Online Local tournament, and our community leaderboard.",
+    "Blue Milk Gaming is a Star Wars: Unlimited content org running the weekly Online Local tournament and a community leaderboard.",
 };
 
 export default function RootLayout({

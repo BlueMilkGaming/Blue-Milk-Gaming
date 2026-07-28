@@ -106,7 +106,7 @@ function Matchday() {
             className="rise mt-5 max-w-md text-lg text-hoth/70"
             style={{ animationDelay: "0.16s" }}
           >
-            Our weekly Star Wars: Unlimited tournament — every Sunday night, four
+            Our weekly Star Wars: Unlimited tournament, every Sunday night. Four
             rounds of Swiss, one table that runs all season.
           </p>
           <div
@@ -225,13 +225,13 @@ function Table() {
               <span className="text-sm text-hoth/50">@{s.handle}</span>
             </span>
             <span className="nums text-right text-lg font-extrabold text-hoth/40">
-              {s.points ?? "—"}
+              {s.points ?? "0"}
             </span>
           </div>
         ))}
       </div>
       <p className="mt-4 text-sm text-hoth/50">
-        Season 01 is just kicking off. Standings fill in as we play — top
+        Season 01 is just kicking off. Standings fill in as we play, and top
         finishers earn points toward the prize wall.
       </p>
     </section>
@@ -340,7 +340,7 @@ function SiteFooter() {
             Pull up a seat at the table.
           </h2>
           <p className="mt-2 max-w-sm text-hoth/60">
-            The whole community lives in Discord — say hi, get the melee link,
+            The whole community lives in Discord. Say hi, get the melee link,
             play the next Online Local.
           </p>
         </div>
@@ -360,7 +360,7 @@ function SiteFooter() {
         ))}
       </nav>
       <p className="mt-10 text-xs text-hoth/55">
-        Blue Milk Gaming — a fan-run Star Wars: Unlimited community, formed 2025.
+        Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed 2025.
         Star Wars: Unlimited is © its respective owners.
       </p>
     </footer>

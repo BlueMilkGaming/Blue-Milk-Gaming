@@ -47,7 +47,8 @@ Later phases: leaderboard from melee.gg data, Discord auth, prize wall, schedule
 - Pin exact versions for `next` and `sst` (OpenNext compatibility; Auth.js v5 churn).
 - Avoid edge-runtime-only Next.js features (OpenNext target).
 - Cost discipline: everything must be free-tier/scale-to-zero.
-- Don't use the bare "BMG" acronym in outward-facing copy — spell out Blue Milk Gaming.
+- Don't use the bare "BMG" acronym in outward-facing copy; spell out Blue Milk Gaming.
+- No em dashes in public-facing copy. Rewrite with commas, periods, or colons. (Code comments are exempt.)
 - Secrets live in `website/.env.local` (local) and SST secrets (deployed). Never commit real values; `website/.env.example` is the template.
 - **melee.gg standings responses contain player PII** (real names, Discord usernames, DCI numbers, pronouns). Drop everything except melee player ID, display name, and result at the ingest boundary; never log or commit raw responses; never render more than a display name publicly.
 
