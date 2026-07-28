@@ -19,6 +19,10 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 - Content feed: YouTube RSS (no API key) + Patreon link. **No Twitch** — see ADR 0002
 - Results importer: `ResultsProvider` interface — CSV (Google Sheets) now, melee.gg API later; idempotent ingest, append-only points ledger
 
+## Deployed
+
+Production: **https://d3fdgelj2nhbqw.cloudfront.net** (stage `production`, region `us-east-2`). Custom domain not yet cut over — see [ADR 0003](docs/decisions/0003-domain.md).
+
 ## Commands (run in `website/`)
 
 - `npm run dev` — local dev server
