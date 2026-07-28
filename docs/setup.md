@@ -9,10 +9,10 @@ Everything here is done once, outside the repo. **No real credential value belon
 | Local development | `website/.env.local` | Gitignored. Copy `website/.env.example` and fill in. |
 | Deployed (AWS) | SST secrets | Encrypted in SSM Parameter Store; never in the repo. |
 
-Setting a deployed secret:
+Setting a deployed secret — **run from `website/`**, since that's where `sst.config.ts` lives. Running it from the repo root fails with "Could not find sst.config.ts":
 
 ```bash
-npx sst secret set MeleeClientId "your-client-id" --stage production
+cd website && npx sst secret set MeleeClientId "your-client-id" --stage production
 ```
 
 List what's set (names and values — run it somewhere private):
@@ -58,9 +58,13 @@ Set this up **before** the first deploy. The stack should cost approximately not
 
 ## Domain
 
-`bluemilkgaming.com` currently serves the Fourthwall store, so the apex is taken. Decide before launch:
+Decided in [ADR 0003](decisions/0003-domain.md): the new site takes `bluemilkgaming.com`, the Fourthwall store moves to `shop.bluemilkgaming.com`. DNS stays at Cloudflare.
 
-- **Option A:** new site takes the apex; store moves to `shop.bluemilkgaming.com` (Fourthwall supports a custom subdomain). Best long-term — the site becomes the front door.
-- **Option B:** new site lives on a subdomain (`play.` or `tournaments.`) and the store keeps the apex. Lower risk, no store downtime, but splits the brand.
+For deploys that configure the domain you'll need a Cloudflare API token with the **Edit zone DNS** policy:
 
-Until this is decided, deploys are reachable at the CloudFront URL SST prints — no DNS changes required.
+```bash
+export CLOUDFLARE_API_TOKEN="..."
+export CLOUDFLARE_DEFAULT_ACCOUNT_ID="..."
+```
+
+Keep the apex record **DNS-only (grey cloud)** — proxying Cloudflare in front of CloudFront breaks certificate validation. Until cutover, deploys are reachable at the CloudFront URL SST prints, so no DNS change is needed to start.

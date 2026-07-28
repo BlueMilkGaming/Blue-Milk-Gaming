@@ -22,7 +22,7 @@
 | Patreon | https://www.patreon.com/cw/BlueMilkGaming |
 | Store / current site | https://bluemilkgaming.com/ (Fourthwall) |
 
-**Note:** `bluemilkgaming.com` currently resolves to the Fourthwall merch store. The new site needs a DNS decision — take the apex and move the store to a subdomain, or put the new site on a subdomain. See `docs/decisions/`.
+**Note:** `bluemilkgaming.com` (DNS at Cloudflare) currently resolves to the Fourthwall merch store as a temporary arrangement. Per [ADR 0003](decisions/0003-domain.md) the new site will take the apex and the store moves to `shop.bluemilkgaming.com`.
 
 ## What we do
 
