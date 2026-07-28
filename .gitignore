@@ -8,3 +8,8 @@
 # Local env files
 .env
 .env.local
+
+# Legacy leaderboard exports — kept with the project but deliberately untracked.
+# They contain player real names; git history is forever and this repo may go
+# public. See docs/legacy-leaderboard-data.md for the format.
+data/legacy/
