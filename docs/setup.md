@@ -27,21 +27,42 @@ Secrets are referenced in `sst.config.ts` via `new sst.Secret("MeleeClientId")` 
 
 **Do not use root credentials, and do not create root access keys.** Root is for account recovery, billing, and closing the account. Lock it down with MFA and a strong unique password, then never use it day to day.
 
-Two workable options, in order of preference:
+**Current setup: an IAM user (`BMGWebsiteAdmin`) with access keys, region `us-east-2`.**
 
-1. **IAM Identity Center (recommended).** Enable Identity Center in the account, create a permission set (`AdministratorAccess` is fine for a solo project), assign your user, then:
-   ```bash
-   aws configure sso
-   ```
-   Credentials are short-lived and refresh via browser login — nothing long-lived sits on disk. SST picks up the profile through `AWS_PROFILE`.
+IAM Identity Center was considered and rejected. It's built on AWS Organizations — enabling it in a standalone account silently creates an organization containing just that account. That works and costs nothing, but it stands up org-level machinery to manage one person, and the re-login flow adds friction with no real benefit at this size. It becomes worth revisiting if a second AWS account appears or someone else needs deploy access.
 
-2. **IAM user with access keys.** Faster to set up, but the keys are long-lived credentials on your laptop. If you go this route, enable MFA on the user, scope it to what you need, and rotate the keys periodically.
+The trade-off accepted: an access key is a long-lived credential sitting on a laptop. The rules that keep that safe are:
 
-Either way, verify before deploying:
+- MFA enabled on the IAM user.
+- The key never leaves the machine — not into the repo, not into a Dockerfile, not pasted into a chat or issue.
+- If CI deploys are added later, use GitHub OIDC with an assumed role rather than putting the key in Actions secrets.
+- Rotate periodically.
+
+Verify before deploying:
 
 ```bash
 aws sts get-caller-identity
 ```
+
+### First deploy: the Pulumi provider download
+
+SST deploys through Pulumi, which fetches a provider plugin binary on first use. The AWS one is ~176 MB, and SST's built-in retry gives up on a slow connection:
+
+```
+Could not automatically download and install resource plugin 'pulumi-resource-aws'
+at version vX.Y.Z … failed all 5 attempts
+```
+
+This is a download timeout, not a credentials or permissions problem. Fetch it manually with a longer window and extract it into the plugin cache, then re-run the deploy:
+
+```bash
+curl -L -o /tmp/aws-plugin.tar.gz \
+  https://github.com/pulumi/pulumi-aws/releases/download/vX.Y.Z/pulumi-resource-aws-vX.Y.Z-darwin-arm64.tar.gz
+mkdir -p .sst/pulumi/plugins/resource-aws-vX.Y.Z
+tar -xzf /tmp/aws-plugin.tar.gz -C .sst/pulumi/plugins/resource-aws-vX.Y.Z
+```
+
+If a deploy crashes partway it leaves a state lock, and the next run reports "A concurrent update was detected". Clear it with `npx sst unlock --stage production`.
 
 ### Billing alarm
 
