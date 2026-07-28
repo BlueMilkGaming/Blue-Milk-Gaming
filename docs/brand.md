@@ -45,7 +45,9 @@ Lockups come in two shapes: **Logo 1** is stacked (icon above wordmark), **Logo 
 
 ### In use on the site
 
-- `website/public/brand/logo-horizontal.png` — primary lockup, full color with white outline (4000×1512). Reads well on Deep Space.
+- `website/public/brand/logo-horizontal.png` — primary lockup, full color with white outline. Reads well on Deep Space. Downsized to 1200×453 from the 4000px canonical file.
 - `website/public/brand/icon.svg` — carton icon only, vector.
+
+> **Gotcha:** Next.js image optimization is turned **off** (`images.unoptimized` in `website/next.config.ts`). OpenNext's optimizer Lambda returns a 500 against Next 15.5 (`TypeError: s is not a function`), and ADR 0001 rules it out at this scale anyway. Nothing resizes images at request time, so **size assets before committing them** — resize from the canonical file in `assets/brand/` into `website/public/brand/`, e.g. `sips -Z 1200 <source> --out <dest>`.
 
 > **Gotcha:** the wordmark SVGs (`SVGs/Asset 1.svg`, `SVGs/Asset 3.svg`) store the wordmark as live `<text>` referencing Hubot Sans, not as outlined paths. Loaded through `<img>`/`next/image` they render with a fallback serif and the letters collapse into each other. Use the PNG lockups on the web until these are re-exported with text converted to outlines. `BMG-Icon-SVG.svg` contains no text and is safe to use as-is.
