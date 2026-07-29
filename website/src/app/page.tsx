@@ -318,13 +318,21 @@ function Partners() {
       <SectionHead kicker="Club Partners" title="Backed by" />
       <div className="mt-10 grid gap-5 sm:grid-cols-2">
         {PARTNERS.map((p) => (
-          <div
+          <a
             key={p.name}
-            className="flex items-baseline justify-between border border-blue-milk/15 bg-panel px-6 py-6"
+            href={p.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-32 items-center justify-center border border-blue-milk/15 bg-panel px-6 transition-colors hover:border-blue-milk/40"
           >
-            <span className="text-xl font-extrabold">{p.name}</span>
-            <span className="text-sm text-hoth/60">{p.contribution}</span>
-          </div>
+            <Image
+              src={p.logo}
+              alt={p.name}
+              width={p.width}
+              height={p.height}
+              className="h-14 w-auto sm:h-16"
+            />
+          </a>
         ))}
       </div>
     </section>

@@ -27,9 +27,25 @@ export const SEASON = {
   standings: ROSTER.map((m) => ({ name: m.name, handle: m.handle, points: null as number | null })),
 } as const;
 
+// Partner logos are the white marks on the navy panel. Both are stacked
+// lockups at near-identical aspect ratios (2.57:1 and 2.38:1), so they share a
+// height class and balance without per-logo fudging. The Premier Games source
+// is the square export, trimmed of its padded canvas.
 export const PARTNERS = [
-  { name: "Premier Games", contribution: "Premium SWU tokens" },
-  { name: "FontAwesome", contribution: "Streaming hardware" },
+  {
+    name: "Premier Games",
+    href: "https://premiergames.store/",
+    logo: "/brand/partners/premier-games.png",
+    width: 616,
+    height: 240,
+  },
+  {
+    name: "Font Awesome",
+    href: "https://fontawesome.com/",
+    logo: "/brand/partners/font-awesome.svg",
+    width: 81,
+    height: 34,
+  },
 ] as const;
 
 export const CHANNELS = [
