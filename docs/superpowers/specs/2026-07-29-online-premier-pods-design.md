@@ -86,7 +86,9 @@ Repo convention: pure functions + `node --test`, no frameworks.
 
 ## Out of scope
 
-- Participation points, ranked pods, pod formats other than 8-player / 3-round Premier.
+- Participation points; pod formats other than 8-player / 3-round Premier.
+- **Private pods** (invite-only tables): deferred, a plausible later addition.
+- **Ranked pods: never.** Not deferred — avoided. Pods paying ranking points would erode the whiteboard as the Local's season race, which is the core tension this design exists to prevent.
 - melee.gg involvement of any kind in pods.
 - Auto-confirming melee claims via `DiscordUsername`.
 - Migrating Sunday placements onto the ledger.
