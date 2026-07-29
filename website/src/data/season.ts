@@ -12,6 +12,17 @@ export const FIXTURE = {
   venue: "melee.gg",
 } as const;
 
+// The prize wall's tags. Real items only, no invented point costs
+// (PRODUCT.md: "real data or nothing"). Tags gain a cost field when the
+// prize list and point pricing are settled.
+export const PRIZES = [
+  {
+    kicker: "On the wall now",
+    name: "Premium SWU token set",
+    by: "from Premier Games",
+  },
+] as const;
+
 // Partner logos are the white marks on the navy panel. Both are stacked
 // lockups at near-identical aspect ratios (2.69:1 and 2.38:1), so they share a
 // height class and balance without per-logo fudging. The Premier Games source
