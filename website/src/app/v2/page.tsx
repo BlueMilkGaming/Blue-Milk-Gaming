@@ -3,455 +3,445 @@ import { getLatestVideos, type Video } from "@/lib/youtube";
 import { FIXTURE, ROSTER, SEASON, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
 
 /*
-  DIRECTION — Sector Chart (Persuade)
-  THESIS: The season is a plotted course, not a highlight reel. Blue Milk Gaming
-    charts its Online Local the way navigation is charted: graticule, waypoints,
-    bearings, a log. Refuses the dark-neon esports page and the broadcast board.
-  OWN-WORLD: Printed chart paper as the ground, Deep Space navy as the only ink,
-    Blue Milk as tint fields and hairline graticule, Naboo used the way a
-    highlighter marks a paper chart: a fill behind the live item with navy read
-    over it. Margin ticks, legend blocks, scale bar, compass rose.
-  STORY: A visitor lands on the chart of Season 01. The next fixture is the next
-    waypoint, already marked. The squad are four plotted fixes. The table is the
-    log. They join the Discord to fly the next leg.
-  FIRST VIEWPORT: Chart plate edge-to-edge. ONLINE LOCAL set large in navy over
-    the graticule with its coordinate block; the course runs through the ringed
-    waypoint for this Sunday; the CTA sits under the plot.
-  FORM: astrogation / sectional chart (grounded #7, assigned); chart-plate
-    staging; seed 75cef19f.
+  DIRECTION — The Local (Persuade)
+  THESIS: The Online Local is a game store's weekly night moved online, so the
+    site is the store. Refuses the dark-neon esports org page and the borrowed
+    sports-club board; the community's own room instead.
+  OWN-WORLD: Deep Space navy as the store wall after close. Everything on it is
+    a physical artifact: the event flyer in Hoth paper with navy ink, the
+    standings whiteboard, name tags for the regulars, videos as stock standing
+    on shelf rails, partner stickers on the glass. Translucent Blue Milk tape
+    carries every label; Naboo is rationed to "this Sunday" and the primary
+    tear-off tab. Slight rotations and offset shadows, no texture packs.
+  STORY: A visitor walks up to the store. The flyer says what happens Sunday
+    and a tear-off tab is the way in. The regulars, the board, the shelf, then
+    the back room: join the Discord.
+  FIRST VIEWPORT: The flyer dominates, taped up at a slight tilt: ONLINE LOCAL,
+    the fixture block, tear-off DISCORD tabs along the bottom edge with one tab
+    already taken. The crew photo hangs pinned beside it.
+  FORM: LGS counter (grounded #6, assigned); flyer-on-the-door staging;
+    seed 6254c3ee.
 */
 
 export default async function Home() {
   const videos = await getLatestVideos(5);
   return (
-    <div className="chart min-h-screen">
-      <ChartStyles />
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <MarginRule />
-        <ChartHeader />
-        <main>
-          <Plate />
-          <Fixes />
-          <Log />
-          <Plates videos={videos} />
-          <Legend />
-        </main>
-        <ChartFooter />
-      </div>
+    <div className="store min-h-screen">
+      <StoreStyles />
+      <SiteNav />
+      <main>
+        <Door />
+        <Regulars />
+        <Board />
+        <Shelf videos={videos} />
+        <GlassStickers />
+        <BackRoom />
+      </main>
+      <SiteFooter />
     </div>
   );
 }
 
-/* The chart's own colour system. Scoped to this route so `/` keeps its world.
-   Brand hues are fixed (PRODUCT.md); only their roles are reassigned here.
-   Paper is a substrate, not a fifth brand colour. */
-function ChartStyles() {
+/* Scoped to this route so `/` and `/v3` keep their worlds. Brand hues are
+   fixed (PRODUCT.md); this maps them onto the store's materials: the wall,
+   the paper, the tape, the highlighter. */
+function StoreStyles() {
   return (
     <style>{`
-      body { background: #e6dec9; }
-      .chart {
-        --paper: #e6dec9;
+      body { background: #000342; }
+      .store {
+        --wall: #000342;
+        --wall-deep: #00021c;
+        --paper: #eefbff;
+        --board: #f8fdff;
         --ink: #000342;
-        --tint: #3bb0ff;
-        --mark: #ffe81f;
-        color: var(--ink);
+        --accent: #3bb0ff;
+        --hot: #ffe81f;
+        background:
+          radial-gradient(90% 60% at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+          var(--wall);
+        color: var(--paper);
+      }
+      /* A pinned artifact: paper lifted off the wall by an offset shadow. */
+      .paper {
         background: var(--paper);
+        color: var(--ink);
+        box-shadow: 0 14px 34px -16px rgba(0, 2, 28, 0.85);
       }
-      /* Graticule: the chart's ruling. Degree lines every 120px, minute ticks
-         every 24px. */
-      .graticule {
-        background-image:
-          repeating-linear-gradient(to right, color-mix(in srgb, var(--tint) 34%, transparent) 0 1px, transparent 1px 120px),
-          repeating-linear-gradient(to bottom, color-mix(in srgb, var(--tint) 34%, transparent) 0 1px, transparent 1px 120px),
-          repeating-linear-gradient(to right, color-mix(in srgb, var(--tint) 16%, transparent) 0 1px, transparent 1px 24px),
-          repeating-linear-gradient(to bottom, color-mix(in srgb, var(--tint) 16%, transparent) 0 1px, transparent 1px 24px);
-      }
-      /* Neat line: the double rule that borders a printed chart plate. */
-      .neat {
-        border: 1px solid var(--ink);
-        box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px color-mix(in srgb, var(--ink) 45%, transparent);
-      }
-      .ticks {
-        background-image: repeating-linear-gradient(to right, var(--ink) 0 1px, transparent 1px 12px);
-      }
-      .label {
+      .tilt-l { transform: rotate(-1deg); }
+      .tilt-r { transform: rotate(1.2deg); }
+      .tilt-s { transform: rotate(-0.5deg); }
+      /* Translucent tape. Label text on tape is always paper-white; navy ink
+         fails contrast on a translucent strip over the navy wall. */
+      .tape {
+        display: inline-block;
+        background: color-mix(in srgb, var(--accent) 30%, transparent);
+        color: var(--paper);
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.18em;
         font-size: 0.6875rem;
+        padding: 0.375rem 1.125rem;
+        transform: rotate(-0.8deg);
       }
-      .nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
-      /* Highlighter: how a paper chart marks the leg in progress. */
-      .marked { background: var(--mark); box-shadow: 0 0 0 2px var(--mark); }
-      /* The one authored moment: the course draws itself, then the waypoints
-         land along it. Default state is fully drawn, so no-JS and
-         reduced-motion see the finished plot. */
-      .course { animation: plot 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-      @keyframes plot { from { stroke-dashoffset: 1400; } to { stroke-dashoffset: 0; } }
-      .wp { animation: fix 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; transform-box: fill-box; transform-origin: center; }
-      @keyframes fix { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+      /* Corner tape pieces holding an artifact to the wall. */
+      .taped { position: relative; }
+      .taped::before, .taped::after {
+        content: "";
+        position: absolute;
+        width: 5.5rem;
+        height: 1.625rem;
+        background: color-mix(in srgb, var(--accent) 26%, transparent);
+        top: -0.8125rem;
+      }
+      .taped::before { left: -1.75rem; transform: rotate(-38deg); }
+      .taped::after { right: -1.75rem; transform: rotate(38deg); }
+      .nums { font-variant-numeric: tabular-nums; }
+      .display {
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 0.9;
+        text-transform: uppercase;
+      }
+      /* The one authored moment: the flyer and photo settle onto the wall on
+         load, like they were just pinned. Visible by default via backwards
+         fill; gated below. */
+      .settle { animation: settle 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+      @keyframes settle {
+        from { opacity: 0; transform: translateY(-14px) rotate(0deg); }
+      }
+      .settle.tilt-l { animation-name: settle-l; }
+      .settle.tilt-r { animation-name: settle-r; }
+      @keyframes settle-l {
+        from { opacity: 0; transform: translateY(-14px) rotate(0.5deg); }
+        to { opacity: 1; transform: translateY(0) rotate(-1deg); }
+      }
+      @keyframes settle-r {
+        from { opacity: 0; transform: translateY(-14px) rotate(-0.5deg); }
+        to { opacity: 1; transform: translateY(0) rotate(1.2deg); }
+      }
       @media (prefers-reduced-motion: reduce) {
-        .course, .wp { animation: none; }
+        .settle { animation: none; }
       }
-      .chart :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      /* Tear-off tabs: dashed cut lines, lift on hover. */
+      .tab {
+        border-top: 2px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+        border-left: 2px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+        transition: transform 0.15s ease-out;
+      }
+      .tab:first-child { border-left: none; }
+      .tab:hover { transform: translateY(3px); }
+      .store :focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; }
+      @media (max-width: 640px) {
+        .taped::before { left: -1rem; }
+        .taped::after { right: -1rem; }
+      }
     `}</style>
   );
 }
 
-function MarginRule() {
-  return (
-    <div className="flex items-center justify-between gap-5 pt-4">
-      <span className="label nums opacity-70">BMG SECTIONAL · SEASON 01</span>
-      <div className="ticks h-1.5 flex-1 opacity-40" />
-      <span className="label nums opacity-70">PLATE 1 OF 1</span>
-    </div>
-  );
-}
-
-function ChartHeader() {
+function SiteNav() {
   const nav = [
-    { label: "Fixes", href: "#fixes" },
-    { label: "Log", href: "#log" },
-    { label: "Plates", href: "#plates" },
+    { label: "Regulars", href: "#regulars" },
+    { label: "The Board", href: "#board" },
+    { label: "The Shelf", href: "#shelf" },
   ];
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-b border-[var(--ink)] py-5">
-      <div className="flex items-center gap-4">
-        <Rose className="h-10 w-10 shrink-0" />
-        <div className="leading-none">
-          <div className="text-lg font-extrabold tracking-tight">Blue Milk Gaming</div>
-          <div className="label nums mt-1.5 opacity-70">STAR WARS: UNLIMITED · EST 2025</div>
-        </div>
-      </div>
-      <nav className="flex items-center gap-6">
+    <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
+      <Image
+        src="/brand/logo-horizontal.png"
+        alt="Blue Milk Gaming"
+        width={1200}
+        height={453}
+        className="h-9 w-auto"
+        priority
+      />
+      <nav className="hidden items-center gap-7 md:flex">
         {nav.map((n) => (
-          <a key={n.href} href={n.href} className="label underline-offset-4 hover:underline">
+          <a
+            key={n.href}
+            href={n.href}
+            className="font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
+          >
             {n.label}
           </a>
         ))}
-        <a
-          href={DISCORD_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="label marked px-3 py-1.5"
-        >
-          Discord
-        </a>
       </nav>
+      {/* The sticker by the register. */}
+      <a
+        href={DISCORD_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2"
+      >
+        Discord
+      </a>
     </header>
   );
 }
 
-/* The hero is a chart plate: graticule field with the season's course plotted
-   across it and the next fixture ringed. */
-function Plate() {
+/* The flyer taped up by the door, tear-off tabs and all. */
+function Door() {
+  const tabs = ["taken", "tab", "tab", "tab", "tab", "tab"] as const;
   return (
-    <section className="graticule neat relative my-10 overflow-hidden px-6 py-12 sm:px-10 sm:py-16">
-      <CoursePlot />
-      <div className="relative max-w-xl">
-        <div className="label nums">
-          COURSE 01 · {FIXTURE.day.toUpperCase()}S · {FIXTURE.venue.toUpperCase()}
-        </div>
-        <h1 className="mt-4 text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold leading-[0.88] tracking-[-0.035em]">
-          Online
-          <br />
-          Local
-        </h1>
-        <p className="mt-6 max-w-md text-lg leading-relaxed">
-          A weekly Star Wars: Unlimited tournament, every Sunday night. Four
-          rounds of Swiss, one table, plotted across the whole season.
-        </p>
-
-        <dl className="nums mt-8 inline-block border border-[var(--ink)] bg-[var(--paper)]">
-          <div className="marked flex items-baseline justify-between gap-10 px-4 py-2">
-            <dt className="label">NEXT WAYPOINT</dt>
-            <dd className="label">THIS SUNDAY</dd>
-          </div>
-          <div className="border-t border-[var(--ink)] px-4 pt-3">
-            <dd className="text-4xl font-extrabold leading-none tracking-tight">
-              {FIXTURE.time}
-            </dd>
-          </div>
-          <div className="grid gap-x-10 gap-y-1 px-4 pb-3 pt-3 sm:grid-cols-2">
+    <section className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pb-32 sm:pt-14">
+      <div className="grid items-start gap-14 lg:grid-cols-[1.2fr_1fr] lg:gap-10">
+        <div className="settle tilt-l taped paper max-w-xl p-8 sm:p-10" style={{ animationDelay: "0.05s" }}>
+          <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.22em] text-[color-mix(in_srgb,var(--ink)_65%,transparent)]">
+            Blue Milk Gaming presents
+          </p>
+          <h1 className="display mt-4 text-[clamp(3.25rem,8vw,5.5rem)]">
+            Online
+            <br />
+            Local
+          </h1>
+          <p className="mt-5 max-w-sm leading-relaxed text-[color-mix(in_srgb,var(--ink)_80%,transparent)]">
+            Our weekly Star Wars: Unlimited tournament, every Sunday night. Four
+            rounds of Swiss, one table that runs all season.
+          </p>
+          <dl className="nums mt-7 border-t-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)]">
             {[
-              ["FORMAT", FIXTURE.format],
-              ["VENUE", FIXTURE.venue],
+              ["When", `${FIXTURE.day}s · ${FIXTURE.time}`],
+              ["Format", FIXTURE.format],
+              ["Where", FIXTURE.venue],
             ].map(([k, v]) => (
-              <div key={k} className="flex items-baseline justify-between gap-6">
-                <dt className="label opacity-70">{k}</dt>
-                <dd className="text-sm font-extrabold">{v}</dd>
+              <div
+                key={k}
+                className="flex items-baseline justify-between border-b-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] py-2.5"
+              >
+                <dt className="text-[0.6875rem] font-extrabold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
+                  {k}
+                </dt>
+                <dd className="font-extrabold">{v}</dd>
               </div>
             ))}
-          </div>
-        </dl>
-
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <a
-            href={DISCORD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border border-[var(--ink)] bg-[var(--ink)] px-6 py-3 font-extrabold text-[var(--paper)] transition-colors hover:bg-transparent hover:text-[var(--ink)]"
-          >
-            Join the Discord
-          </a>
-          <a
-            href="#plates"
-            className="border border-[var(--ink)] px-6 py-3 font-extrabold transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
-          >
-            Watch the channel
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* The plotted course. Chart furniture, not data: the ringed waypoint is the
-   fixture named above. Kept to the right of the plate so it never runs under
-   the copy or the CTAs.
-
-   The line is SVG with preserveAspectRatio="none" so it stretches with the
-   plate; the waypoints are HTML, because a <circle> under that same stretch
-   renders as an ellipse. Both are placed off the same percentages, so they
-   stay registered at every width. */
-/* Deliberately doubles back on itself. A strictly left-to-right zigzag reads
-   as a results graph, and we have no results to plot (PRODUCT.md: real data or
-   nothing). A route that wanders reads as a route. */
-const COURSE = [
-  [56, 80],
-  [69, 63],
-  [62, 43],
-  [77, 37],
-  [90, 57],
-] as const;
-const LIVE_WAYPOINT = 3;
-
-function CoursePlot() {
-  return (
-    /* Hidden below lg: the copy goes full-width there, and the plot's
-       percentage positions would land it on top of the paragraph. */
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full"
-      >
-        <polyline
-          className="course"
-          points={COURSE.map((p) => p.join(",")).join(" ")}
-          fill="none"
-          stroke="var(--ink)"
-          strokeWidth="1.5"
-          strokeDasharray="1400"
-          opacity="0.45"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-      {COURSE.map(([x, y], i) => (
-        <div
-          key={i}
-          className="wp absolute"
-          style={{
-            left: `${x}%`,
-            top: `${y}%`,
-            animationDelay: `${1.1 + i * 0.09}s`,
-          }}
-        >
-          <div className="-translate-x-1/2 -translate-y-1/2">
-            {i === LIVE_WAYPOINT ? (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-[var(--ink)] bg-[var(--mark)]">
-                <div className="h-2 w-2 rounded-full bg-[var(--ink)]" />
-              </div>
-            ) : (
-              <div className="h-2 w-2 rounded-full bg-[var(--ink)]" />
+          </dl>
+          <p className="mt-5 inline-block bg-[var(--hot)] px-3 py-1 text-sm font-extrabold uppercase tracking-wide">
+            This Sunday. All are welcome.
+          </p>
+          {/* The tear-off strip. One tab is already gone. */}
+          <div className="-mx-8 -mb-8 mt-8 flex sm:-mx-10 sm:-mb-10" aria-label="Join the Discord">
+            {tabs.map((t, i) =>
+              t === "taken" ? (
+                <div
+                  key={i}
+                  aria-hidden="true"
+                  className="tab h-16 flex-1 bg-[var(--wall)]"
+                  style={{ boxShadow: "inset 0 6px 10px -6px rgba(0,2,28,0.9)" }}
+                />
+              ) : (
+                <a
+                  key={i}
+                  href={DISCORD_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tab flex h-16 flex-1 items-center justify-center"
+                >
+                  <span className="rotate-90 whitespace-nowrap text-[0.625rem] font-extrabold uppercase tracking-[0.14em] text-[color-mix(in_srgb,var(--ink)_75%,transparent)]">
+                    Discord ↗
+                  </span>
+                </a>
+              ),
             )}
           </div>
-          {i === LIVE_WAYPOINT && (
-            <span className="label nums absolute left-5 top-3 whitespace-nowrap opacity-70">
-              THIS SUNDAY
-            </span>
-          )}
         </div>
-      ))}
-    </div>
+        {/* The crew photo, pinned beside the flyer. */}
+        <figure className="settle tilt-r taped paper p-3 pb-4 lg:mt-16" style={{ animationDelay: "0.2s" }}>
+          <Image
+            src="/brand/crew.jpg"
+            alt="Blue Milk Gaming at a Star Wars: Unlimited event"
+            width={1600}
+            height={1067}
+            className="h-64 w-full object-cover object-[50%_28%] sm:h-80"
+          />
+          <figcaption className="nums mt-3 flex items-baseline justify-between px-1 text-sm font-extrabold text-[var(--ink)]">
+            <span>The crew, 2026 kit</span>
+            <span className="text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">est. 2025</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
   );
 }
 
-/* Compass rose — pure paths, safe inline. */
-function Rose({ className = "" }: { className?: string }) {
+/* Name tags on the regulars' wall. */
+function Regulars() {
+  const tilts = ["tilt-s", "tilt-r", "tilt-l", "tilt-s"];
   return (
-    <svg viewBox="0 0 48 48" aria-hidden="true" className={className}>
-      <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1" />
-      <circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
-      <path d="M24 2 L27.5 20.5 L24 24 L20.5 20.5 Z" fill="currentColor" />
-      <path d="M24 46 L20.5 27.5 L24 24 L27.5 27.5 Z" fill="currentColor" opacity="0.35" />
-      <path d="M2 24 L20.5 20.5 L24 24 L20.5 27.5 Z" fill="currentColor" opacity="0.35" />
-      <path d="M46 24 L27.5 27.5 L24 24 L27.5 20.5 Z" fill="currentColor" opacity="0.35" />
-    </svg>
-  );
-}
-
-/* The squad, plotted as four fixes. */
-function Fixes() {
-  return (
-    <section id="fixes" className="scroll-mt-6 border-t border-[var(--ink)] py-16 sm:py-20">
-      <PlateHead index="A" title="The fixes" aside="Four members, one call sign each." />
-      <div className="mt-10 grid gap-px border border-[var(--ink)] bg-[var(--ink)] sm:grid-cols-2 lg:grid-cols-4">
-        {ROSTER.map((m) => (
-          <article key={m.handle} className="bg-[var(--paper)] p-5">
-            <div className="label nums flex items-center justify-between">
-              <span>FIX {m.number}</span>
-              <Rose className="h-4 w-4 opacity-40" />
-            </div>
-            <h3 className="mt-8 text-xl font-extrabold leading-tight tracking-tight">
-              {m.name}
-            </h3>
-            <p className="nums mt-1 text-sm opacity-70">@{m.handle}</p>
-          </article>
+    <section id="regulars" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
+      <span className="tape">The regulars</span>
+      <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">
+        Same four, every Sunday.
+      </h2>
+      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {ROSTER.map((m, i) => (
+          <div key={m.handle} className={`taped paper ${tilts[i]} p-6`}>
+            <p className="nums text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+              Member {m.number}
+            </p>
+            <p className="mt-3 text-xl font-extrabold leading-tight">{m.name}</p>
+            <p className="nums mt-1 text-sm text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
+              @{m.handle}
+            </p>
+          </div>
         ))}
       </div>
-      <div className="mt-6 border border-[var(--ink)]">
-        <Image
-          src="/brand/crew.jpg"
-          alt="Blue Milk Gaming at a Star Wars: Unlimited event"
-          width={1600}
-          height={1067}
-          /* 28% down: in a strip this wide the source is scaled tall, so a
-             centre crop lands on torsos and object-top lands on the ceiling.
-             This holds the faces. */
-          className="h-64 w-full object-cover object-[50%_28%] sm:h-80"
-        />
+    </section>
+  );
+}
+
+/* The whiteboard: season standings in marker. */
+function Board() {
+  return (
+    <section id="board" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
+      <span className="tape">Season 01</span>
+      <div className="tilt-s mt-8 rounded-md border border-[color-mix(in_srgb,var(--paper)_35%,transparent)] bg-[var(--board)] p-6 text-[var(--ink)] shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-8">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="display text-3xl sm:text-4xl">Standings</h2>
+          <p className="text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+            wiped clean for the new season
+          </p>
+        </div>
+        <table className="nums mt-6 w-full text-left">
+          <thead>
+            <tr className="border-b-[3px] border-[var(--ink)]">
+              <th scope="col" className="w-14 py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">#</th>
+              <th scope="col" className="py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Player</th>
+              <th scope="col" className="w-20 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SEASON.standings.map((s, i) => (
+              <tr key={s.handle} className="border-b-2 border-[color-mix(in_srgb,var(--ink)_12%,transparent)]">
+                <td className="py-3.5 text-lg font-extrabold text-[color-mix(in_srgb,var(--ink)_45%,transparent)]">
+                  {i + 1}
+                </td>
+                <td className="py-3.5">
+                  <span className="font-extrabold">{s.name}</span>{" "}
+                  <span className="text-sm text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+                    @{s.handle}
+                  </span>
+                </td>
+                <td className="py-3.5 text-right text-lg font-extrabold">{s.points ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* A note taped to the board's corner. */}
+        <p className="tilt-r mt-6 inline-block bg-[color-mix(in_srgb,var(--accent)_18%,var(--board))] px-4 py-2.5 text-sm font-extrabold">
+          Points sync from melee.gg when the leaderboard goes live. Top finishers
+          earn points toward the prize wall.
+        </p>
       </div>
     </section>
   );
 }
 
-/* Standings as the chart's log: ruled, tabular, no invented numbers. */
-function Log() {
-  return (
-    <section id="log" className="scroll-mt-6 border-t border-[var(--ink)] py-16 sm:py-20">
-      <PlateHead
-        index="B"
-        title="The log"
-        aside="Points sync from melee.gg once the leaderboard goes live."
-      />
-      <table className="nums mt-10 w-full border border-[var(--ink)] text-left">
-        <thead>
-          <tr className="border-b border-[var(--ink)]">
-            <th scope="col" className="label w-16 px-4 py-3">POS</th>
-            <th scope="col" className="label px-4 py-3">PLAYER</th>
-            <th scope="col" className="label w-24 px-4 py-3 text-right">PTS</th>
-          </tr>
-        </thead>
-        <tbody>
-          {SEASON.standings.map((s, i) => (
-            <tr key={s.handle} className="border-b border-[var(--ink)]/25 last:border-0">
-              <td className="px-4 py-3 text-lg font-extrabold">{i + 1}</td>
-              <td className="px-4 py-3">
-                <span className="font-extrabold">{s.name}</span>{" "}
-                <span className="text-sm opacity-60">@{s.handle}</span>
-              </td>
-              <td className="px-4 py-3 text-right text-lg font-extrabold">
-                {s.points ?? "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed opacity-70">
-        {SEASON.label} is just kicking off. The log fills in as we play, and top
-        finishers earn points toward the prize wall.
-      </p>
-    </section>
-  );
-}
-
-/* Videos as numbered chart plates. */
-function Plates({ videos }: { videos: Video[] }) {
+/* This week's videos as stock standing on shelf rails. */
+function Shelf({ videos }: { videos: Video[] }) {
   if (videos.length === 0) {
     return (
-      <section id="plates" className="scroll-mt-6 border-t border-[var(--ink)] py-16 sm:py-20">
-        <PlateHead index="C" title="The plates" />
+      <section id="shelf" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
+        <span className="tape">Fresh stock</span>
         <a
           href="https://www.youtube.com/@BlueMilkGaming"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-block border border-[var(--ink)] px-6 py-3 font-extrabold transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+          className="paper mt-8 inline-block px-6 py-4 font-extrabold uppercase tracking-wide"
         >
-          Watch on YouTube
+          Watch on YouTube ↗
         </a>
       </section>
     );
   }
+  const [feature, ...rest] = videos;
+  const topRow = rest.slice(0, 1);
+  const bottomRow = rest.slice(1);
   return (
-    <section id="plates" className="scroll-mt-6 border-t border-[var(--ink)] py-16 sm:py-20">
-      <PlateHead
-        index="C"
-        title="The plates"
-        aside="New videos weekly, plus weekday lunchtime streams."
-      />
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {videos.map((v, i) => (
-          <PlateCard key={v.id} video={v} n={i + 1} />
+    <section id="shelf" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
+      <span className="tape">Fresh stock</span>
+      <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">
+        New on the shelf.
+      </h2>
+      <p className="mt-3 max-w-md text-[color-mix(in_srgb,var(--paper)_65%,transparent)]">
+        New videos weekly, plus weekday lunchtime streams.
+      </p>
+      {/* Each row of boxes stands on its own rail. */}
+      <div className="mt-12 grid items-end gap-x-6 gap-y-0 border-b-4 border-[color-mix(in_srgb,var(--paper)_30%,transparent)] pb-0 lg:grid-cols-[2fr_1fr]">
+        <BoxCard video={feature} featured />
+        {topRow.map((v) => (
+          <BoxCard key={v.id} video={v} />
+        ))}
+      </div>
+      <div className="grid items-end gap-x-6 gap-y-0 border-b-4 border-[color-mix(in_srgb,var(--paper)_30%,transparent)] pb-0 sm:grid-cols-3">
+        {bottomRow.map((v) => (
+          <BoxCard key={v.id} video={v} />
         ))}
       </div>
     </section>
   );
 }
 
-function PlateCard({ video, n }: { video: Video; n: number }) {
+function BoxCard({ video, featured = false }: { video: Video; featured?: boolean }) {
   const date = new Date(video.published).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
   });
   return (
     <a
       href={video.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col border border-[var(--ink)] bg-[var(--paper)]"
+      className="group mt-10 block transition-transform hover:-translate-y-1.5"
     >
-      <div className="label nums flex items-center justify-between border-b border-[var(--ink)] px-3 py-2">
-        <span>PLATE {String(n).padStart(2, "0")}</span>
-        <span className="opacity-70">{date}</span>
-      </div>
-      <div className="aspect-video overflow-hidden border-b border-[var(--ink)]">
+      <div className="paper p-2 pb-0">
         {/* eslint-disable-next-line @next/next/no-img-element -- remote YT thumb, optimizer disabled */}
-        <img src={video.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <img
+          src={video.thumbnail}
+          alt=""
+          loading="lazy"
+          className={`w-full object-cover ${featured ? "aspect-video" : "aspect-video"}`}
+        />
+        {/* The shelf talker under the box. */}
+        <div className="nums flex items-baseline gap-3 px-2 py-3 text-[var(--ink)]">
+          <span className="shrink-0 bg-[color-mix(in_srgb,var(--accent)_22%,var(--paper))] px-1.5 py-0.5 text-[0.625rem] font-extrabold uppercase tracking-wide">
+            {date}
+          </span>
+          <span
+            className={`min-w-0 font-extrabold leading-snug transition-colors group-hover:text-[color-mix(in_srgb,var(--accent)_70%,var(--ink))] ${
+              featured ? "text-lg" : "line-clamp-1 text-sm"
+            }`}
+          >
+            {video.title}
+          </span>
+        </div>
       </div>
-      <h3 className="p-3 font-extrabold leading-snug decoration-2 underline-offset-4 group-hover:underline">
-        {video.title}
-      </h3>
     </a>
   );
 }
 
-/* Sponsors sit in the chart legend, where a key belongs. */
-function Legend() {
+/* Partner stickers on the glass door. */
+function GlassStickers() {
   return (
-    <section className="border-t border-[var(--ink)] py-16 sm:py-20">
-      <PlateHead index="D" title="The legend" aside="Who backs the season." />
-      <div className="mt-10 grid gap-px border border-[var(--ink)] bg-[var(--ink)] sm:grid-cols-2">
-        {PARTNERS.map((p) => (
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+      <span className="tape">On the door</span>
+      <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">Backed by</h2>
+      <div className="mt-10 flex flex-wrap gap-6">
+        {PARTNERS.map((p, i) => (
           <a
             key={p.name}
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-5 bg-[var(--paper)] px-5 py-7"
+            className={`${i % 2 ? "tilt-r" : "tilt-s"} flex h-28 w-full items-center justify-center rounded-xl border-2 border-[color-mix(in_srgb,var(--paper)_40%,transparent)] bg-[var(--wall-deep)] px-10 shadow-[0_14px_30px_-16px_rgba(0,2,28,0.9)] transition-transform hover:rotate-0 sm:w-auto sm:min-w-72`}
           >
-            <span className="marked label shrink-0 px-2 py-1">KEY</span>
-            {/* The marks are white, so on paper they need the navy plate under them. */}
-            <span className="flex h-16 flex-1 items-center justify-center bg-[var(--ink)] px-5 transition-opacity group-hover:opacity-80">
-              <Image
-                src={p.logo}
-                alt={p.name}
-                width={p.width}
-                height={p.height}
-                className="h-9 w-auto"
-              />
-            </span>
+            <Image
+              src={p.logo}
+              alt={p.name}
+              width={p.width}
+              height={p.height}
+              className="h-12 w-auto sm:h-14"
+            />
           </a>
         ))}
       </div>
@@ -459,36 +449,17 @@ function Legend() {
   );
 }
 
-function PlateHead({
-  index,
-  title,
-  aside,
-}: {
-  index: string;
-  title: string;
-  aside?: string;
-}) {
+/* The back room: the real community, the real numbers, the way in. */
+function BackRoom() {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="flex items-baseline gap-4">
-        <span className="label nums border border-[var(--ink)] px-2 py-1">{index}</span>
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
-      </div>
-      {aside && <p className="max-w-xs text-sm leading-relaxed opacity-70">{aside}</p>}
-    </div>
-  );
-}
-
-/* Chart margin close: scale bar, the honest disclaimer, tick strip. */
-function ChartFooter() {
-  return (
-    <footer className="border-t border-[var(--ink)] py-12">
-      <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
+    <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+      <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]">
         <div>
-          <h2 className="max-w-sm text-2xl font-extrabold tracking-tight">
-            Plot the next leg with us.
+          <span className="tape">The back room</span>
+          <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            The store&apos;s always open.
           </h2>
-          <p className="mt-3 max-w-sm leading-relaxed opacity-70">
+          <p className="mt-4 max-w-md text-lg leading-relaxed text-[color-mix(in_srgb,var(--paper)_75%,transparent)]">
             The whole community lives in Discord. Say hi, get the melee link,
             play the next Online Local.
           </p>
@@ -496,47 +467,58 @@ function ChartFooter() {
             href={DISCORD_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-block border border-[var(--ink)] bg-[var(--ink)] px-6 py-3 font-extrabold text-[var(--paper)] transition-colors hover:bg-transparent hover:text-[var(--ink)]"
+            className="mt-8 inline-block rounded-full bg-[var(--hot)] px-8 py-4 text-lg font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2"
           >
             Join the Discord
           </a>
         </div>
-        <div className="shrink-0">
-          <div className="label nums opacity-70">SEASON SCALE</div>
-          <div className="mt-2 flex h-4 w-48 border border-[var(--ink)]">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`flex-1 ${i % 2 === 0 ? "bg-[var(--ink)]" : ""} ${
-                  i > 0 ? "border-l border-[var(--ink)]" : ""
-                }`}
-              />
+        {/* The community count, on an index card. Real numbers (PRODUCT.md). */}
+        <div className="tilt-r taped paper nums max-w-sm p-7">
+          <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+            Head count
+          </p>
+          <ul className="mt-4 space-y-3">
+            {[
+              ["554", "in the Discord"],
+              ["686", "subscribed on YouTube"],
+              ["35", "backing on Patreon"],
+            ].map(([n, label]) => (
+              <li key={label} className="flex items-baseline gap-3 border-b-2 border-[color-mix(in_srgb,var(--ink)_12%,transparent)] pb-3">
+                <span className="text-2xl font-extrabold">{n}</span>
+                <span className="text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_65%,transparent)]">
+                  {label}
+                </span>
+              </li>
             ))}
-          </div>
-          <div className="label nums mt-1 flex w-48 justify-between opacity-70">
-            <span>WK 01</span>
-            <span>WK 52</span>
-          </div>
+          </ul>
         </div>
       </div>
-      <nav className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-[var(--ink)] pt-6">
-        {CHANNELS.map((c) => (
-          <a
-            key={c.label}
-            href={c.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="label underline-offset-4 hover:underline"
-          >
-            {c.label}
-          </a>
-        ))}
-      </nav>
-      <p className="mt-6 max-w-2xl text-xs leading-relaxed opacity-60">
-        Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
-        2025. Star Wars: Unlimited is © its respective owners.
-      </p>
-      <div className="ticks mt-6 h-1.5 opacity-40" />
+    </section>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="border-t border-[color-mix(in_srgb,var(--accent)_20%,transparent)] bg-[var(--wall-deep)]">
+      <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+        <nav className="flex flex-wrap gap-x-8 gap-y-3">
+          {CHANNELS.map((c) => (
+            <a
+              key={c.label}
+              href={c.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-extrabold text-[color-mix(in_srgb,var(--paper)_70%,transparent)] transition-colors hover:text-[var(--accent)]"
+            >
+              {c.label}
+            </a>
+          ))}
+        </nav>
+        <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--paper)_55%,transparent)]">
+          Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
+          2025. Star Wars: Unlimited is © its respective owners.
+        </p>
+      </div>
     </footer>
   );
 }
