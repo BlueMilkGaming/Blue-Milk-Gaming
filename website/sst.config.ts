@@ -33,12 +33,21 @@ export default $config({
       primaryIndex: { hashKey: "meleeId", rangeKey: "meleeUserIdentity" },
     });
 
-    new sst.aws.Nextjs("Web", { link: [player, tournament, placement] });
-
     // melee.gg API credentials. Set with:
     //   npx sst secret set MeleeClientId "..." --stage production
     const meleeClientId = new sst.Secret("MeleeClientId");
     const meleeClientSecret = new sst.Secret("MeleeClientSecret");
+
+    // Discord OAuth + session signing (Stage 1 of the pods spec).
+    const discordClientId = new sst.Secret("DiscordClientId");
+    const discordClientSecret = new sst.Secret("DiscordClientSecret");
+    const authSecret = new sst.Secret("AuthSecret");
+    const adminDiscordIds = new sst.Secret("AdminDiscordIds");
+
+    new sst.aws.Nextjs("Web", {
+      link: [player, tournament, placement,
+             discordClientId, discordClientSecret, authSecret, adminDiscordIds],
+    });
 
     // Weekly results sync. Monday 14:00 UTC is the morning after Sunday
     // night's Online Local with hours to spare, in either US daylight or
