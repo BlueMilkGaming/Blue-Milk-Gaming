@@ -100,3 +100,106 @@ export function dealRound(
 export function roundComplete(round: Round): boolean {
   return round.pairings.every((m) => m.winner);
 }
+
+/**
+ * The club's calendar day (fixture is 6:30 PM CT). An evening of pods must not
+ * split across a UTC midnight, or the best-2-per-day cap would loosen mid-session.
+ */
+export function clubDay(at: Date = new Date()): string {
+  return at.toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+}
+
+/** The status this pod should have at `now`; readers apply the change lazily. */
+export function effectiveStatus(pod: PodRow, now: Date = new Date()): PodStatus {
+  const since = pod.status === "filling" ? pod.createdAt : (pod.filledAt ?? pod.createdAt);
+  const age = now.getTime() - Date.parse(since);
+  if (pod.status === "filling" && age > LOBBY_TTL_MS) return "abandoned";
+  if (pod.status === "playing" && age > POD_TTL_MS) return "done";
+  return pod.status;
+}
+
+/**
+ * Points still owed for today: the value of the best `bestPodsPerDay` pods
+ * minus what today already paid. Never negative; nothing is clawed back.
+ */
+export function settleUp(
+  todaysPodWins: number[],
+  alreadyPaidToday: number,
+  winValue: number = PODS_V1.winCurrency,
+): number {
+  const best = [...todaysPodWins].sort((a, b) => b - a).slice(0, PODS_V1.bestPodsPerDay);
+  const owed = best.reduce((sum, wins) => sum + wins * winValue, 0);
+  return Math.max(0, owed - alreadyPaidToday);
+}
+
+/** Split a settle-up delta into per-win ledger amounts, capped per win. */
+export function perWinDeltas(
+  unfrozenWinCount: number,
+  delta: number,
+  winValue: number = PODS_V1.winCurrency,
+): number[] {
+  const deltas: number[] = [];
+  let remaining = delta;
+  for (let i = 0; i < unfrozenWinCount && remaining > 0; i++) {
+    const amount = Math.min(winValue, remaining);
+    deltas.push(amount);
+    remaining -= amount;
+  }
+  return deltas;
+}
+
+/** This player's wins whose payout is not frozen by an unresolved flag. */
+export function unfrozenWins(
+  rounds: Round[],
+  playerId: string,
+): { round: number; match: number }[] {
+  const wins: { round: number; match: number }[] = [];
+  rounds.forEach((r, roundIndex) =>
+    r.pairings.forEach((m, matchIndex) => {
+      if (m.winner === playerId && m.flagResolution !== "void" && !(m.flaggedBy && !m.flagResolution))
+        wins.push({ round: roundIndex, match: matchIndex });
+    }),
+  );
+  return wins;
+}
+
+/** Why this report is not allowed, or null if it is. Pure; caller supplies state. */
+export function reportError(
+  pod: PodRow,
+  playerId: string,
+  roundIndex: number,
+  matchIndex: number,
+  winner: string,
+  opts: { noShow?: boolean; now?: Date } = {},
+): string | null {
+  if (pod.status !== "playing") return "This pod is not in play.";
+  if (roundIndex !== pod.rounds.length - 1) return "That round is over.";
+  const match = pod.rounds[roundIndex]?.pairings[matchIndex];
+  if (!match) return "No such match.";
+  if (match.a !== playerId && match.b !== playerId) return "Not your match.";
+  if (match.winner) return "Already reported.";
+  if (winner !== match.a && winner !== match.b) return "Winner must be one of the two players.";
+  if (opts.noShow) {
+    if (winner !== playerId) return "A no-show claim awards you the win.";
+    const elapsed = (opts.now ?? new Date()).getTime() - Date.parse(pod.rounds[roundIndex].dealtAt);
+    if (elapsed < NO_SHOW_CLAIM_MS) return "No-show claims open 30 minutes into the round.";
+  }
+  return null;
+}
+
+/** Why this flag is not allowed, or null if it is. Pure; caller supplies state. */
+export function flagError(
+  pod: PodRow,
+  playerId: string,
+  roundIndex: number,
+  matchIndex: number,
+): string | null {
+  if (pod.status !== "playing") return "Flags close when the pod does. Ask in Discord and the shopkeeper can adjust.";
+  const match = pod.rounds[roundIndex]?.pairings[matchIndex];
+  if (!match) return "No such match.";
+  if (match.a !== playerId && match.b !== playerId) return "Not your match.";
+  if (!match.winner) return "Nothing reported to flag yet.";
+  if (match.reportedBy === playerId) return "You reported this result; only your opponent can flag it.";
+  if (match.flaggedBy) return "Already flagged.";
+  return null;
+}

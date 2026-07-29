@@ -49,3 +49,87 @@ test("roundComplete needs all four winners", () => {
   r.pairings[3].winner = "p6";
   assert.equal(roundComplete(r), true);
 });
+
+import {
+  settleUp, perWinDeltas, unfrozenWins, effectiveStatus,
+  reportError, flagError, clubDay,
+  LOBBY_TTL_MS, POD_TTL_MS, NO_SHOW_CLAIM_MS,
+  type PodRow,
+} from "./pods.ts";
+
+const pod = (over: Partial<PodRow> = {}): PodRow => ({
+  podId: "01TEST", status: "playing", day: "2026-07-29",
+  seats, seatIds: new Set(ids), rounds: [], createdAt: "2026-07-29T00:00:00Z",
+  filledAt: "2026-07-29T00:10:00Z", ...over,
+});
+
+test("settle-up motivating case: 0-3, 0-3, then 3-0 pays as a best pod", () => {
+  assert.equal(settleUp([0, 0, 3], 0), 75);
+});
+
+test("a later better pod tops up what today already paid", () => {
+  assert.equal(settleUp([2], 0), 50);        // first pod of the day
+  assert.equal(settleUp([2, 3], 50), 75);    // best two now (3,2)·25 = 125
+});
+
+test("a third pod under the cap pays nothing, and nothing is clawed back", () => {
+  assert.equal(settleUp([2, 2, 1], 100), 0);
+  assert.equal(settleUp([2, 2, 0], 125), 0); // overpaid via adjustment: floor at 0
+});
+
+test("perWinDeltas spreads a delta across wins, capped per win", () => {
+  assert.deepEqual(perWinDeltas(3, 75), [25, 25, 25]);
+  assert.deepEqual(perWinDeltas(2, 25), [25]);   // cap bound mid-pod
+  assert.deepEqual(perWinDeltas(3, 0), []);
+});
+
+test("a flagged unresolved win is frozen; a resolved one is not", () => {
+  const rounds = [round([["p0", "p1", "p0"], ["p2", "p3", "p2"], ["p4", "p5", "p4"], ["p6", "p7", "p6"]])];
+  rounds[0].pairings[0].flaggedBy = "p1";
+  assert.deepEqual(unfrozenWins(rounds, "p0"), []);
+  rounds[0].pairings[0].flagResolution = "uphold";
+  assert.deepEqual(unfrozenWins(rounds, "p0"), [{ round: 0, match: 0 }]);
+});
+
+test("lazy expiry: stale lobby abandons, stuck pod closes", () => {
+  const late = new Date(Date.parse("2026-07-29T00:00:00Z") + LOBBY_TTL_MS + 1);
+  assert.equal(effectiveStatus(pod({ status: "filling" }), late), "abandoned");
+  const later = new Date(Date.parse("2026-07-29T00:10:00Z") + POD_TTL_MS + 1);
+  assert.equal(effectiveStatus(pod({ status: "playing" }), later), "done");
+  assert.equal(effectiveStatus(pod({ status: "playing" }), new Date("2026-07-29T01:00:00Z")), "playing");
+});
+
+test("report validation: wrong player, double report, stranger winner", () => {
+  const p = pod({ rounds: [round([["p0", "p1"], ["p2", "p3"], ["p4", "p5"], ["p6", "p7"]])] });
+  assert.equal(reportError(p, "p0", 0, 0, "p0"), null);
+  assert.match(reportError(p, "p2", 0, 0, "p0")!, /not your match/i);
+  assert.match(reportError(p, "p0", 0, 0, "p9")!, /one of the two/i);
+  p.rounds[0].pairings[0].winner = "p1";
+  assert.match(reportError(p, "p0", 0, 0, "p0")!, /already reported/i);
+});
+
+test("no-show claims open 30 minutes into the round, self-award only", () => {
+  const dealt = "2026-07-29T01:00:00Z";
+  const p = pod({ rounds: [{ pairings: [{ a: "p0", b: "p1" }, { a: "p2", b: "p3" }, { a: "p4", b: "p5" }, { a: "p6", b: "p7" }], dealtAt: dealt }] });
+  const early = new Date(Date.parse(dealt) + NO_SHOW_CLAIM_MS - 1);
+  const late = new Date(Date.parse(dealt) + NO_SHOW_CLAIM_MS + 1);
+  assert.match(reportError(p, "p0", 0, 0, "p0", { noShow: true, now: early })!, /30 minutes/);
+  assert.equal(reportError(p, "p0", 0, 0, "p0", { noShow: true, now: late }), null);
+  assert.match(reportError(p, "p0", 0, 0, "p1", { noShow: true, now: late })!, /awards you/i);
+});
+
+test("flag validation: only the opponent, only once, only while playing", () => {
+  const p = pod({ rounds: [round([["p0", "p1", "p0"], ["p2", "p3", "p2"], ["p4", "p5", "p4"], ["p6", "p7", "p6"]])] });
+  p.rounds[0].pairings[0].reportedBy = "p0";
+  assert.equal(flagError(p, "p1", 0, 0), null);
+  assert.match(flagError(p, "p0", 0, 0)!, /opponent/i);
+  assert.match(flagError(p, "p2", 0, 0)!, /not your match/i);
+  p.rounds[0].pairings[0].flaggedBy = "p1";
+  assert.match(flagError(p, "p1", 0, 0)!, /already flagged/i);
+  assert.match(flagError(pod({ status: "done", rounds: p.rounds }), "p1", 0, 0)!, /clos/i);
+});
+
+test("clubDay uses the club's timezone, not UTC", () => {
+  // 11 PM Central on the 28th is 4 AM UTC on the 29th.
+  assert.equal(clubDay(new Date("2026-07-29T04:00:00Z")), "2026-07-28");
+});
