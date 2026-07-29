@@ -32,6 +32,21 @@ export function claimError(
   return null;
 }
 
+/** Why this claim approval is not allowed, or null if it is. Pure; caller supplies state. */
+export function approvalError(
+  account: AccountRow | undefined,
+  otherAccounts: AccountRow[],
+): string | null {
+  if (!account?.pendingClaim) return null; // ConditionExpression catches missing claim
+
+  // Check if another account already holds this identity (concurrent claim race)
+  if (otherAccounts.some((a) => a.meleeUserIdentity === account.pendingClaim)) {
+    return "That melee name is now held by another account.";
+  }
+
+  return null;
+}
+
 export async function getAccount(discordUserId: string): Promise<AccountRow | undefined> {
   const res = await doc.send(new GetCommand({ TableName: TABLE(), Key: { discordUserId } }));
   return res.Item as AccountRow | undefined;
@@ -79,6 +94,13 @@ export async function listPendingClaims(): Promise<AccountRow[]> {
 }
 
 export async function resolveClaim(discordUserId: string, approve: boolean): Promise<void> {
+  if (approve) {
+    const [account, accounts] = await Promise.all([getAccount(discordUserId), allAccounts()]);
+    const otherAccounts = accounts.filter((a) => a.discordUserId !== discordUserId);
+    const error = approvalError(account, otherAccounts);
+    if (error) throw new Error(error);
+  }
+
   await doc.send(new UpdateCommand({
     TableName: TABLE(),
     Key: { discordUserId },

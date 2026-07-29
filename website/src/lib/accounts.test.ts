@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { claimError, type AccountRow } from "./accounts.ts";
+import { claimError, approvalError, type AccountRow } from "./accounts.ts";
 
 const acct = (over: Partial<AccountRow> = {}): AccountRow => ({
   discordUserId: "d1",
@@ -27,4 +27,10 @@ test("an identity claimed by someone else is taken", () => {
 
 test("a pending claim blocks a second request", () => {
   assert.match(claimError(acct({ pendingClaim: "m2" }), new Set(), "m1")!, /pending/);
+});
+
+test("identity already held by another account → approval refuses", () => {
+  const myAccount = acct({ discordUserId: "d1", pendingClaim: "m1" });
+  const otherAccount = acct({ discordUserId: "d2", displayName: "Player Two", meleeUserIdentity: "m1" });
+  assert.match(approvalError(myAccount, [otherAccount])!, /held by another/);
 });
