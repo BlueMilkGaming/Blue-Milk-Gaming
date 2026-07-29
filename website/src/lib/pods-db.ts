@@ -148,12 +148,20 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
     podId: ulid(), status: "filling", day: clubDay(),
     seats: [seat], seatIds: new Set([playerId]), rounds: [], createdAt: now,
   };
-  await doc.send(new TransactWriteCommand({ TransactItems: [
-    { Put: { TableName: POD(), Item: pod, ConditionExpression: "attribute_not_exists(podId)" } },
-    claimActiveSeat(playerId, pod.podId),
-  ]}));
-  await announce(`A table just opened at Blue Milk Gaming. First chair taken, seven to go: ${SITE_URL}/play`);
-  return pod;
+  try {
+    await doc.send(new TransactWriteCommand({ TransactItems: [
+      { Put: { TableName: POD(), Item: pod, ConditionExpression: "attribute_not_exists(podId)" } },
+      claimActiveSeat(playerId, pod.podId),
+    ]}));
+    await announce(`A table just opened at Blue Milk Gaming. First chair taken, seven to go: ${SITE_URL}/play`);
+    return pod;
+  } catch (err) {
+    if (!isConditionFailure(err)) throw err;
+    // Concurrent join succeeded on another request; fetch the account's current pod.
+    const currentAccount = await getAccount(playerId);
+    if (currentAccount?.activePodId) return getPod(currentAccount.activePodId);
+    throw new Error("Concurrent join failed to seat the player; try again.");
+  }
 }
 
 /** The 8th seat flips the pod to playing and deals round 1. Any caller may race; one wins. */
