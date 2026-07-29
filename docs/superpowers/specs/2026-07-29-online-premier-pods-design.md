@@ -24,8 +24,8 @@ Decisions fixed with the owner during brainstorming:
 
 Two projects, planned separately:
 
-1. **Stage 1 — Identity** (Phase 4 pulled forward; independently valuable, the prize wall needs it too): Auth.js v5 + Discord OAuth with JWT sessions. `Player` gains optional `discordUserId`. A Discord-only visitor gets a Player row on first pod join — melee history is *not* required to play.
-   - **Claim flow:** signed-in player picks their melee display name from the existing player list → review queue → admin approves → rows merge (pod ledger entries re-keyed; admin-triggered, auditable). Auto-confirmation via melee's in-memory `DiscordUsername` during the weekly cron is a noted future optimization, not in scope.
+1. **Stage 1 — Identity** (Phase 4 pulled forward; independently valuable, the prize wall needs it too): Auth.js v5 + Discord OAuth with JWT sessions. A new `Account` table keys on the Discord snowflake; `Player` stays melee-keyed and untouched. A Discord-only visitor gets an Account row at first sign-in — melee history is *not* required to play.
+   - **Claim flow:** signed-in player picks their melee display name from the existing player list → review queue → admin approves → approval sets `Account.meleeUserIdentity`, a pointer. Nothing is ever re-keyed or merged; pod ledger entries key on the Discord ID and Sunday results stay melee-keyed, joined through the pointer. Auto-confirmation via melee's in-memory `DiscordUsername` during the weekly cron is a noted future optimization, not in scope.
 2. **Stage 2 — Pods:** everything below.
 
 ## Pod lifecycle
