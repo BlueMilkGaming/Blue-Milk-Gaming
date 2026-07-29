@@ -43,7 +43,7 @@ Decisions fixed with the owner:
 | 500 | Force / Twin Suns / Initiative token sets | Unchanged |
 | 250-350 | Promo cards (owner's existing stock) | New middle rung; price each at ~4-5¢/pt of rough retail |
 | 200 | Sleeves | New entry-month goal |
-| 125 | OP pack (random set, not current) | **Conditional** — see open items |
+| 100 | OP pack (random set, not current) | Sourced at ~$1.43/unit (box of 70). Feels like 3-5¢/pt at perceived value, costs far less |
 
 The old wall's top shelf was accidentally correct for the pods world and is
 kept for continuity (those prices were published). The two real fixes are
@@ -63,6 +63,10 @@ like a mountain.
 - **Sponsor coverage never lowers point prices.** If a sponsor covers an
   item's cost, that widens budget headroom or funds the vault; discounting
   the item in points would break the ladder's feel.
+- **Small items ship batched.** The pack rung will be the most-redeemed item
+  and per-envelope mailing is the real cost. Small redemptions accumulate and
+  ship together with the player's next redemption (or in lots), at the
+  owner's discretion.
 
 ## Day one
 
@@ -72,11 +76,10 @@ players, which is what the points were for. No mitigation.
 
 ## Open before publishing
 
-1. **OP pack:** check street price. Include at 125 if unit cost is ~$6 or
-   less (or sponsor-covered); otherwise drop it and sleeves become the entry
-   rung at 200.
-2. **Sponsors:** conversation pending; outcome affects budget headroom and
+1. **Sponsors:** conversation pending; outcome affects budget headroom and
    vault restocks only, not prices.
+
+(Resolved: OP pack sourced at ~$1.43/unit, priced at 100.)
 
 ## Out of scope
 
