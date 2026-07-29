@@ -30,3 +30,13 @@ const NOTHING: Award = { ranking: 0, currency: 0 };
 export function awardFor(finishRank: number, scoring = CURRENT_SCORING): Award {
   return scoring.placement[finishRank] ?? NOTHING;
 }
+
+// Pod prizing (pods spec, Stage 2). Currency only, never ranking: the
+// whiteboard stays the Local's season race. A 3-0 pod pays 75 against 400 for
+// winning a Sunday, so five perfect pods roughly equal one tournament win and
+// the flyer stays on top. Owner may retune before launch.
+export const PODS_V1 = {
+  version: 1,
+  winCurrency: 25,
+  bestPodsPerDay: 2,
+} as const;
