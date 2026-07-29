@@ -61,8 +61,13 @@ function releaseActiveSeat(playerId: string, podId: string) {
   };
 }
 
-export async function getPod(podId: string): Promise<PodRow> {
-  const res = await doc.send(new GetCommand({ TableName: POD(), Key: { podId } }));
+/**
+ * `consistent` costs 2x read capacity, so it is reserved for the two spots
+ * where a stale read wedges a pod with no self-heal: the post-join launch
+ * decision and the post-report advance decision.
+ */
+export async function getPod(podId: string, { consistent = false } = {}): Promise<PodRow> {
+  const res = await doc.send(new GetCommand({ TableName: POD(), Key: { podId }, ConsistentRead: consistent }));
   if (!res.Item) throw new Error(`no pod ${podId}`);
   return res.Item as PodRow;
 }
@@ -112,7 +117,25 @@ export async function tablesSnapshot(): Promise<{ lobby: PodRow | null; playingC
  */
 export async function joinOrCreate(playerId: string, displayName: string): Promise<PodRow> {
   const account = await getAccount(playerId);
-  if (account?.activePodId) return getPod(account.activePodId);
+  if (account?.activePodId) {
+    const pointedPod = await getPod(account.activePodId);
+    if (pointedPod.status === "filling" || pointedPod.status === "playing") return pointedPod;
+    // A join can race an abandon/close: the pointer was set before this pod
+    // ended, so it now points at a dead pod forever unless we clear it here
+    // and fall through to a normal join.
+    try {
+      await doc.send(new UpdateCommand({
+        TableName: ACCOUNT(),
+        Key: { discordUserId: playerId },
+        UpdateExpression: "REMOVE activePodId",
+        ConditionExpression: "activePodId = :pod",
+        ExpressionAttributeValues: { ":pod": account.activePodId },
+      }));
+    } catch (err) {
+      if (!isConditionFailure(err)) throw err;
+      // Already cleared, or repointed at a new pod, by another request; either way, join fresh.
+    }
+  }
 
   const now = new Date().toISOString();
   const seat: Seat = { playerId, displayName, joinedAt: now };
@@ -138,7 +161,8 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
         },
         claimActiveSeat(playerId, lobby.podId),
       ]}));
-      const joined = await getPod(lobby.podId);
+      // Consistent: a stale 7-seat read here means nobody ever launches this pod.
+      const joined = await getPod(lobby.podId, { consistent: true });
       if (joined.seats.length >= POD_SIZE) await launchPod(joined);
       else if (joined.seats.length === POD_SIZE - 2)
         await announce(`6 of 8 chairs taken at the Blue Milk Gaming tables. Two left: ${SITE_URL}/play`);
@@ -279,7 +303,9 @@ export async function reportResult(
 
 /** All four results in: deal the next round, or close after round 3. */
 async function advanceIfComplete(podId: string): Promise<void> {
-  const pod = await getPod(podId);
+  // Consistent: a stale read here misses the round's last report and the
+  // round never advances until the 4-hour lazy close.
+  const pod = await getPod(podId, { consistent: true });
   if (pod.status !== "playing") return;
   const current = pod.rounds[pod.rounds.length - 1];
   if (!roundComplete(current)) return;

@@ -137,6 +137,14 @@ function Playing({ pod, yourId, act, pending }: {
   const nameOf = (id: string) => names.get(id) ?? "?";
   const noShowOpen = Date.now() - Date.parse(round.dealtAt) >= NO_SHOW_CLAIM_MS;
 
+  // A round advances the instant its last result lands, so a false report
+  // there can close the flag window before the victim ever sees it on the
+  // current-round card. Surface prior rounds' own matches too.
+  const priorOwnMatches = pod.rounds.slice(0, roundIndex).flatMap((r, ri) => {
+    const mi = r.pairings.findIndex((m) => m.a === yourId || m.b === yourId);
+    return mi === -1 ? [] : [{ roundIndex: ri, matchIndex: mi, match: r.pairings[mi] }];
+  });
+
   return (
     <div className="space-y-6">
       <div className="tilt-l taped paper p-8">
@@ -153,6 +161,25 @@ function Playing({ pod, yourId, act, pending }: {
           Coordinate in Discord, play however your pod prefers, report here when you&apos;re done.
         </p>
       </div>
+      {priorOwnMatches.length > 0 && (
+        <div className="tilt-r paper p-6">
+          <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
+            Your earlier rounds
+          </p>
+          <div className="mt-3 space-y-4">
+            {priorOwnMatches.map(({ roundIndex: ri, matchIndex: mi, match: m }) => (
+              <div key={ri}>
+                <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.18em] text-[color-mix(in_srgb,var(--ink)_50%,transparent)]">
+                  Round {ri + 1}
+                </p>
+                <MatchCard match={m} yourId={yourId} nameOf={nameOf} noShowOpen={false}
+                  onReport={() => {}} onFlag={() => act(() => flagAction(pod.podId, ri, mi))}
+                  pending={pending} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="tilt-r paper p-6">
         <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
           The other tables
