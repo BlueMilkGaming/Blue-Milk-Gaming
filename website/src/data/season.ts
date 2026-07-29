@@ -28,16 +28,17 @@ export const SEASON = {
 } as const;
 
 // Partner logos are the white marks on the navy panel. Both are stacked
-// lockups at near-identical aspect ratios (2.57:1 and 2.38:1), so they share a
+// lockups at near-identical aspect ratios (2.69:1 and 2.38:1), so they share a
 // height class and balance without per-logo fudging. The Premier Games source
-// is the square export, trimmed of its padded canvas.
+// ships black on a padded canvas; the committed copy is recolored white with
+// the viewBox trimmed to the mark.
 export const PARTNERS = [
   {
     name: "Premier Games",
     href: "https://premiergames.store/",
-    logo: "/brand/partners/premier-games.png",
-    width: 616,
-    height: 240,
+    logo: "/brand/partners/premier-games.svg",
+    width: 500,
+    height: 186,
   },
   {
     name: "Font Awesome",
