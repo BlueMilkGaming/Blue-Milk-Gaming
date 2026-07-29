@@ -6,6 +6,18 @@
 
 declare module "sst" {
   export interface Resource {
+    "Placement": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Player": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Tournament": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Web": {
       "type": "sst.aws.Nextjs"
       "url": string

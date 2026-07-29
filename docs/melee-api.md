@@ -29,6 +29,17 @@ Access is per-user: the credentials see exactly the tournaments that user can se
 
 There are no webhooks. Polling is the only option, which is why the sync is a weekly cron.
 
+## Poking at it
+
+`website/scripts/melee-dryrun.ts` is a read-only probe that writes nothing. It
+prints only the fields the importer keeps, so its output is safe to paste
+anywhere. Run from `website/`:
+
+```
+node --env-file=.env.local scripts/melee-dryrun.ts            # list Online Locals
+node --env-file=.env.local scripts/melee-dryrun.ts 445226     # one event's standings
+```
+
 ## Response envelope
 
 Every list endpoint returns the same wrapper:
@@ -64,12 +75,32 @@ Player fields, per `Team.Players[]`:
 
 | Field | Notes |
 |---|---|
-| `ID` | **Stable melee player ID.** The identity anchor for imports. |
+| `ID` | **Per-tournament registration ID. NOT a player ID.** See below. |
 | `Username`, `DisplayName` | What the leaderboard should show |
 | `DiscordUsername` | Present for most players — see below |
 | `FirstName`, `LastName`, `Name` | Real name — PII |
 | `DciNumber`, `ArenaScreenName`, `MtgoScreenName`, `AsmoConnectId` | External identifiers — PII |
 | `PronounsDescription` | Sensitive personal data |
+
+## Player identity: use `UserIdentity`, nothing else
+
+Verified against live data on 2026-07-29. An earlier version of this doc claimed the `ID` on a standings row was a stable player ID. **It is not**, and building on that produced a leaderboard where every player was a stranger each week.
+
+| Candidate | Stable across tournaments? |
+|---|---|
+| `Team.Players[].ID` | **No.** A per-tournament registration ID. Across the 27 Online Locals, 407 entries produced 407 distinct IDs for 149 distinct people. |
+| `TeamId` | No. Also per-tournament. |
+| `GemPlayerId` | Always null (0 of 69 sampled rows populated). |
+| `Username` | Stable in practice, but **melee lets players change it every 28 days**, so it cannot be an anchor. |
+| `UserIdentity` | **Yes. This is the anchor.** An account-level UUID. |
+
+Evidence: `RCR_Jack1best` appears as registration `4198700` in one event and `4116501` in another, with `UserIdentity` `20bddd06-…` in both. Across 7 tournaments and 99 entries: 0 null, 71 usernames to 71 identities, no username mapping to two identities.
+
+**`UserIdentity` is not in the standings payload.** It comes from `GET /api/player/list/{tournamentId}`, which returns one row per entrant including `UserIdentity` and the registration `ID`. So importing one tournament is two calls: fetch standings, fetch the entrant list, join on registration ID.
+
+Never fall back to the registration ID when the join misses — that silently manufactures a new player every week. Fail the import instead.
+
+> `/api/player/list/` is much leakier than standings: it also carries `Email`, `WizardsAccountEmail`, `PlayerName`, `Bio`, and social handles. Take only `ID`, `UserIdentity`, and the display name.
 
 ## Privacy: this endpoint returns real PII
 
@@ -78,7 +109,7 @@ Standings responses include players' **real names, Discord usernames, DCI number
 Rules:
 
 - **Store only what the product needs**: melee player `ID`, display name, and the competitive result. Drop real names, DCI numbers, Arena/MTGO handles, and pronouns at the ingest boundary rather than persisting and filtering later.
-- **Never render** anything beyond display name publicly. The leaderboard shows handles, not legal names.
+- **Never render** anything beyond display name publicly. Note that plenty of players set `DisplayName` to their real name, and that is fine to publish: it is the name they chose to compete under. The rule is about the *field*, not the value. `DisplayName` is public; `FirstName` / `LastName` / `Name` are never stored or shown, even when they hold the same string.
 - **Never commit raw API responses** to the repo. `docs/reference/melee-tournaments.json` is safe because it contains no player data; standings payloads are not.
 - Log responses carefully — a debug dump of a standings payload is a PII leak.
 
