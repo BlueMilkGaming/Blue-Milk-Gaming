@@ -10,7 +10,9 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 
 **Phase 3 data layer complete** (2026-07-29), built in parallel with Phase 2 since it shares no files. Three DynamoDB tables are live and backfilled with all 27 ended Online Locals: 27 tournaments, 407 placements, 149 players. A weekly cron syncs new results. **No leaderboard UI yet** — that waits on Phase 2's components and tokens.
 
-Later phases: leaderboard UI, Discord auth, prize wall. Full plan at `~/.claude/plans/cheerful-snuggling-snowglobe.md`.
+**Stage 1 shipped:** Discord sign-in and the claim flow are live. `/account` links players to their melee results. `/admin/claims` (for admins only) shows the claim queue. The `Account` table is live.
+
+Later phases: home page (Phase 2), leaderboard UI, prize wall. Full plan at `~/.claude/plans/cheerful-snuggling-snowglobe.md`.
 
 ## Key docs
 
