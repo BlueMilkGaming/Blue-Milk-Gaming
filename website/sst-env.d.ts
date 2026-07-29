@@ -42,6 +42,22 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "PlayerBalance": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Pod": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "PodsWebhookUrl": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "PointsLedger": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Tournament": {
       "name": string
       "type": "sst.aws.Dynamo"
