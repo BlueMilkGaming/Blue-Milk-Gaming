@@ -29,11 +29,12 @@ export function PlayClient() {
         // The pod closed under us. The snapshot we hold predates the final
         // report, so fetch the closed pod's real state for the summary.
         try {
-          const done = await fetch(`/api/pod?id=${prevYou.current.podId}`, { cache: "no-store" });
-          const { pod } = await done.json();
-          setLastPod(pod ?? prevYou.current);
+          const res = await fetch(`/api/pod?id=${prevYou.current.podId}`, { cache: "no-store" });
+          const { pod } = await res.json();
+          if (pod?.status === "done") setLastPod(pod);
+          else if (!pod && prevYou.current.status === "playing") setLastPod(prevYou.current);
         } catch {
-          setLastPod(prevYou.current);
+          if (prevYou.current.status === "playing") setLastPod(prevYou.current);
         }
       }
       prevYou.current = next.you;
@@ -206,7 +207,7 @@ function MatchCard({ match, yourId, nameOf, noShowOpen, onReport, onFlag, pendin
         <p className="mt-2 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
           Flagged. The pod keeps moving; this match&apos;s points wait for the shopkeeper.
         </p>
-      ) : match.reportedBy !== yourId && (
+      ) : !match.flaggedBy && match.reportedBy !== yourId && (
         <button onClick={onFlag} disabled={pending}
           className="mt-2 cursor-pointer text-sm font-extrabold underline">
           That&apos;s not what happened
