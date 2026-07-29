@@ -242,6 +242,12 @@ function Board({ standings }: { standings: LeaderboardEntry[] }) {
           toward the prize wall.
         </p>
       </div>
+      <a
+        href="/standings"
+        className="paper mt-8 inline-block px-6 py-4 font-extrabold uppercase tracking-wide transition-transform hover:-translate-y-1"
+      >
+        See the whole board ↗
+      </a>
     </section>
   );
 }
