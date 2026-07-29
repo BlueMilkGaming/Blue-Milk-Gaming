@@ -88,8 +88,10 @@ export default async function StandingsPage({
           Every point from every Sunday. Top finishes at the Online Local earn
           points toward the prize wall, and the board runs all season.
         </p>
+        {/* Season swatches pinned in a row: the open season sits lifted and
+            straight, the others lie flat on the wall until hovered. */}
         <nav aria-label="Season" className="mt-10 flex flex-wrap gap-3">
-          {tabs.map((tab) => (
+          {tabs.map((tab, i) => (
             <Link
               key={tab.id}
               href={
@@ -101,7 +103,7 @@ export default async function StandingsPage({
               className={
                 tab.id === seasonId
                   ? "paper px-4 py-2 text-sm font-extrabold uppercase tracking-wide"
-                  : "px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-[color-mix(in_srgb,var(--paper)_70%,transparent)] transition-colors hover:text-[var(--accent)]"
+                  : `${i % 2 ? "tilt-r" : "tilt-l"} bg-[color-mix(in_srgb,var(--paper)_75%,var(--wall))] px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-[var(--ink)] transition-transform hover:-translate-y-0.5 hover:rotate-0`
               }
             >
               {tab.label}
@@ -122,12 +124,14 @@ export default async function StandingsPage({
           {standings.length > 0 ? (
             <table className="nums mt-6 w-full text-left">
               <thead>
+                {/* Nights hides below sm: five columns overflow a phone, and
+                    long unbroken usernames need room to wrap. */}
                 <tr className="border-b-[3px] border-[var(--ink)]">
-                  <th scope="col" className="w-14 py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">#</th>
+                  <th scope="col" className="w-8 py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] sm:w-14">#</th>
                   <th scope="col" className="py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Player</th>
-                  <th scope="col" className="w-24 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Nights</th>
-                  <th scope="col" className="w-20 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Best</th>
-                  <th scope="col" className="w-20 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Pts</th>
+                  <th scope="col" className="hidden w-24 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] sm:table-cell">Nights</th>
+                  <th scope="col" className="w-14 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] sm:w-20">Best</th>
+                  <th scope="col" className="w-14 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] sm:w-20">Pts</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,8 +143,8 @@ export default async function StandingsPage({
                     <td className="py-3.5 text-lg font-extrabold text-[color-mix(in_srgb,var(--ink)_45%,transparent)]">
                       {i + 1}
                     </td>
-                    <td className="py-3.5 font-extrabold">{player.displayName}</td>
-                    <td className="py-3.5 text-right text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+                    <td className="py-3.5 pr-2 font-extrabold [overflow-wrap:anywhere]">{player.displayName}</td>
+                    <td className="hidden py-3.5 text-right text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)] sm:table-cell">
                       {player.tournamentsPlayed}
                     </td>
                     <td className="py-3.5 text-right text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
