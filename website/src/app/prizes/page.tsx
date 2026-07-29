@@ -28,7 +28,7 @@ export default function PrizeWallPage() {
             alt="Blue Milk Gaming"
             width={1200}
             height={453}
-            className="h-9 w-auto"
+            className="h-11 w-auto"
             priority
           />
         </Link>

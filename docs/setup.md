@@ -44,6 +44,17 @@ Verify before deploying:
 aws sts get-caller-identity
 ```
 
+## Discord app setup
+
+Create a new application at **https://discord.com/developers/applications**:
+
+1. Click "New Application" and give it a name (e.g., "Blue Milk Gaming").
+2. In the OAuth2 section, get the **Client ID** and click "Reset Secret" to get the **Client Secret**.
+3. Under Redirects, add two URIs:
+   - Local: `http://localhost:3000/api/auth/callback/discord`
+   - Production: `https://d3fdgelj2nhbqw.cloudfront.net/api/auth/callback/discord` (replace with the production domain once cutover happens)
+4. Copy your User ID (visit the app page, yours shows in a tooltip). Collect any other admin Discord IDs.
+
 ### First deploy: the Pulumi provider download
 
 SST deploys through Pulumi, which fetches a provider plugin binary on first use. The AWS one is ~176 MB, and SST's built-in retry gives up on a slow connection:
@@ -73,9 +84,25 @@ Set this up **before** the first deploy. The stack should cost approximately not
 | Service | What's needed | Blocks |
 |---|---|---|
 | melee.gg | Org API client ID + secret — request from contact@melee.gg | Phase 6 automated results sync |
-| Discord | App at discord.com/developers; redirect URIs for `http://localhost:3000/api/auth/callback/discord` and the production URL; collect admin Discord user IDs | Phase 4 auth |
+| Discord | App setup (see above); set four secrets (below) | Stage 1: auth and admin queue |
 | YouTube | Channel ID (no API key — the content feed uses the public RSS endpoint) | Phase 2 content feed |
 | Domain / DNS | See below | Public launch |
+
+### Discord secrets
+
+After creating the Discord app above, set these four secrets:
+
+```bash
+cd website
+npx sst secret set AuthSecret "<random-value>" --stage production
+npx sst secret set DiscordClientId "<your-client-id>" --stage production
+npx sst secret set DiscordClientSecret "<your-client-secret>" --stage production
+npx sst secret set AdminDiscordIds "<your-id>,<other-admin-ids>" --stage production
+```
+
+Generate a random value for `AuthSecret` with: `openssl rand -base64 33`
+
+These four live only as SST secrets. `src/lib/auth.ts` reads `Resource.*` directly, and `npm run dev` wraps `sst shell`, so local development picks them up from the deployed secrets automatically. There is nothing to add to `website/.env.local` for Discord auth.
 
 ## Domain
 

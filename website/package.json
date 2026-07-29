@@ -12,6 +12,7 @@
     "@aws-sdk/client-dynamodb": "^3.1097.0",
     "@aws-sdk/lib-dynamodb": "^3.1097.0",
     "next": "15.5.21",
+    "next-auth": "5.0.0-beta.32",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "sst": "4.17.1"

@@ -74,7 +74,7 @@ function SiteNav() {
         alt="Blue Milk Gaming"
         width={1200}
         height={453}
-        className="h-9 w-auto"
+        className="h-11 w-auto"
         priority
       />
       <nav className="hidden items-center gap-7 md:flex">
