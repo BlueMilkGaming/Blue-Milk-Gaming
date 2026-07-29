@@ -17,6 +17,7 @@ export type AccountRow = {
   displayName: string;
   meleeUserIdentity?: string;
   pendingClaim?: string;
+  activePodId?: string; // one active pod per player; set on join, cleared on leave/close
   createdAt: string;
 };
 
