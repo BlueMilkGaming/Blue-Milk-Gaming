@@ -1,6 +1,7 @@
 {
   "enabledPlugins": {
     "ponytail@ponytail": true,
-    "claude-hud@claude-hud": true
+    "claude-hud@claude-hud": true,
+    "superpowers@claude-plugins-official": true
   }
 }
