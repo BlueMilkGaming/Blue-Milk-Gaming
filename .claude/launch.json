@@ -7,6 +7,16 @@
       "runtimeArgs": ["--prefix", "website", "run", "dev"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "bmg-website-live-data",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd website && npx sst shell --stage production -- npm run dev -- -p 3100"
+      ],
+      "port": 3100,
+      "autoPort": false
     }
   ]
 }

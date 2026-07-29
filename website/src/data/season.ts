@@ -20,13 +20,6 @@ export const ROSTER = [
   { number: "04", name: "Nick Obee", handle: "Tacster" },
 ] as const;
 
-// Season 01 opening state. Points are `null` until the leaderboard sync lands —
-// we never render fabricated numbers.
-export const SEASON = {
-  label: "Season 01",
-  standings: ROSTER.map((m) => ({ name: m.name, handle: m.handle, points: null as number | null })),
-} as const;
-
 // Partner logos are the white marks on the navy panel. Both are stacked
 // lockups at near-identical aspect ratios (2.69:1 and 2.38:1), so they share a
 // height class and balance without per-logo fudging. The Premier Games source

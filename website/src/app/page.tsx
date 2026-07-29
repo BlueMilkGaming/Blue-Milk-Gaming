@@ -1,6 +1,16 @@
 import Image from "next/image";
 import { getLatestVideos, type Video } from "@/lib/youtube";
-import { FIXTURE, ROSTER, SEASON, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
+import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
+import { CURRENT_SEASON } from "@/lib/seasons";
+import { FIXTURE, ROSTER, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
+
+// Results land once a week via the Monday cron, so hourly is already far
+// finer-grained than the data changes.
+export const revalidate = 3600;
+
+// The whiteboard shows the leading players, not the whole season. At ~50
+// entrants a full table would dwarf every other section on the page.
+const BOARD_ROWS = 10;
 
 /*
   DIRECTION — The Local (Persuade)
@@ -23,8 +33,16 @@ import { FIXTURE, ROSTER, SEASON, PARTNERS, CHANNELS, DISCORD_URL } from "@/data
     seed 6254c3ee.
 */
 
+// Deliberately not wrapped in a try/catch, unlike getLatestVideos. A missing
+// YouTube feed costs a carousel; standings that silently render empty while 48
+// people have points is a lie, and a build without resource bindings would
+// produce exactly that. Letting this throw fails the build loudly, and at
+// revalidation time Next keeps serving the last good page instead.
 export default async function Home() {
-  const videos = await getLatestVideos(5);
+  const [videos, standings] = await Promise.all([
+    getLatestVideos(5),
+    getLeaderboard(CURRENT_SEASON.id),
+  ]);
   return (
     <div className="store min-h-screen">
       <StoreStyles />
@@ -32,7 +50,7 @@ export default async function Home() {
       <main>
         <Door />
         <Regulars />
-        <Board />
+        <Board standings={standings} />
         <Shelf videos={videos} />
         <GlassStickers />
         <BackRoom />
@@ -291,46 +309,57 @@ function Regulars() {
 }
 
 /* The whiteboard: season standings in marker. */
-function Board() {
+function Board({ standings }: { standings: LeaderboardEntry[] }) {
+  const leaders = standings.slice(0, BOARD_ROWS);
   return (
     <section id="board" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
-      <span className="tape">Season 01</span>
+      <span className="tape">{CURRENT_SEASON.name}</span>
       <div className="tilt-s mt-8 rounded-md border border-[color-mix(in_srgb,var(--paper)_35%,transparent)] bg-[var(--board)] p-6 text-[var(--ink)] shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-8">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h2 className="display text-3xl sm:text-4xl">Standings</h2>
           <p className="text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
-            wiped clean for the new season
+            {standings.length > 0
+              ? `top ${leaders.length} of ${standings.length} playing this season`
+              : "wiped clean for the new season"}
           </p>
         </div>
-        <table className="nums mt-6 w-full text-left">
-          <thead>
-            <tr className="border-b-[3px] border-[var(--ink)]">
-              <th scope="col" className="w-14 py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">#</th>
-              <th scope="col" className="py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Player</th>
-              <th scope="col" className="w-20 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SEASON.standings.map((s, i) => (
-              <tr key={s.handle} className="border-b-2 border-[color-mix(in_srgb,var(--ink)_12%,transparent)]">
-                <td className="py-3.5 text-lg font-extrabold text-[color-mix(in_srgb,var(--ink)_45%,transparent)]">
-                  {i + 1}
-                </td>
-                <td className="py-3.5">
-                  <span className="font-extrabold">{s.name}</span>{" "}
-                  <span className="text-sm text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
-                    @{s.handle}
-                  </span>
-                </td>
-                <td className="py-3.5 text-right text-lg font-extrabold">{s.points ?? "—"}</td>
+        {leaders.length > 0 ? (
+          <table className="nums mt-6 w-full text-left">
+            <thead>
+              <tr className="border-b-[3px] border-[var(--ink)]">
+                <th scope="col" className="w-14 py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">#</th>
+                <th scope="col" className="py-2 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Player</th>
+                <th scope="col" className="w-24 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Nights</th>
+                <th scope="col" className="w-20 py-2 text-right text-[0.6875rem] font-extrabold uppercase tracking-[0.2em]">Pts</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {leaders.map((player, i) => (
+                <tr
+                  key={player.meleeUserIdentity}
+                  className="border-b-2 border-[color-mix(in_srgb,var(--ink)_12%,transparent)]"
+                >
+                  <td className="py-3.5 text-lg font-extrabold text-[color-mix(in_srgb,var(--ink)_45%,transparent)]">
+                    {i + 1}
+                  </td>
+                  <td className="py-3.5 font-extrabold">{player.displayName}</td>
+                  <td className="py-3.5 text-right text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+                    {player.tournamentsPlayed}
+                  </td>
+                  <td className="py-3.5 text-right text-lg font-extrabold">{player.rankingPoints}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="mt-6 text-lg font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
+            No results yet this season. First points go up after Sunday.
+          </p>
+        )}
         {/* A note taped to the board's corner. */}
         <p className="tilt-r mt-6 inline-block bg-[color-mix(in_srgb,var(--accent)_18%,var(--board))] px-4 py-2.5 text-sm font-extrabold">
-          Points sync from melee.gg when the leaderboard goes live. Top finishers
-          earn points toward the prize wall.
+          Points sync from melee.gg every Monday. Top finishers earn points
+          toward the prize wall.
         </p>
       </div>
     </section>
