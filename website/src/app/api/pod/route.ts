@@ -18,8 +18,8 @@ export async function GET(req: Request) {
   const podId = new URL(req.url).searchParams.get("id");
   if (podId) {
     if (!session) return NextResponse.json({ pod: null });
-    const pod = await getPod(podId);
-    const seated = pod.seats.some((s) => s.playerId === session.user.discordUserId);
+    const pod = await getPod(podId).catch(() => null);
+    const seated = pod?.seats.some((s) => s.playerId === session.user.discordUserId);
     return NextResponse.json({ pod: seated ? { ...pod, seatIds: undefined } : null });
   }
 
@@ -29,12 +29,10 @@ export async function GET(req: Request) {
   let paid = 0;
   if (session) {
     const account = await getAccount(session.user.discordUserId);
-    if (account?.activePodId) {
-      const pod = await getPod(account.activePodId);
-      // The pointer can outlive the pod state by one poll (lazy close in
-      // flight); only show a live pod.
-      if (pod.status === "filling" || pod.status === "playing") you = pod;
-    }
+    const pod = account?.activePodId ? await getPod(account.activePodId).catch(() => null) : null;
+    // The pointer can outlive the pod state by one poll (lazy close in
+    // flight); only show a live pod.
+    if (pod && (pod.status === "filling" || pod.status === "playing")) you = pod;
     paid = await paidToday(session.user.discordUserId, clubDay());
   }
 
