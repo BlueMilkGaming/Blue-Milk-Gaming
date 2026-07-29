@@ -244,8 +244,202 @@ async function abandonPod(pod: PodRow): Promise<void> {
   await announce("A table sat unfilled for an hour and was cleared. The next one opens when someone sits down.");
 }
 
-/** Replaced in the reporting/payout task. */
+/** Either player reports; a no-show claim is a report with the 30-minute gate. */
+export async function reportResult(
+  playerId: string,
+  podId: string,
+  roundIndex: number,
+  matchIndex: number,
+  winner: string,
+  noShow = false,
+): Promise<void> {
+  const pod = await getPod(podId);
+  const error = reportError(pod, playerId, roundIndex, matchIndex, winner, { noShow });
+  if (error) throw new Error(error);
+  const path = `rounds[${roundIndex}].pairings[${matchIndex}]`;
+  await doc.send(new UpdateCommand({
+    TableName: POD(),
+    Key: { podId },
+    UpdateExpression:
+      `SET ${path}.winner = :w, ${path}.reportedBy = :p` + (noShow ? `, ${path}.noShow = :t` : ""),
+    ConditionExpression: `#s = :playing AND attribute_not_exists(${path}.winner)`,
+    ExpressionAttributeNames: { "#s": "status" },
+    ExpressionAttributeValues: {
+      ":w": winner, ":p": playerId, ":playing": "playing",
+      ...(noShow ? { ":t": true } : {}),
+    },
+  }));
+  await advanceIfComplete(podId);
+}
+
+/** All four results in: deal the next round, or close after round 3. */
+async function advanceIfComplete(podId: string): Promise<void> {
+  const pod = await getPod(podId);
+  if (pod.status !== "playing") return;
+  const current = pod.rounds[pod.rounds.length - 1];
+  if (!roundComplete(current)) return;
+  if (pod.rounds.length >= POD_ROUNDS) return closePod(pod);
+  const now = new Date().toISOString();
+  try {
+    await doc.send(new UpdateCommand({
+      TableName: POD(),
+      Key: { podId },
+      UpdateExpression: "SET rounds = list_append(rounds, :next)",
+      ConditionExpression: "#s = :playing AND size(rounds) = :n",
+      ExpressionAttributeNames: { "#s": "status" },
+      ExpressionAttributeValues: {
+        ":next": [{ pairings: dealRound(pod.seats, pod.rounds), dealtAt: now }],
+        ":n": pod.rounds.length, ":playing": "playing",
+      },
+    }));
+  } catch (err) {
+    if (!isConditionFailure(err)) throw err; // the other reporter's write dealt it
+  }
+}
+
+/** The opponent disputes a reported result; only that match's payout freezes. */
+export async function flagResult(
+  playerId: string,
+  podId: string,
+  roundIndex: number,
+  matchIndex: number,
+): Promise<void> {
+  const pod = await getPod(podId);
+  const error = flagError(pod, playerId, roundIndex, matchIndex);
+  if (error) throw new Error(error);
+  const path = `rounds[${roundIndex}].pairings[${matchIndex}]`;
+  await doc.send(new UpdateCommand({
+    TableName: POD(),
+    Key: { podId },
+    UpdateExpression: `SET ${path}.flaggedBy = :p`,
+    ConditionExpression:
+      `#s = :playing AND attribute_exists(${path}.winner) AND attribute_not_exists(${path}.flaggedBy)`,
+    ExpressionAttributeNames: { "#s": "status" },
+    ExpressionAttributeValues: { ":p": playerId, ":playing": "playing" },
+  }));
+}
+
+/**
+ * Close and pay in one transaction, conditioned on status=playing, so racing
+ * closers cannot double-pay. Called on the last report and by the lazy
+ * 4-hour expiry, where unreported matches simply pay nothing (spec: honest
+ * partial payout). Settle-up: each player is paid the value of their best two
+ * pods today minus what today already paid, spread across this pod's
+ * unfrozen wins; a flagged match's payout stays frozen for the admin.
+ */
 export async function closePod(pod: PodRow): Promise<void> {
-  void pod;
-  throw new Error("closePod lands with reporting/payout");
+  const now = new Date().toISOString();
+  const todaysDone = (await byDay(pod.day)).filter(
+    (p) => p.status === "done" && p.podId !== pod.podId,
+  );
+
+  type TransactItems = NonNullable<
+    ConstructorParameters<typeof TransactWriteCommand>[0]["TransactItems"]
+  >;
+  const items: TransactItems = [
+    {
+      Update: {
+        TableName: POD(),
+        Key: { podId: pod.podId },
+        UpdateExpression: "SET #s = :done, closedAt = :now",
+        ConditionExpression: "#s = :playing",
+        ExpressionAttributeNames: { "#s": "status" },
+        ExpressionAttributeValues: { ":done": "done", ":playing": "playing", ":now": now },
+      },
+    },
+    ...pod.seats.map((s) => releaseActiveSeat(s.playerId, pod.podId)),
+  ];
+
+  for (const seat of pod.seats) {
+    const wins = unfrozenWins(pod.rounds, seat.playerId);
+    if (wins.length === 0) continue;
+    const priorPodWins = todaysDone.map((p) => unfrozenWins(p.rounds, seat.playerId).length);
+    const alreadyPaid = await paidToday(seat.playerId, pod.day);
+    const delta = settleUp([...priorPodWins, wins.length], alreadyPaid);
+    const deltas = perWinDeltas(wins.length, delta);
+    deltas.forEach((amount, i) => {
+      items.push(entryPut({
+        playerId: seat.playerId, entryId: ulid(), kind: "pod_win",
+        rankingDelta: 0, currencyDelta: amount, day: pod.day,
+        refType: "pod_match",
+        refId: `${pod.podId}#r${wins[i].round + 1}m${wins[i].match + 1}`,
+        createdAt: now,
+      } satisfies LedgerEntry));
+    });
+    const total = deltas.reduce((sum, amount) => sum + amount, 0);
+    if (total > 0) items.push(balanceCredit(seat.playerId, total));
+  }
+
+  // Max 1 + 8 + 8·(3 entries + 1 credit) = 41 items; Dynamo allows 100.
+  try {
+    await doc.send(new TransactWriteCommand({ TransactItems: items }));
+  } catch (err) {
+    if (!isConditionFailure(err)) throw err; // another closer already paid
+  }
+}
+
+export type FlaggedMatch = { pod: PodRow; roundIndex: number; matchIndex: number };
+
+/** Unresolved flags across the given days (newest pods first). */
+export async function unresolvedFlags(days: string[]): Promise<FlaggedMatch[]> {
+  const pods = (await Promise.all(days.map(byDay))).flat();
+  const flagged: FlaggedMatch[] = [];
+  for (const pod of pods) {
+    pod.rounds.forEach((round, roundIndex) =>
+      round.pairings.forEach((match, matchIndex) => {
+        if (match.flaggedBy && !match.flagResolution) flagged.push({ pod, roundIndex, matchIndex });
+      }),
+    );
+  }
+  return flagged.sort((x, y) => (x.pod.podId > y.pod.podId ? -1 : 1));
+}
+
+/**
+ * Admin resolution. Uphold keeps the reported winner; overturn flips it;
+ * void pays nobody. A still-playing pod needs no money now: close pays the
+ * resolved win like any other. A closed pod gets the withheld payout as an
+ * adjustment entry.
+ */
+export async function resolveFlag(
+  podId: string,
+  roundIndex: number,
+  matchIndex: number,
+  decision: "uphold" | "overturn" | "void",
+): Promise<void> {
+  const pod = await getPod(podId);
+  const match = pod.rounds[roundIndex]?.pairings[matchIndex];
+  if (!match?.flaggedBy || match.flagResolution) throw new Error("No unresolved flag there.");
+  const path = `rounds[${roundIndex}].pairings[${matchIndex}]`;
+  const trueWinner = decision === "overturn" ? (match.winner === match.a ? match.b : match.a) : match.winner!;
+
+  type TransactItems = NonNullable<
+    ConstructorParameters<typeof TransactWriteCommand>[0]["TransactItems"]
+  >;
+  const items: TransactItems = [{
+    Update: {
+      TableName: POD(),
+      Key: { podId },
+      UpdateExpression:
+        `SET ${path}.flagResolution = :d` + (decision === "overturn" ? `, ${path}.winner = :tw` : ""),
+      ConditionExpression:
+        `attribute_exists(${path}.flaggedBy) AND attribute_not_exists(${path}.flagResolution)`,
+      ExpressionAttributeValues: {
+        ":d": decision, ...(decision === "overturn" ? { ":tw": trueWinner } : {}),
+      },
+    },
+  }];
+
+  if (pod.status === "done" && decision !== "void") {
+    // ponytail: pays flat winCurrency, skipping a best-two-per-day recompute.
+    // Resolutions are rare, admin-audited, and err in the player's favor.
+    items.push(entryPut({
+      playerId: trueWinner, entryId: ulid(), kind: "adjustment",
+      rankingDelta: 0, currencyDelta: PODS_V1.winCurrency, day: pod.day,
+      refType: "pod_match", refId: `${podId}#r${roundIndex + 1}m${matchIndex + 1}`,
+      note: `flag ${decision}`, createdAt: new Date().toISOString(),
+    } satisfies LedgerEntry));
+    items.push(balanceCredit(trueWinner, PODS_V1.winCurrency));
+  }
+
+  await doc.send(new TransactWriteCommand({ TransactItems: items }));
 }
