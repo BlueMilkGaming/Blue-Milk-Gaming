@@ -26,8 +26,13 @@ const POD = () => Resource.Pod.name;
 const ACCOUNT = () => Resource.Account.name;
 
 function isConditionFailure(err: unknown): boolean {
-  return err instanceof Error &&
-    (err.name === "ConditionalCheckFailedException" || err.name === "TransactionCanceledException");
+  if (!(err instanceof Error)) return false;
+  if (err.name === "ConditionalCheckFailedException") return true;
+  if (err.name !== "TransactionCanceledException") return false;
+  // A transact cancellation is a benign race only when every per-item reason
+  // is a condition failure; throttling/conflict/validation must surface.
+  const reasons = (err as { CancellationReasons?: { Code?: string }[] }).CancellationReasons;
+  return !!reasons && reasons.every((r) => !r.Code || r.Code === "ConditionalCheckFailed" || r.Code === "None");
 }
 
 /** TransactWriteItems element: mark this player seated in `podId`. */
