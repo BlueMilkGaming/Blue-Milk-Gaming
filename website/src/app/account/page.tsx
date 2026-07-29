@@ -29,7 +29,7 @@ function SignedOut() {
         chair at the tables.
       </p>
       <form action={signInAction}>
-        <button className="mt-6 rounded-full bg-[var(--hot)] px-6 py-3 font-extrabold text-[var(--ink)]">
+        <button className="mt-6 cursor-pointer rounded-full bg-[var(--hot)] px-6 py-3 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2">
           Sign in with Discord
         </button>
       </form>
@@ -50,7 +50,9 @@ async function SignedIn({ name, discordUserId }: { name: string; discordUserId: 
         <ClaimForm />
       )}
       <form action={signOutAction}>
-        <button className="mt-8 text-sm font-extrabold underline">Sign out</button>
+        <button className="mt-8 cursor-pointer text-sm font-extrabold underline transition-colors hover:text-[var(--accent)]">
+          Sign out
+        </button>
       </form>
     </div>
   );

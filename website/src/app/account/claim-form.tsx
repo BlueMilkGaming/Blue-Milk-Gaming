@@ -9,6 +9,14 @@ export function ClaimFormClient({
 }) {
   const [state, formAction] = useActionState(claimAction, null);
 
+  if (state && "ok" in state) {
+    return (
+      <p className="mt-4 font-extrabold">
+        Claim submitted. It counts once the shopkeeper checks the list.
+      </p>
+    );
+  }
+
   return (
     <form action={formAction} className="mt-4">
       <label className="block text-sm font-extrabold" htmlFor="melee-name">
@@ -20,7 +28,7 @@ export function ClaimFormClient({
           <option key={p.meleeUserIdentity} value={p.meleeUserIdentity}>{p.displayName}</option>
         ))}
       </select>
-      <button className="mt-4 rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)]">
+      <button className="mt-4 cursor-pointer rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2">
         Claim this name
       </button>
       {state?.error && (

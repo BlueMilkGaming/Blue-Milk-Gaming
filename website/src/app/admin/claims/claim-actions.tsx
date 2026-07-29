@@ -19,7 +19,7 @@ export function ClaimActions({ discordUserId }: { discordUserId: string }) {
           <input type="hidden" name="discordUserId" value={discordUserId} />
           <button
             disabled={approvePending || rejectPending}
-            className="rounded-full bg-[var(--hot)] px-4 py-1.5 text-sm font-extrabold text-[var(--ink)]"
+            className="cursor-pointer rounded-full bg-[var(--hot)] px-4 py-1.5 text-sm font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2 disabled:cursor-not-allowed"
           >
             {approvePending ? "Approving…" : "Approve"}
           </button>
@@ -28,7 +28,7 @@ export function ClaimActions({ discordUserId }: { discordUserId: string }) {
           <input type="hidden" name="discordUserId" value={discordUserId} />
           <button
             disabled={approvePending || rejectPending}
-            className="px-2 text-sm font-extrabold underline"
+            className="cursor-pointer px-2 text-sm font-extrabold underline transition-colors hover:text-[var(--accent)] disabled:cursor-not-allowed"
           >
             {rejectPending ? "Rejecting…" : "Reject"}
           </button>
