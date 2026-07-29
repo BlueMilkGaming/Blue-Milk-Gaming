@@ -204,7 +204,7 @@ async function launchPod(pod: PodRow): Promise<void> {
       ConditionExpression: "#s = :filling AND size(seatIds) = :cap",
       ExpressionAttributeNames: { "#s": "status" },
       ExpressionAttributeValues: {
-        ":playing": "playing", ":now": now, ":cap": POD_SIZE,
+        ":playing": "playing", ":filling": "filling", ":now": now, ":cap": POD_SIZE,
         ":r1": [{ pairings: dealRound(pod.seats, []), dealtAt: now }],
       },
     }));
@@ -235,6 +235,7 @@ export async function leavePod(playerId: string, podId: string): Promise<void> {
             ExpressionAttributeNames: { "#s": "status" },
             ExpressionAttributeValues: {
               ":seats": seats, ":st": seats.length === 0 ? "abandoned" : "filling",
+              ":filling": "filling",
               ":id": new Set([playerId]), ":n": pod.seats.length, ":pid": playerId,
             },
           },
