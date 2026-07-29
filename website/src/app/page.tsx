@@ -4,6 +4,7 @@ import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { CURRENT_SEASON } from "@/lib/seasons";
 import { FIXTURE, PRIZES, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
 import { StoreStyles } from "./store-styles";
+import { TablesSection, TablesNavDot } from "./tables-live";
 
 // Results land once a week via the Monday cron, so hourly is already far
 // finer-grained than the data changes.
@@ -50,6 +51,7 @@ export default async function Home() {
       <SiteNav />
       <main>
         <Door />
+        <TablesSection />
         <Board standings={standings} />
         <PrizeWall />
         <Shelf videos={videos} />
@@ -63,6 +65,7 @@ export default async function Home() {
 
 function SiteNav() {
   const nav = [
+    { label: "The Tables", href: "/play" },
     { label: "The Board", href: "#board" },
     { label: "The Prize Wall", href: "#prizes" },
     { label: "The Shelf", href: "#shelf" },
@@ -84,7 +87,7 @@ function SiteNav() {
             href={n.href}
             className="font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
           >
-            {n.label}
+            {n.label}{n.href === "/play" && <TablesNavDot />}
           </a>
         ))}
       </nav>

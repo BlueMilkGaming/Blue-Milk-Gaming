@@ -40,6 +40,30 @@ export default $config({
       primaryIndex: { hashKey: "discordUserId" },
     });
 
+    // Pods (pods spec, Stage 2). One pod = one item. byStatus finds the open
+    // lobby and running pods; byDay feeds the best-2-pods-per-day settle-up.
+    const pod = new sst.aws.Dynamo("Pod", {
+      fields: { podId: "string", status: "string", day: "string" },
+      primaryIndex: { hashKey: "podId" },
+      globalIndexes: {
+        byStatus: { hashKey: "status" },
+        byDay: { hashKey: "day" },
+      },
+    });
+
+    // Points (ADR 0004), first real consumers. Ledger entries for pods key on
+    // the Discord snowflake; Sunday placements stay melee-keyed and join through
+    // Account.meleeUserIdentity later.
+    const pointsLedger = new sst.aws.Dynamo("PointsLedger", {
+      fields: { playerId: "string", entryId: "string" },
+      primaryIndex: { hashKey: "playerId", rangeKey: "entryId" },
+    });
+
+    const playerBalance = new sst.aws.Dynamo("PlayerBalance", {
+      fields: { playerId: "string" },
+      primaryIndex: { hashKey: "playerId" },
+    });
+
     // melee.gg API credentials. Set with:
     //   npx sst secret set MeleeClientId "..." --stage production
     const meleeClientId = new sst.Secret("MeleeClientId");
@@ -51,8 +75,12 @@ export default $config({
     const authSecret = new sst.Secret("AuthSecret");
     const adminDiscordIds = new sst.Secret("AdminDiscordIds");
 
+    // Discord incoming webhook for pod announcements. No bot user.
+    const podsWebhookUrl = new sst.Secret("PodsWebhookUrl");
+
     new sst.aws.Nextjs("Web", {
       link: [player, tournament, placement, account,
+             pod, pointsLedger, playerBalance, podsWebhookUrl,
              discordClientId, discordClientSecret, authSecret, adminDiscordIds],
     });
 
