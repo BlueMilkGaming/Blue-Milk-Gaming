@@ -3,371 +3,397 @@ import { getLatestVideos, type Video } from "@/lib/youtube";
 import { FIXTURE, ROSTER, SEASON, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
 
 /*
-  DIRECTION — Deck Fascia (Persuade)
-  THESIS: The org is one piece of hardware. Every function is a labelled control
-    on a single brushed-aluminium front panel, the way the analogue future of
-    the original trilogy actually looked: engraved, bolted, switched. Refuses
-    the dark-neon esports page and the printed-chart plate alike.
-  OWN-WORLD: Brushed aluminium fascia over a beige plastic surround, Deep Space
-    navy engraved into the metal as every label and legend, Naboo as the LED
-    ladder that only lights for live and active state, Blue Milk as the channel
-    indicator. Milled tracks, chrome bezels, screw heads, a serial plate.
-  STORY: A visitor arrives at a switched-on machine. The transport counter shows
-    the next fixture, the channel strips name the squad, the ladder shows the
-    season, and the big bezelled key joins the Discord.
-  FIRST VIEWPORT: One fascia panel edge to edge. Engraved ONLINE LOCAL at left
-    with its function legend; at right the transport readout with the amber
-    ladder lit for THIS SUNDAY; the JOIN key sits bottom-left under its legend.
-  FORM: cassette-futurist deck fascia (dealt challenger, fused); single-fascia
-    staging; seed 75cef19f.
+  DIRECTION — Category Canon (Persuade)
+  THESIS: The modern esports org site, played straight. This is the arrangement
+    the category always ships, chosen deliberately rather than refused: it is
+    the most legible signal that a competitive org is real and organised.
+    Executed at the craft level of an established org site, no irony.
+  OWN-WORLD: Near-black Recess ground with raised Deep Space panels, Blue Milk
+    as the single neon accent carrying glow, edges and active state, Naboo held
+    back for the live tag and the primary key. Angular clip-path corners,
+    diagonal section cuts, uppercase display at tight tracking, watermark
+    numerals, hover lift with accent edge.
+  STORY: A visitor hits a hero that says what this is, sees the next match strip
+    immediately, meets the roster, reads the standings, sees the content and the
+    real community numbers, and joins the Discord.
+  FIRST VIEWPORT: Full-bleed dark hero with a Blue Milk radial bloom, ONLINE
+    LOCAL in oversized uppercase at left, clipped crew media panel at right, the
+    live fixture chip above the headline, primary key bottom-left.
+  FORM: category canon (standing exit, user-chosen over the roll); org-site
+    staging; bar set at a modern established org site.
+
+  NOTE: this variant deliberately uses devices the craft floor lists as
+  category defaults (accent glow, clipped cards, a stat row, uniform roster
+  cards). The brief asked for the category default explicitly, which is exactly
+  the condition under which those are earned rather than reached for.
 */
 
 export default async function Home() {
   const videos = await getLatestVideos(5);
   return (
-    <div className="deck min-h-screen py-6 sm:py-10">
-      <DeckStyles />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="fascia">
-          <TopPlate />
-          <main>
-            <Transport />
-            <Channels />
-            <Ladder />
-            <Tape videos={videos} />
-            <MakerPlates />
-          </main>
-          <RearPanel />
-        </div>
-      </div>
+    <div className="arena min-h-screen">
+      <ArenaStyles />
+      <SiteNav />
+      <main>
+        <Hero />
+        <MatchStrip />
+        <Roster />
+        <Standings />
+        <Content videos={videos} />
+        <Community />
+        <Partners />
+      </main>
+      <SiteFooter />
     </div>
   );
 }
 
-/* The machine's materials. Scoped to this route so `/` keeps its world.
-   Brand hues are fixed (PRODUCT.md); metal and plastic are substrate, and the
-   brand colours do the engraving and the lamps. */
-function DeckStyles() {
+/* Scoped to this route so `/` and `/v2` keep their worlds. Brand hues are fixed
+   (PRODUCT.md); this maps them onto the category's own roles: Recess is the
+   near-black ground, Blue Milk is the neon, Naboo is the live/primary state. */
+function ArenaStyles() {
   return (
     <style>{`
-      body { background: #cfc7b6; }
-      .deck {
-        --metal: #b9bcc0;
-        --metal-hi: #dfe2e5;
-        --metal-lo: #8d9196;
-        --plastic: #cfc7b6;
-        --engrave: #000342;
-        --lamp: #ffe81f;
-        --indicator: #3bb0ff;
-        color: var(--engrave);
-        background: var(--plastic);
+      body { background: #00021c; }
+      .arena {
+        --ground: #00021c;
+        --panel: #000342;
+        --raised: #0a1352;
+        --neon: #3bb0ff;
+        --hot: #ffe81f;
+        --text: #eefbff;
+        background: var(--ground);
+        color: var(--text);
       }
-      /* Brushed aluminium: fine vertical grain plus a broad cross-panel
-         highlight, so the sheen moves across the panel rather than sitting
-         flat. No image asset. */
-      .fascia {
-        background-image:
-          linear-gradient(105deg,
-            color-mix(in srgb, var(--metal-hi) 85%, transparent) 0%,
-            transparent 22%,
-            transparent 58%,
-            color-mix(in srgb, var(--metal-hi) 55%, transparent) 76%,
-            transparent 92%),
-          repeating-linear-gradient(to right,
-            color-mix(in srgb, var(--metal-lo) 28%, transparent) 0 1px,
-            transparent 1px 3px),
-          linear-gradient(to bottom, var(--metal-hi), var(--metal) 12%, var(--metal) 88%, var(--metal-lo));
-        border: 1px solid var(--metal-lo);
-        border-radius: 6px;
-        box-shadow:
-          inset 0 1px 0 color-mix(in srgb, #fff 70%, transparent),
-          inset 0 -1px 0 color-mix(in srgb, var(--metal-lo) 80%, transparent),
-          0 18px 40px -18px rgba(0, 3, 66, 0.55);
-        overflow: hidden;
-      }
-      /* Engraved label: cut into the metal, so it carries a light lower edge. */
-      .engraved {
+      /* The category's angular cut: a clipped corner on panels and keys. */
+      .cut { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%); }
+      .cut-sm { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+      .cut-key { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+      /* Neon edge and bloom. Offset shadow carries the depth; the accent ring
+         sits on top of it rather than replacing it. */
+      .glow { box-shadow: 0 18px 40px -22px rgba(0,0,0,0.9), 0 0 0 1px color-mix(in srgb, var(--neon) 28%, transparent); }
+      .glow-hot { box-shadow: 0 0 24px -4px color-mix(in srgb, var(--hot) 55%, transparent); }
+      .display {
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 0.625rem;
-        color: color-mix(in srgb, var(--engrave) 78%, transparent);
-        text-shadow: 0 1px 0 color-mix(in srgb, #fff 60%, transparent);
+        letter-spacing: -0.035em;
+        line-height: 0.86;
+      }
+      .eyebrow {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 0.6875rem;
+        color: var(--neon);
       }
       .nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
-      /* A milled recess: where a readout or a meter is sunk into the panel. */
-      .recessed {
-        background: linear-gradient(to bottom, #1a1d33, #0b0d1c);
-        border-radius: 3px;
-        box-shadow:
-          inset 0 2px 5px rgba(0, 0, 0, 0.75),
-          0 1px 0 color-mix(in srgb, #fff 65%, transparent);
+      /* Watermark numeral behind each roster card. */
+      .watermark {
+        font-weight: 800;
+        color: transparent;
+        -webkit-text-stroke: 1px color-mix(in srgb, var(--neon) 22%, transparent);
       }
-      /* Panel seam: how two bolted zones meet. */
-      .seam { border-top: 1px solid var(--metal-lo); box-shadow: 0 1px 0 color-mix(in srgb, #fff 60%, transparent); }
-      /* Chrome bezel around the primary key. */
-      .bezel {
-        background: linear-gradient(to bottom, var(--metal-hi), var(--metal-lo));
-        border-radius: 4px;
-        box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 3, 66, 0.35);
+      /* Diagonal section cut, the category's transition between bands. */
+      .slash { clip-path: polygon(0 0, 100% 3.5rem, 100% 100%, 0 100%); }
+      /* The one authored moment: the hero lifts in as one staggered group.
+         Starts visible so no-JS and reduced-motion get the full composition. */
+      .lift { animation: lift 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+      @keyframes lift { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+      .live-dot { position: relative; }
+      .live-dot::after {
+        content: ""; position: absolute; inset: -5px; border-radius: 9999px;
+        border: 1px solid var(--hot); animation: ring 2s ease-out infinite;
       }
-      /* Lamps. Off is a dark lens in the metal; on is the lens lit from within. */
-      .lamp { border-radius: 2px; background: color-mix(in srgb, var(--engrave) 30%, var(--metal-lo)); }
-      .lamp-on { background: var(--lamp); box-shadow: 0 0 6px color-mix(in srgb, var(--lamp) 70%, transparent); }
-      .lamp-ind { background: var(--indicator); box-shadow: 0 0 6px color-mix(in srgb, var(--indicator) 70%, transparent); }
-      /* The one authored moment: at power-on the ladder lights rung by rung,
-         the way a real meter sweeps up and settles. Default is lit, so no-JS
-         and reduced-motion see the machine already on. */
-      .rung { animation: light 0.42s steps(1, end) backwards; }
-      @keyframes light { from { opacity: 0.25; } to { opacity: 1; } }
-      @media (prefers-reduced-motion: reduce) { .rung { animation: none; } }
-      .deck :focus-visible { outline: 2px solid var(--engrave); outline-offset: 2px; }
+      @keyframes ring { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.5); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .lift { animation: none; }
+        .live-dot::after { animation: none; }
+      }
+      .arena :focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; }
     `}</style>
   );
 }
 
-/* Screw head — the fascia is bolted on. */
-function Screw({ className = "" }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`block h-2.5 w-2.5 rounded-full bg-[var(--metal-lo)] shadow-[inset_0_1px_1px_rgba(0,0,0,0.5),0_1px_0_rgba(255,255,255,0.6)] ${className}`}
-    >
-      <span className="mx-auto block h-px w-1.5 translate-y-[4px] rotate-45 bg-[color-mix(in_srgb,var(--engrave)_60%,transparent)]" />
-    </span>
-  );
-}
-
-function TopPlate() {
+function SiteNav() {
   const nav = [
-    { label: "Channels", href: "#channels" },
-    { label: "Ladder", href: "#ladder" },
-    { label: "Tape", href: "#tape" },
+    { label: "Roster", href: "#roster" },
+    { label: "Standings", href: "#standings" },
+    { label: "Content", href: "#content" },
   ];
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 py-4 sm:px-7">
-      <div className="flex items-center gap-4">
-        <Screw />
-        <div className="leading-none">
-          <div className="text-base font-extrabold tracking-tight">Blue Milk Gaming</div>
-          <div className="engraved mt-1.5">MODEL BMG-01 · STAR WARS: UNLIMITED</div>
-        </div>
-      </div>
-      <nav className="flex items-center gap-5">
-        {nav.map((n) => (
-          <a key={n.href} href={n.href} className="engraved hover:text-[var(--engrave)]">
-            {n.label}
-          </a>
-        ))}
+    <header className="sticky top-0 z-30 border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[color-mix(in_srgb,var(--ground)_88%,transparent)] backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
+        <Image
+          src="/brand/logo-horizontal.png"
+          alt="Blue Milk Gaming"
+          width={1200}
+          height={453}
+          className="h-8 w-auto"
+          priority
+        />
+        <nav className="hidden items-center gap-8 md:flex">
+          {nav.map((n) => (
+            <a
+              key={n.href}
+              href={n.href}
+              className="eyebrow !text-[var(--text)] transition-colors hover:!text-[var(--neon)]"
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
         <a
           href={DISCORD_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="bezel engraved px-3 py-2 text-[var(--engrave)]"
+          className="cut-key eyebrow glow-hot bg-[var(--hot)] px-5 py-2.5 !text-[var(--panel)]"
         >
-          Discord
+          Join
         </a>
-        <Screw />
-      </nav>
+      </div>
     </header>
   );
 }
 
-/* The hero is the transport section: the counter, the legend, the big key. */
-function Transport() {
+function Hero() {
   return (
-    <section className="seam grid gap-10 px-5 py-10 sm:px-7 sm:py-14 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
-      <div>
-        <div className="engraved">FUNCTION · WEEKLY TOURNAMENT</div>
-        <h1 className="mt-3 text-[clamp(2.5rem,7.5vw,4.75rem)] font-extrabold leading-[0.9] tracking-[-0.035em]">
-          Online
-          <br />
-          Local
-        </h1>
-        <p className="mt-5 max-w-md text-[17px] leading-relaxed text-[color-mix(in_srgb,var(--engrave)_85%,transparent)]">
-          A weekly Star Wars: Unlimited tournament, every Sunday night. Four
-          rounds of Swiss, one table, running all season.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <a
-            href={DISCORD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bezel px-7 py-3.5 text-base font-extrabold text-[var(--engrave)] transition-transform active:translate-y-px"
-          >
-            Join the Discord
-          </a>
-          <a
-            href="#tape"
-            className="engraved border border-[var(--metal-lo)] px-5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]"
-          >
-            Watch the channel
-          </a>
-        </div>
-      </div>
-
-      {/* The readout, sunk into the panel. */}
-      <div className="recessed p-5 sm:p-6">
-        <div className="flex items-center justify-between">
-          <span className="engraved !text-[color-mix(in_srgb,var(--metal-hi)_70%,transparent)] [text-shadow:none]">
-            NEXT TRANSPORT
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="lamp lamp-on h-2 w-2" />
-            <span className="engraved !text-[var(--lamp)] [text-shadow:none]">THIS SUNDAY</span>
-          </span>
-        </div>
-        <div className="nums mt-5 text-[clamp(2.25rem,6vw,3.25rem)] font-extrabold leading-none tracking-tight text-[var(--metal-hi)]">
-          {FIXTURE.time}
-        </div>
-        <div className="engraved mt-1 !text-[color-mix(in_srgb,var(--metal-hi)_60%,transparent)] [text-shadow:none]">
-          {FIXTURE.day.toUpperCase()}
-        </div>
-        <dl className="mt-6 space-y-2 border-t border-[color-mix(in_srgb,var(--metal-hi)_18%,transparent)] pt-4">
-          {[
-            ["COMPETITION", FIXTURE.competition],
-            ["FORMAT", FIXTURE.format],
-            ["VENUE", FIXTURE.venue],
-          ].map(([k, v]) => (
-            <div key={k} className="flex items-baseline justify-between gap-6">
-              <dt className="engraved !text-[color-mix(in_srgb,var(--metal-hi)_55%,transparent)] [text-shadow:none]">
-                {k}
-              </dt>
-              <dd className="nums text-sm font-extrabold text-[var(--metal-hi)]">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
-  );
-}
-
-/* The squad as channel strips: each one a labelled control on the panel. */
-function Channels() {
-  return (
-    <section id="channels" className="seam scroll-mt-4 px-5 py-10 sm:px-7 sm:py-14">
-      <PanelHead title="The crew" legend="CHANNELS 01–04" />
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {ROSTER.map((m) => (
-          <article
-            key={m.handle}
-            className="border border-[var(--metal-lo)] bg-[color-mix(in_srgb,var(--metal-hi)_38%,transparent)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="engraved nums">CH {m.number}</span>
-              {/* Unlit lens. Nothing per-member is live, so nothing lights. */}
-              <span className="lamp h-2 w-2" />
-            </div>
-            <h3 className="mt-6 text-lg font-extrabold leading-tight tracking-tight">
-              {m.name}
-            </h3>
-            <p className="nums mt-0.5 text-sm text-[color-mix(in_srgb,var(--engrave)_65%,transparent)]">
-              @{m.handle}
-            </p>
-            {/* Milled fader track under each strip. */}
-            <div className="mt-4 h-1.5 rounded-full bg-[color-mix(in_srgb,var(--engrave)_18%,var(--metal-lo))] shadow-[inset_0_1px_2px_rgba(0,0,0,0.45)]" />
-          </article>
-        ))}
-      </div>
-      <div className="mt-6 overflow-hidden rounded-sm border border-[var(--metal-lo)]">
-        <Image
-          src="/brand/crew.jpg"
-          alt="Blue Milk Gaming at a Star Wars: Unlimited event"
-          width={1600}
-          height={1067}
-          /* See the note in /v2: a wide strip scales this source tall, so the
-             faces sit around 28% rather than at the centre or the top. */
-          className="h-60 w-full object-cover object-[50%_28%] sm:h-72"
-        />
-      </div>
-    </section>
-  );
-}
-
-/* Standings as the meter ladder. No rung is lit, because no points exist yet:
-   the machine is powered up and waiting, which is the truth. */
-function Ladder() {
-  const RUNGS = 12;
-  return (
-    <section id="ladder" className="seam scroll-mt-4 px-5 py-10 sm:px-7 sm:py-14">
-      <PanelHead
-        title="The ladder"
-        legend="SEASON 01 · LEVELS"
-        aside="Points sync from melee.gg once the leaderboard goes live."
+    <section className="relative overflow-hidden border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)]">
+      {/* Accent bloom and grid: the category's hero ground. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(60% 70% at 18% 40%, color-mix(in srgb, var(--neon) 22%, transparent), transparent 70%), radial-gradient(40% 60% at 85% 20%, color-mix(in srgb, var(--neon) 12%, transparent), transparent 70%)",
+        }}
       />
-      <div className="recessed mt-8 divide-y divide-[color-mix(in_srgb,var(--metal-hi)_12%,transparent)] p-5 sm:p-6">
-        {SEASON.standings.map((s, i) => (
-          <div
-            key={s.handle}
-            className="flex flex-wrap items-center gap-x-5 gap-y-3 py-3 first:pt-0 last:pb-0"
-          >
-            <span className="nums engraved w-6 !text-[color-mix(in_srgb,var(--metal-hi)_55%,transparent)] [text-shadow:none]">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span className="min-w-40 flex-1">
-              <span className="font-extrabold text-[var(--metal-hi)]">{s.name}</span>{" "}
-              <span className="nums text-sm text-[color-mix(in_srgb,var(--metal-hi)_55%,transparent)]">
-                @{s.handle}
-              </span>
-            </span>
-            {/* The ladder itself: every rung dark until real points arrive. */}
-            <span className="flex items-center gap-1" aria-hidden="true">
-              {Array.from({ length: RUNGS }, (_, r) => (
-                <span
-                  key={r}
-                  className="rung h-4 w-1.5 rounded-[1px] bg-[color-mix(in_srgb,var(--metal-hi)_14%,transparent)]"
-                  style={{ animationDelay: `${0.25 + r * 0.03}s` }}
-                />
-              ))}
-            </span>
-            <span className="nums w-10 text-right text-lg font-extrabold text-[var(--metal-hi)]">
-              {s.points ?? "—"}
-            </span>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(to right, color-mix(in srgb, var(--neon) 9%, transparent) 0 1px, transparent 1px 64px), repeating-linear-gradient(to bottom, color-mix(in srgb, var(--neon) 9%, transparent) 0 1px, transparent 1px 64px)",
+        }}
+      />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1.15fr_1fr]">
+        <div>
+          <div className="lift flex items-center gap-3" style={{ animationDelay: "0.05s" }}>
+            <span className="live-dot h-2 w-2 rounded-full bg-[var(--hot)]" />
+            <span className="eyebrow !text-[var(--hot)]">Live this Sunday</span>
+            <span className="eyebrow opacity-60">Season 01</span>
           </div>
-        ))}
+          <h1
+            className="display lift mt-6 text-[clamp(3rem,10vw,6rem)]"
+            style={{ animationDelay: "0.12s" }}
+          >
+            Online
+            <br />
+            <span className="text-[var(--neon)]">Local</span>
+          </h1>
+          <p
+            className="lift mt-6 max-w-md text-lg leading-relaxed text-[color-mix(in_srgb,var(--text)_78%,transparent)]"
+            style={{ animationDelay: "0.19s" }}
+          >
+            Our weekly Star Wars: Unlimited tournament, every Sunday night. Four
+            rounds of Swiss, one table that runs all season.
+          </p>
+          <div
+            className="lift mt-9 flex flex-wrap items-center gap-3"
+            style={{ animationDelay: "0.26s" }}
+          >
+            <a
+              href={DISCORD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cut-key glow-hot bg-[var(--hot)] px-8 py-4 text-base font-extrabold uppercase tracking-wide text-[var(--panel)] transition-transform hover:-translate-y-0.5"
+            >
+              Join the Discord
+            </a>
+            <a
+              href="#content"
+              className="cut-key border border-[color-mix(in_srgb,var(--neon)_45%,transparent)] px-8 py-4 text-base font-extrabold uppercase tracking-wide text-[var(--neon)] transition-colors hover:bg-[color-mix(in_srgb,var(--neon)_12%,transparent)]"
+            >
+              Watch
+            </a>
+          </div>
+        </div>
+        {/* Clipped media panel: the category's hero visual slot. */}
+        <div className="lift cut glow relative" style={{ animationDelay: "0.33s" }}>
+          <Image
+            src="/brand/crew.jpg"
+            alt="Blue Milk Gaming at a Star Wars: Unlimited event"
+            width={1600}
+            height={1067}
+            className="h-72 w-full object-cover object-[50%_28%] sm:h-96"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-[var(--ground)] via-transparent to-transparent"
+          />
+          <div className="absolute bottom-4 left-4">
+            <div className="eyebrow">The squad</div>
+            <div className="mt-1 font-extrabold uppercase tracking-tight">2026 kit</div>
+          </div>
+        </div>
       </div>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[color-mix(in_srgb,var(--engrave)_70%,transparent)]">
-        {SEASON.label} is just kicking off. The ladder fills in as we play, and
-        top finishers earn points toward the prize wall.
-      </p>
     </section>
   );
 }
 
-/* Videos behind the cassette door. */
-function Tape({ videos }: { videos: Video[] }) {
+/* The next-match strip every org site runs under the hero. */
+function MatchStrip() {
+  return (
+    <section className="border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[var(--panel)]">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-10 gap-y-4 px-5 py-5 sm:px-8">
+        <div className="flex items-center gap-3">
+          <span className="live-dot h-2 w-2 rounded-full bg-[var(--hot)]" />
+          <span className="eyebrow !text-[var(--hot)]">Next match</span>
+        </div>
+        <div className="nums flex flex-wrap items-baseline gap-x-8 gap-y-2">
+          <span className="text-2xl font-extrabold tracking-tight">
+            {FIXTURE.day} {FIXTURE.time}
+          </span>
+          {[
+            ["Competition", FIXTURE.competition],
+            ["Format", FIXTURE.format],
+            ["Venue", FIXTURE.venue],
+          ].map(([k, v]) => (
+            <span key={k} className="flex items-baseline gap-2">
+              <span className="eyebrow opacity-60">{k}</span>
+              <span className="text-sm font-extrabold">{v}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Roster() {
+  return (
+    <section id="roster" className="scroll-mt-16 border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <BandHead eyebrow="The squad" title="Roster" aside="Four members. One table." />
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {ROSTER.map((m) => (
+            <article
+              key={m.handle}
+              className="cut group relative overflow-hidden border border-[color-mix(in_srgb,var(--neon)_20%,transparent)] bg-[var(--raised)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--neon)_60%,transparent)]"
+            >
+              <span
+                aria-hidden="true"
+                className="watermark nums pointer-events-none absolute -right-2 -top-6 text-8xl leading-none"
+              >
+                {m.number}
+              </span>
+              <div className="eyebrow relative">Player {m.number}</div>
+              <h3 className="relative mt-14 text-xl font-extrabold uppercase leading-tight tracking-tight">
+                {m.name}
+              </h3>
+              <p className="nums relative mt-1 text-sm text-[color-mix(in_srgb,var(--text)_60%,transparent)]">
+                @{m.handle}
+              </p>
+              <div
+                aria-hidden="true"
+                className="relative mt-5 h-0.5 w-10 bg-[var(--neon)] transition-all duration-300 group-hover:w-full"
+              />
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Standings() {
+  return (
+    <section id="standings" className="scroll-mt-16 border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <BandHead
+          eyebrow="Season 01"
+          title="Standings"
+          aside="Points sync from melee.gg once the leaderboard goes live."
+        />
+        <div className="cut glow mt-12 overflow-hidden border border-[color-mix(in_srgb,var(--neon)_20%,transparent)]">
+          <table className="nums w-full text-left">
+            <thead>
+              <tr className="bg-[var(--panel)]">
+                <th scope="col" className="eyebrow w-20 px-5 py-4">#</th>
+                <th scope="col" className="eyebrow px-5 py-4">Player</th>
+                <th scope="col" className="eyebrow w-28 px-5 py-4 text-right">Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SEASON.standings.map((s, i) => (
+                <tr
+                  key={s.handle}
+                  className="border-t border-[color-mix(in_srgb,var(--neon)_14%,transparent)] bg-[var(--raised)] transition-colors hover:bg-[color-mix(in_srgb,var(--neon)_10%,var(--raised))]"
+                >
+                  <td className="px-5 py-4 text-xl font-extrabold text-[var(--neon)]">{i + 1}</td>
+                  <td className="px-5 py-4">
+                    <span className="font-extrabold uppercase tracking-tight">{s.name}</span>{" "}
+                    <span className="text-sm text-[color-mix(in_srgb,var(--text)_55%,transparent)]">
+                      @{s.handle}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 text-right text-xl font-extrabold">
+                    {s.points ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[color-mix(in_srgb,var(--text)_60%,transparent)]">
+          {SEASON.label} is just kicking off. Standings fill in as we play, and
+          top finishers earn points toward the prize wall.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function Content({ videos }: { videos: Video[] }) {
   if (videos.length === 0) {
     return (
-      <section id="tape" className="seam scroll-mt-4 px-5 py-10 sm:px-7 sm:py-14">
-        <PanelHead title="The tape" legend="PLAYBACK" />
-        <a
-          href="https://www.youtube.com/@BlueMilkGaming"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bezel mt-8 inline-block px-6 py-3 font-extrabold text-[var(--engrave)]"
-        >
-          Watch on YouTube
-        </a>
+      <section id="content" className="scroll-mt-16 border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <BandHead eyebrow="Latest" title="Content" />
+          <a
+            href="https://www.youtube.com/@BlueMilkGaming"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cut-key mt-10 inline-block border border-[color-mix(in_srgb,var(--neon)_45%,transparent)] px-8 py-4 font-extrabold uppercase tracking-wide text-[var(--neon)]"
+          >
+            Watch on YouTube
+          </a>
+        </div>
       </section>
     );
   }
+  const [feature, ...rest] = videos;
   return (
-    <section id="tape" className="seam scroll-mt-4 px-5 py-10 sm:px-7 sm:py-14">
-      <PanelHead
-        title="The tape"
-        legend="PLAYBACK · 05 REELS"
-        aside="New videos weekly, plus weekday lunchtime streams."
-      />
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {videos.map((v, i) => (
-          <Reel key={v.id} video={v} n={i + 1} />
-        ))}
+    <section id="content" className="scroll-mt-16 border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <BandHead
+          eyebrow="Latest"
+          title="Content"
+          aside="New videos weekly, plus weekday lunchtime streams."
+        />
+        <div className="mt-12 grid gap-5 lg:grid-cols-2">
+          <Clip video={feature} featured />
+          <div className="grid gap-5 sm:grid-cols-2">
+            {rest.map((v) => (
+              <Clip key={v.id} video={v} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function Reel({ video, n }: { video: Video; n: number }) {
+function Clip({ video, featured = false }: { video: Video; featured?: boolean }) {
   const date = new Date(video.published).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -378,79 +404,113 @@ function Reel({ video, n }: { video: Video; n: number }) {
       href={video.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col border border-[var(--metal-lo)] bg-[color-mix(in_srgb,var(--metal-hi)_38%,transparent)] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+      className="cut group flex flex-col border border-[color-mix(in_srgb,var(--neon)_20%,transparent)] bg-[var(--raised)] transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--neon)_60%,transparent)]"
     >
-      <div className="flex items-center justify-between px-0.5 pb-2">
-        <span className="engraved nums">REEL {String(n).padStart(2, "0")}</span>
-        <span className="engraved nums">{date}</span>
-      </div>
-      {/* The window in the cassette door. */}
-      <div className="recessed aspect-video overflow-hidden p-1">
+      <div className="relative aspect-video overflow-hidden bg-[var(--panel)]">
         {/* eslint-disable-next-line @next/next/no-img-element -- remote YT thumb, optimizer disabled */}
         <img
           src={video.thumbnail}
           alt=""
           loading="lazy"
-          className="h-full w-full rounded-[2px] object-cover"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        {/* Play affordance: the category's standard overlay. */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        >
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--hot)]">
+            <svg viewBox="0 0 24 24" className="ml-1 h-6 w-6 fill-[var(--panel)]">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
       </div>
-      <h3 className="px-0.5 pb-0.5 pt-3 text-sm font-extrabold leading-snug decoration-2 underline-offset-4 group-hover:underline">
-        {video.title}
-      </h3>
+      <div className={`flex flex-col gap-2 p-4 ${featured ? "sm:p-6" : ""}`}>
+        <span className="eyebrow nums">{date}</span>
+        <span
+          className={`font-extrabold uppercase leading-snug tracking-tight transition-colors group-hover:text-[var(--neon)] ${
+            featured ? "text-2xl" : "line-clamp-2 text-base"
+          }`}
+        >
+          {video.title}
+        </span>
+      </div>
     </a>
   );
 }
 
-/* Sponsors as maker plates riveted to the panel. */
-function MakerPlates() {
+/* Real numbers only — these come from PRODUCT.md's evidence, not invented. */
+function Community() {
+  const stats = [
+    ["686", "YouTube subscribers"],
+    ["554", "Discord members"],
+    ["35", "Patreon supporters"],
+  ];
   return (
-    <section className="seam px-5 py-10 sm:px-7 sm:py-14">
-      <PanelHead title="Backed by" legend="FITTED COMPONENTS" />
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {PARTNERS.map((p) => (
-          <a
-            key={p.name}
-            href={p.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-4 border border-[var(--metal-lo)] bg-[color-mix(in_srgb,var(--metal-hi)_38%,transparent)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
-          >
-            <Screw className="shrink-0" />
-            {/* The marks are white, so on metal they need the dark plate under them. */}
-            <span className="recessed flex h-16 flex-1 items-center justify-center px-5 transition-opacity group-hover:opacity-85">
-              <Image
-                src={p.logo}
-                alt={p.name}
-                width={p.width}
-                height={p.height}
-                className="h-9 w-auto"
-              />
-            </span>
-            <Screw className="shrink-0" />
-          </a>
-        ))}
+    /* --raised, not --panel: the diagonal is the point of this band, and
+       against the near-black ground --panel is too close to read as a cut. */
+    <section className="slash relative border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] bg-[var(--raised)] pb-20 pt-24 sm:pb-24 sm:pt-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="grid gap-10 sm:grid-cols-3">
+          {stats.map(([n, label]) => (
+            <div key={label}>
+              <div className="nums display text-5xl text-[var(--neon)] sm:text-6xl">{n}</div>
+              <div className="eyebrow mt-3 !text-[var(--text)] opacity-70">{label}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function PanelHead({
+function Partners() {
+  return (
+    <section className="border-b border-[color-mix(in_srgb,var(--neon)_18%,transparent)] py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <BandHead eyebrow="Partners" title="Backed by" />
+        <div className="mt-12 grid gap-5 sm:grid-cols-2">
+          {PARTNERS.map((p) => (
+            <a
+              key={p.name}
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cut flex h-32 items-center justify-center border border-[color-mix(in_srgb,var(--neon)_20%,transparent)] bg-[var(--raised)] px-6 transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--neon)_60%,transparent)]"
+            >
+              <Image
+                src={p.logo}
+                alt={p.name}
+                width={p.width}
+                height={p.height}
+                className="h-14 w-auto sm:h-16"
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BandHead({
+  eyebrow,
   title,
-  legend,
   aside,
 }: {
+  eyebrow: string;
   title: string;
-  legend: string;
   aside?: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <div className="engraved">{legend}</div>
-        <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h2>
+        <div className="eyebrow">{eyebrow}</div>
+        <h2 className="display mt-3 text-4xl sm:text-5xl">{title}</h2>
       </div>
       {aside && (
-        <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_srgb,var(--engrave)_70%,transparent)]">
+        <p className="max-w-xs text-sm leading-relaxed text-[color-mix(in_srgb,var(--text)_60%,transparent)]">
           {aside}
         </p>
       )}
@@ -458,52 +518,44 @@ function PanelHead({
   );
 }
 
-/* Rear panel: the serial plate and the small print, where they live on a real
-   piece of equipment. */
-function RearPanel() {
+function SiteFooter() {
   return (
-    <footer className="seam bg-[color-mix(in_srgb,var(--metal-lo)_30%,transparent)] px-5 py-10 sm:px-7">
-      <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="max-w-sm text-xl font-extrabold tracking-tight">
-            Pull up a seat at the table.
-          </h2>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-[color-mix(in_srgb,var(--engrave)_75%,transparent)]">
-            The whole community lives in Discord. Say hi, get the melee link,
-            play the next Online Local.
-          </p>
-        </div>
-        <a
-          href={DISCORD_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bezel shrink-0 px-7 py-3.5 font-extrabold text-[var(--engrave)] transition-transform active:translate-y-px"
-        >
-          Join the Discord
-        </a>
-      </div>
-      <nav className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3">
-        {CHANNELS.map((c) => (
+    <footer className="py-16">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="cut glow flex flex-col items-start justify-between gap-8 border border-[color-mix(in_srgb,var(--neon)_25%,transparent)] bg-[var(--raised)] p-8 sm:flex-row sm:items-center sm:p-10">
+          <div>
+            <h2 className="display text-3xl sm:text-4xl">Pull up a seat</h2>
+            <p className="mt-3 max-w-sm leading-relaxed text-[color-mix(in_srgb,var(--text)_70%,transparent)]">
+              The whole community lives in Discord. Say hi, get the melee link,
+              play the next Online Local.
+            </p>
+          </div>
           <a
-            key={c.label}
-            href={c.href}
+            href={DISCORD_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="engraved hover:text-[var(--engrave)]"
+            className="cut-key glow-hot shrink-0 bg-[var(--hot)] px-8 py-4 font-extrabold uppercase tracking-wide text-[var(--panel)] transition-transform hover:-translate-y-0.5"
           >
-            {c.label}
+            Join the Discord
           </a>
-        ))}
-      </nav>
-      <div className="mt-8 flex flex-wrap items-end justify-between gap-4 border-t border-[var(--metal-lo)] pt-5">
-        <p className="max-w-xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--engrave)_70%,transparent)]">
+        </div>
+        <nav className="mt-12 flex flex-wrap gap-x-8 gap-y-3">
+          {CHANNELS.map((c) => (
+            <a
+              key={c.label}
+              href={c.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="eyebrow !text-[var(--text)] opacity-70 transition-colors hover:!text-[var(--neon)] hover:opacity-100"
+            >
+              {c.label}
+            </a>
+          ))}
+        </nav>
+        <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--text)_55%,transparent)]">
           Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
           2025. Star Wars: Unlimited is © its respective owners.
         </p>
-        <div className="engraved nums flex items-center gap-3">
-          <Screw />
-          <span>SER. BMG-2025-01</span>
-        </div>
       </div>
     </footer>
   );
