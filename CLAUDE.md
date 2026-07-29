@@ -53,6 +53,7 @@ Later phases: leaderboard UI, Discord auth, prize wall. Full plan at `~/.claude/
 - Avoid edge-runtime-only Next.js features (OpenNext target).
 - Cost discipline: everything must be free-tier/scale-to-zero.
 - Don't use the bare "BMG" acronym in outward-facing copy; spell out Blue Milk Gaming.
+- **Never mention Karabast** in site copy, code comments, commits, or any public-facing text. Games are played there, but the devs are cautious about Disney attention and we won't be the ones who point a spotlight at them. Say "play your match however your pod prefers" or point at Discord for coordination.
 - No em dashes in public-facing copy. Rewrite with commas, periods, or colons. (Code comments are exempt.)
 - Secrets live in `website/.env.local` (local) and SST secrets (deployed). Never commit real values; `website/.env.example` is the template.
 - **melee.gg responses contain player PII.** Standings carry real names, Discord usernames, DCI numbers and pronouns; `/api/player/list` adds `Email`, `WizardsAccountEmail`, `PlayerName` and `Bio`. Only `UserIdentity`, registration ID, display name and result cross the boundary, and the strip lives in `src/lib/melee.ts` so no caller can bypass it. Never log or commit raw responses. Never render more than a display name publicly — note many players set their display name to their real name, and publishing that is fine; the rule is about which *field* is used, not how the value looks.
