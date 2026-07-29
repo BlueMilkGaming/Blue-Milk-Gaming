@@ -99,14 +99,24 @@ export async function resolveClaim(discordUserId: string, approve: boolean): Pro
     const otherAccounts = accounts.filter((a) => a.discordUserId !== discordUserId);
     const error = approvalError(account, otherAccounts);
     if (error) throw new Error(error);
+    if (!account?.pendingClaim) throw new Error("No pending claim to approve.");
+
+    await doc.send(new UpdateCommand({
+      TableName: TABLE(),
+      Key: { discordUserId },
+      UpdateExpression: "SET meleeUserIdentity = :m REMOVE pendingClaim",
+      // Binds the exact claimed value so approval is atomic: if the pending
+      // claim changed between the read above and this write, this fails.
+      ConditionExpression: "pendingClaim = :m",
+      ExpressionAttributeValues: { ":m": account.pendingClaim },
+    }));
+    return;
   }
 
   await doc.send(new UpdateCommand({
     TableName: TABLE(),
     Key: { discordUserId },
-    UpdateExpression: approve
-      ? "SET meleeUserIdentity = pendingClaim REMOVE pendingClaim"
-      : "REMOVE pendingClaim",
+    UpdateExpression: "REMOVE pendingClaim",
     ConditionExpression: "attribute_exists(pendingClaim)",
   }));
 }

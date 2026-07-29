@@ -102,7 +102,7 @@ npx sst secret set AdminDiscordIds "<your-id>,<other-admin-ids>" --stage product
 
 Generate a random value for `AuthSecret` with: `openssl rand -base64 33`
 
-For local development, copy `website/.env.example` to `website/.env.local` and fill in the same values with the `AUTH_` and `DISCORD_` prefixes (not `Resource.*` names).
+These four live only as SST secrets. `src/lib/auth.ts` reads `Resource.*` directly, and `npm run dev` wraps `sst shell`, so local development picks them up from the deployed secrets automatically. There is nothing to add to `website/.env.local` for Discord auth.
 
 ## Domain
 
