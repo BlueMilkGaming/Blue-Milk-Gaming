@@ -38,7 +38,7 @@ Later phases: leaderboard UI, Discord auth, prize wall. Full plan at `~/.claude/
 ## Commands (run in `website/`)
 
 - `npm run dev` — local dev server (wraps `sst shell --stage production`, so it needs AWS credentials; the home page reads the production leaderboard tables at request time)
-- `npm run build` — production build
+- `npm run build` — production build. Run locally as `npx sst shell --stage production -- npm run build`: the home page prerenders from the leaderboard tables, so a bare build dies with "SST links are not active". Deploys handle this themselves.
 - `npx sst deploy --stage production` — deploy
 - `npx sst secret set <Name> "<value>" --stage production` — set a deployed secret
 - `npx sst unlock --stage production` — clear a stale lock after a crashed deploy
@@ -68,4 +68,5 @@ Later phases: leaderboard UI, Discord auth, prize wall. Full plan at `~/.claude/
 - **`removal: "retain"` means a primary-key change orphans the old table.** Pulumi replaces create-before-delete, and retain keeps the old one, so you end up with two tables and SST managing only the new one. Delete the orphan by hand after confirming which is live. Get the live name from SST, never by grepping `list-tables` — the names differ only by a random suffix.
 - **Don't pipe `sst deploy` into `tail`/`grep`.** You get the pipe's exit code, so a failed deploy reads as success. Redirect to a file and echo `$?`.
 - **Node runs these `.ts` files in strip-only mode**, so TypeScript that needs real transformation is a runtime error even though `tsc` passes. Constructor parameter properties (`constructor(readonly x: number)`) are the one that has already bitten; use a plain field assignment.
+- **A production build clobbers a running dev server.** `next build` and `next dev` share `.next`, so building while the dev server runs leaves the server holding dead manifest paths and every route 500s with `_buildManifest.js.tmp` ENOENT. Stop the dev server before any local build, then recover with the stop → delete `.next` → restart sequence below.
 - **A stale browser tab wedges `next dev`.** If a tab holding a page from a dead dev-server instance reconnects to a new one, Next 15.5 (turbopack) spirals into `_buildManifest.js.tmp` ENOENT errors and every route 500s, even after `rm -rf .next`. The fix is the order: stop the server, delete `.next`, start it, then hard-reload the tab before anything else polls. Symptom to recognize: curl says 200 while the browser says Internal Server Error, then everything 500s.
