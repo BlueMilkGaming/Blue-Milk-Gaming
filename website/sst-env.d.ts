@@ -6,6 +6,14 @@
 
 declare module "sst" {
   export interface Resource {
+    "MeleeClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "MeleeClientSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Placement": {
       "name": string
       "type": "sst.aws.Dynamo"

@@ -34,5 +34,26 @@ export default $config({
     });
 
     new sst.aws.Nextjs("Web", { link: [player, tournament, placement] });
+
+    // melee.gg API credentials. Set with:
+    //   npx sst secret set MeleeClientId "..." --stage production
+    const meleeClientId = new sst.Secret("MeleeClientId");
+    const meleeClientSecret = new sst.Secret("MeleeClientSecret");
+
+    // Weekly results sync. Monday 14:00 UTC is the morning after Sunday
+    // night's Online Local with hours to spare, in either US daylight or
+    // standard time. Melee has no webhooks and asks not to be polled, so once
+    // a week is the whole strategy (ADR 0004).
+    new sst.aws.Cron("MeleeSync", {
+      schedule: "cron(0 14 ? * MON *)",
+      function: {
+        handler: "src/cron/sync-melee.handler",
+        link: [player, tournament, placement, meleeClientId, meleeClientSecret],
+        // A normal week imports one event in seconds. The headroom is for a
+        // run that has several weeks to catch up, each paced by the delay
+        // between melee requests.
+        timeout: "5 minutes",
+      },
+    });
   },
 });

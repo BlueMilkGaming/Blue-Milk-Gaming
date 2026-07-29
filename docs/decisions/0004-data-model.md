@@ -151,7 +151,7 @@ This ADR describes the whole model. Phase 3 deliberately implements a subset. Th
 | PlayerAlias | Deferred | Only needed to reconcile the Google Sheets, which are not an import path. Live imports key on `meleeUserIdentity`. |
 | Season | Deferred | Lives in `website/src/lib/seasons.ts`. With no admin UI, a table has the same edit friction as a constant plus a table to read. Move it into Dynamo when an admin can edit it. |
 | Prize, Redemption | Deferred | Prize wall is a later phase. |
-| ImportRun | Deferred | The importer is manually run and prints its own audit. Add it with the weekly cron. |
+| ImportRun | Deferred | The weekly cron logs every run to CloudWatch and throws on failure, which is the same audit trail a table would hold, without a table. Add it when someone needs import history in the admin UI. |
 
 Two deviations from the entity definitions above, both deliberate:
 
