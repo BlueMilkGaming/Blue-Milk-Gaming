@@ -6,6 +6,26 @@
 
 declare module "sst" {
   export interface Resource {
+    "Account": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "AdminDiscordIds": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AuthSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "DiscordClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "DiscordClientSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MeleeClientId": {
       "type": "sst.sst.Secret"
       "value": string
