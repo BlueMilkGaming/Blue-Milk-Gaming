@@ -244,7 +244,7 @@ function Door() {
                 <div
                   key={i}
                   aria-hidden="true"
-                  className="tab h-16 flex-1 bg-[var(--wall)]"
+                  className="tab h-24 flex-1 bg-[var(--wall)]"
                   style={{ boxShadow: "inset 0 6px 10px -6px rgba(0,2,28,0.9)" }}
                 />
               ) : (
@@ -253,9 +253,12 @@ function Door() {
                   href={DISCORD_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="tab flex h-16 flex-1 items-center justify-center"
+                  className="tab flex h-24 flex-1 items-center justify-center"
                 >
-                  <span className="rotate-90 whitespace-nowrap text-[0.625rem] font-extrabold uppercase tracking-[0.14em] text-[color-mix(in_srgb,var(--ink)_75%,transparent)]">
+                  {/* writing-mode, not rotate: rotation keeps the horizontal
+                      layout box, whose min-width overflows the strip on
+                      mobile and crushes the taken tab. */}
+                  <span className="whitespace-nowrap text-[0.6875rem] font-extrabold uppercase tracking-[0.14em] text-[color-mix(in_srgb,var(--ink)_75%,transparent)] [writing-mode:vertical-rl]">
                     Discord ↗
                   </span>
                 </a>

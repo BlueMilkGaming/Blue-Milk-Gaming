@@ -37,7 +37,7 @@ Later phases: leaderboard UI, Discord auth, prize wall. Full plan at `~/.claude/
 
 ## Commands (run in `website/`)
 
-- `npm run dev` — local dev server
+- `npm run dev` — local dev server (wraps `sst shell --stage production`, so it needs AWS credentials; the home page reads the production leaderboard tables at request time)
 - `npm run build` — production build
 - `npx sst deploy --stage production` — deploy
 - `npx sst secret set <Name> "<value>" --stage production` — set a deployed secret
