@@ -12,14 +12,6 @@ export const FIXTURE = {
   venue: "melee.gg",
 } as const;
 
-// The squad. Squad numbers are cosmetic (founding order), not results.
-export const ROSTER = [
-  { number: "01", name: "Alex Krezminski", handle: "alexkrez" },
-  { number: "02", name: "Carlos Apodaca", handle: "Carlos A" },
-  { number: "03", name: "Micah Overley", handle: "Overley28" },
-  { number: "04", name: "Nick Obee", handle: "Tacster" },
-] as const;
-
 // Partner logos are the white marks on the navy panel. Both are stacked
 // lockups at near-identical aspect ratios (2.69:1 and 2.38:1), so they share a
 // height class and balance without per-logo fudging. The Premier Games source

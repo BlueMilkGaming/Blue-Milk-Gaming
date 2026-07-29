@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getLatestVideos, type Video } from "@/lib/youtube";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { CURRENT_SEASON } from "@/lib/seasons";
-import { FIXTURE, ROSTER, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
+import { FIXTURE, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
 
 // Results land once a week via the Monday cron, so hourly is already far
 // finer-grained than the data changes.
@@ -49,7 +49,6 @@ export default async function Home() {
       <SiteNav />
       <main>
         <Door />
-        <Regulars />
         <Board standings={standings} />
         <Shelf videos={videos} />
         <GlassStickers />
@@ -160,7 +159,6 @@ function StoreStyles() {
 
 function SiteNav() {
   const nav = [
-    { label: "Regulars", href: "#regulars" },
     { label: "The Board", href: "#board" },
     { label: "The Shelf", href: "#shelf" },
   ];
@@ -280,32 +278,6 @@ function Door() {
             <span className="text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">est. 2025</span>
           </figcaption>
         </figure>
-      </div>
-    </section>
-  );
-}
-
-/* Name tags on the regulars' wall. */
-function Regulars() {
-  const tilts = ["tilt-s", "tilt-r", "tilt-l", "tilt-s"];
-  return (
-    <section id="regulars" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
-      <span className="tape">The regulars</span>
-      <h2 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl">
-        Same four, every Sunday.
-      </h2>
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {ROSTER.map((m, i) => (
-          <div key={m.handle} className={`taped paper ${tilts[i]} p-6`}>
-            <p className="nums text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
-              Member {m.number}
-            </p>
-            <p className="mt-3 text-xl font-extrabold leading-tight">{m.name}</p>
-            <p className="nums mt-1 text-sm text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
-              @{m.handle}
-            </p>
-          </div>
-        ))}
       </div>
     </section>
   );
