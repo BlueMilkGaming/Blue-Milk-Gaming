@@ -33,6 +33,13 @@ export default $config({
       primaryIndex: { hashKey: "meleeId", rangeKey: "meleeUserIdentity" },
     });
 
+    // Discord-side identity (pods spec, Stage 1). Keyed on the snowflake; a
+    // claim links it to a Player by setting meleeUserIdentity. Nothing re-keys.
+    const account = new sst.aws.Dynamo("Account", {
+      fields: { discordUserId: "string" },
+      primaryIndex: { hashKey: "discordUserId" },
+    });
+
     // melee.gg API credentials. Set with:
     //   npx sst secret set MeleeClientId "..." --stage production
     const meleeClientId = new sst.Secret("MeleeClientId");
@@ -45,7 +52,7 @@ export default $config({
     const adminDiscordIds = new sst.Secret("AdminDiscordIds");
 
     new sst.aws.Nextjs("Web", {
-      link: [player, tournament, placement,
+      link: [player, tournament, placement, account,
              discordClientId, discordClientSecret, authSecret, adminDiscordIds],
     });
 
