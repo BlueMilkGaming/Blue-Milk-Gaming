@@ -2,7 +2,8 @@ import { auth } from "@/lib/auth";
 import { ensureAccount } from "@/lib/accounts";
 import { getLeaderboard } from "@/lib/db";
 import { StoreStyles } from "../store-styles";
-import { signInAction, signOutAction, claimAction } from "./actions";
+import { signInAction, signOutAction } from "./actions";
+import { ClaimFormClient } from "./claim-form";
 
 export const dynamic = "force-dynamic"; // session-dependent, never prerender
 
@@ -57,20 +58,9 @@ async function SignedIn({ name, discordUserId }: { name: string; discordUserId: 
 
 async function ClaimForm() {
   const players = await getLeaderboard("all-time");
-  return (
-    <form action={claimAction} className="mt-4">
-      <label className="block text-sm font-extrabold" htmlFor="melee-name">
-        Played a Sunday before? Pick your melee name to link your results:
-      </label>
-      <select id="melee-name" name="meleeUserIdentity" className="mt-2 w-full border-2 border-[var(--ink)] bg-transparent p-2 font-extrabold">
-        <option value="">…</option>
-        {players.map((p) => (
-          <option key={p.meleeUserIdentity} value={p.meleeUserIdentity}>{p.displayName}</option>
-        ))}
-      </select>
-      <button className="mt-4 rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)]">
-        Claim this name
-      </button>
-    </form>
-  );
+  const playerProps = players.map((p) => ({
+    meleeUserIdentity: p.meleeUserIdentity,
+    displayName: p.displayName,
+  }));
+  return <ClaimFormClient players={playerProps} />;
 }
