@@ -14,6 +14,9 @@ const NAV = [
   { label: "The Tables", href: "/play" },
   { label: "The Board", href: "/standings" },
   { label: "The Prize Wall", href: "/prizes" },
+  // A static link on purpose: session-aware chrome would force every page
+  // dynamic and kill the home page's prerender. /account sorts both states.
+  { label: "Your Card", href: "/account" },
 ];
 
 // Single source for the store URL (merch.bluemilkgaming.com).

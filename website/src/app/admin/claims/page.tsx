@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { listPendingClaims } from "@/lib/accounts";
 import { getLeaderboard } from "@/lib/db";
 import { StoreStyles } from "../../store-styles";
+import { AdminNav } from "../admin-nav";
 import { ClaimActions } from "./claim-actions";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function ClaimsPage() {
       <StoreStyles />
       <main className="mx-auto max-w-2xl px-5 py-16 sm:px-8">
         <span className="tape">Shopkeeper only</span>
+        <AdminNav current="/admin/claims" />
         <div className="tilt-l taped paper mt-8 p-8">
           <h1 className="display text-4xl">Claims</h1>
           {pending.length === 0 && (

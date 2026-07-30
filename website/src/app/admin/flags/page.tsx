@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { unresolvedFlags } from "@/lib/pods-db";
 import { clubDay } from "@/lib/pods";
 import { StoreStyles } from "../../store-styles";
+import { AdminNav } from "../admin-nav";
 import { FlagActions } from "./flag-actions";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function FlagsPage() {
       <StoreStyles />
       <main className="mx-auto max-w-2xl px-5 py-16 sm:px-8">
         <span className="tape">Shopkeeper only</span>
+        <AdminNav current="/admin/flags" />
         <div className="tilt-l taped paper mt-8 p-8">
           <h1 className="display text-4xl">Flags</h1>
           {flags.length === 0 && <p className="mt-4 font-extrabold">Queue&apos;s empty.</p>}
