@@ -2,7 +2,7 @@
 // "real data or nothing"). Live YouTube comes from src/lib/youtube.ts; live
 // standings arrive with the melee.gg sync.
 
-export const DISCORD_URL = "https://discord.gg/pyVPPHwemq";
+export const DISCORD_URL = "https://discord.gg/sTWmJaXS5w";
 
 export const FIXTURE = {
   competition: "Online Local",

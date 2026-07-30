@@ -17,7 +17,7 @@ export default async function AccountPage() {
   return (
     <div className="store flex min-h-screen flex-col">
       <StoreStyles />
-      <SiteHeader />
+      <SiteHeader current="/account" />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <span className="tape">Your card</span>
         {session ? <SignedIn name={session.user.name} discordUserId={session.user.discordUserId} /> : <SignedOut />}
@@ -32,8 +32,8 @@ function SignedOut() {
     <div className="tilt-l taped paper mt-8 p-8">
       <h1 className="display text-4xl">Sign in</h1>
       <p className="mt-4 leading-relaxed text-[color-mix(in_srgb,var(--ink)_80%,transparent)]">
-        Sign in with Discord to link your melee.gg results and, soon, pull up a
-        chair at the tables.
+        Sign in with Discord to link your melee.gg results and pull up a chair
+        at the tables.
       </p>
       <form action={signInAction}>
         <button className="mt-6 cursor-pointer rounded-full bg-[var(--hot)] px-6 py-3 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2">

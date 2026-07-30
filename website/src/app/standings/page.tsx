@@ -91,7 +91,10 @@ export default async function StandingsPage({
             </Link>
           ))}
         </nav>
-        <div className="tilt-s mt-8 rounded-md border border-[color-mix(in_srgb,var(--paper)_35%,transparent)] bg-[var(--board)] p-6 text-[var(--ink)] shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-8">
+        {/* No tilt here: a rotated box widens with height, and the all-time
+            table is tall enough that even 0.5deg pokes past a phone viewport
+            and lets the page pan sideways. */}
+        <div className="mt-8 rounded-md border border-[color-mix(in_srgb,var(--paper)_35%,transparent)] bg-[var(--board)] p-6 text-[var(--ink)] shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-8">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="display text-3xl sm:text-4xl">Standings</h2>
             <p className="text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">

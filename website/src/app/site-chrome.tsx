@@ -44,16 +44,17 @@ export function SiteHeader({ current }: { current?: string }) {
         Discord
       </a>
       {/* Full row of its own below md; inline between logo and Discord above. */}
-      <nav className="flex w-full flex-wrap items-center gap-x-6 gap-y-1 md:w-auto md:gap-7">
+      <nav className="flex w-full flex-wrap items-center gap-x-6 md:w-auto md:gap-x-7">
         {NAV.map((n) => (
           <Link
             key={n.href}
             href={n.href}
             aria-current={n.href === current ? "page" : undefined}
+            // -mx-2/px-2 cancel out visually; the padding only grows the tap target.
             className={
               n.href === current
-                ? "font-extrabold text-[var(--paper)] underline decoration-[var(--accent)] decoration-2 underline-offset-8"
-                : "font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
+                ? "-mx-2 px-2 py-2 font-extrabold text-[var(--paper)] underline decoration-[var(--accent)] decoration-2 underline-offset-8"
+                : "-mx-2 px-2 py-2 font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
             }
           >
             {n.label}
@@ -65,7 +66,7 @@ export function SiteHeader({ current }: { current?: string }) {
             href={SHOP.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
+            className="-mx-2 px-2 py-2 font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
           >
             Merch
           </a>

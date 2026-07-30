@@ -18,7 +18,7 @@
 | Channel | URL |
 |---|---|
 | YouTube | https://www.youtube.com/@BlueMilkGaming |
-| Discord | https://discord.gg/pyVPPHwemq |
+| Discord | https://discord.gg/pyVPPHwemq (website links use https://discord.gg/sTWmJaXS5w to track joins from the site) |
 | Patreon | https://www.patreon.com/cw/BlueMilkGaming |
 | Store | https://merch.bluemilkgaming.com/ (Fourthwall) |
 

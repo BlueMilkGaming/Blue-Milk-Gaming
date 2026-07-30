@@ -26,6 +26,11 @@ const doc = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
 const POD = () => Resource.Pod.name;
 const ACCOUNT = () => Resource.Account.name;
 
+// Green = taken, white = open. Red reads as "bad seat", not "open seat".
+function seatBar(taken: number): string {
+  return "🟩".repeat(taken) + "⬜".repeat(POD_SIZE - taken);
+}
+
 /** TransactWriteItems element: mark this player seated in `podId`. */
 function claimActiveSeat(playerId: string, podId: string) {
   return {
@@ -156,7 +161,7 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
       const joined = await getPod(lobby.podId, { consistent: true });
       if (joined.seats.length >= POD_SIZE) await launchPod(joined);
       else if (joined.seats.length === POD_SIZE - 2)
-        await announce(`6 of 8 chairs taken at the Blue Milk Gaming tables. Two left: ${SITE_URL}/play`);
+        await announce(`${seatBar(6)}\nSix of eight chairs taken at the Blue Milk Gaming tables. Two left: ${SITE_URL}/play`);
       return getPod(lobby.podId);
     } catch (err) {
       if (!isConditionFailure(err)) throw err;
@@ -173,7 +178,7 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
       { Put: { TableName: POD(), Item: pod, ConditionExpression: "attribute_not_exists(podId)" } },
       claimActiveSeat(playerId, pod.podId),
     ]}));
-    await announce(`A table just opened at Blue Milk Gaming. First chair taken, seven to go: ${SITE_URL}/play`);
+    await announce(`${seatBar(1)}\nA table just opened at Blue Milk Gaming. First chair taken, seven to go: ${SITE_URL}/play`);
     return pod;
   } catch (err) {
     if (!isConditionFailure(err)) throw err;
@@ -203,7 +208,7 @@ async function launchPod(pod: PodRow): Promise<void> {
     if (!isConditionFailure(err)) throw err;
     return; // another caller dealt it
   }
-  await announce("Pod launched at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.");
+  await announce(`${seatBar(POD_SIZE)}\nPod launched at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.`);
 }
 
 /** Leave a filling lobby. CAS on the seat set so a concurrent join is never dropped. */
@@ -233,6 +238,8 @@ export async function leavePod(playerId: string, podId: string): Promise<void> {
         },
         releaseActiveSeat(playerId, podId),
       ]}));
+      if (seats.length === 0)
+        await announce(`${seatBar(0)}\nThe last player left and the table was cleared. The next one opens when someone sits down: ${SITE_URL}/play`);
       return;
     } catch (err) {
       if (!isConditionFailure(err)) throw err;
@@ -262,7 +269,7 @@ async function abandonPod(pod: PodRow): Promise<void> {
     if (!isConditionFailure(err)) throw err;
     return; // someone else expired it
   }
-  await announce("A table sat unfilled for an hour and was cleared. The next one opens when someone sits down.");
+  await announce(`${seatBar(0)}\nA table sat unfilled for an hour and was cleared. The next one opens when someone sits down.`);
 }
 
 /** Either player reports; a no-show claim is a report with the 30-minute gate. */
