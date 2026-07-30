@@ -227,6 +227,7 @@ const TEASER_TAGS = [
   name: item.name,
   by: item.by && `from ${item.by}`,
   cost: item.points.toLocaleString("en-US"),
+  imageUrl: item.imageUrl,
 }));
 
 function PrizeWall() {
@@ -247,7 +248,7 @@ function PrizeWall() {
           ))}
         </div>
         <p className="tilt-r mt-8 inline-block bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] px-4 py-2.5 text-sm font-extrabold">
-          To redeem, ping an admin in the Discord.
+          Sign in with Discord to redeem, right from the wall.
         </p>
       </div>
       <a
@@ -274,6 +275,17 @@ function PrizeTag({ prize }: { prize: (typeof TEASER_TAGS)[number] }) {
       <p className="mt-4 text-[0.6875rem] font-extrabold uppercase tracking-[0.2em] text-[color-mix(in_srgb,var(--ink)_66%,transparent)]">
         {prize.kicker}
       </p>
+      {prize.imageUrl && (
+        // Pre-sized local images (public/prize-images); images.unoptimized
+        // is set, so next/image would add nothing here.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={prize.imageUrl}
+          alt=""
+          loading="lazy"
+          className="mx-auto mt-4 aspect-square w-full max-w-44 object-contain"
+        />
+      )}
       <p className="mt-2 text-xl font-extrabold leading-tight">{prize.name}</p>
       {prize.by && (
         <p className="mt-1 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
