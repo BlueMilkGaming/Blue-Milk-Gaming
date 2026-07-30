@@ -13,6 +13,8 @@ export async function redeemAction(
   try {
     await redeem(session.user.discordUserId, session.user.name, prizeId);
     revalidatePath("/prizes");
+    revalidatePath("/admin/prizes");
+    revalidatePath("/admin");
     return { ok: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "redemption failed";

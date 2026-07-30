@@ -16,6 +16,7 @@ export async function fulfilAction(prevState: ActionState, formData: FormData): 
   try {
     await fulfilRedemption(String(formData.get("playerId")), String(formData.get("redemptionId")));
     revalidatePath("/admin/prizes");
+    revalidatePath("/admin");
     return null;
   } catch (err) {
     return failure(err, "fulfil failed");
@@ -32,6 +33,7 @@ export async function cancelAction(prevState: ActionState, formData: FormData): 
       note || undefined,
     );
     revalidatePath("/admin/prizes");
+    revalidatePath("/admin");
     return null;
   } catch (err) {
     return failure(err, "cancel failed");
