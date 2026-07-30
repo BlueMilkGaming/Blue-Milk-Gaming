@@ -104,6 +104,19 @@ Generate a random value for `AuthSecret` with: `openssl rand -base64 33`
 
 These four live only as SST secrets. `src/lib/auth.ts` reads `Resource.*` directly, and `npm run dev` wraps `sst shell`, so local development picks them up from the deployed secrets automatically. There is nothing to add to `website/.env.local` for Discord auth.
 
+### Discord webhook URLs
+
+Set these after creating the webhooks in Discord:
+
+```bash
+cd website
+npx sst secret set PodsWebhookUrl "<pod-lobby-webhook>" --stage production
+npx sst secret set AdminWebhookUrl "<admin-channel-webhook>" --stage production
+```
+
+- `PodsWebhookUrl`: Discord incoming webhook for pod lobby announcements.
+- `AdminWebhookUrl`: Discord incoming webhook for the private admins channel, used for redemption pings.
+
 ## Domain
 
 Decided in [ADR 0003](decisions/0003-domain.md): the new site takes `bluemilkgaming.com`; the Fourthwall store lives at `merch.bluemilkgaming.com` (moved 2026-07-30). DNS stays at Cloudflare.
