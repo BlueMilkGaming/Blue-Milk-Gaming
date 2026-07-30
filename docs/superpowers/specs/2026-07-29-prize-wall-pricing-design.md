@@ -76,10 +76,22 @@ players, which is what the points were for. No mitigation.
 
 ## Open before publishing
 
-1. **Sponsors:** conversation pending; outcome affects budget headroom and
-   vault restocks only, not prices.
+None. (Resolved: OP pack sourced at ~$1.43/unit, priced at 100. Sponsor:
+Premier Games contributes $50/month toward prizing, which covers the vault
+item roughly every two months; per the guardrail this changes budget
+headroom, never point prices.)
 
-(Resolved: OP pack sourced at ~$1.43/unit, priced at 100.)
+## Catalog
+
+The full wall lives in `website/src/data/prize-wall.ts`: the ladder above
+plus 21 Premier Games catalog items priced by the formula, with retail,
+image URL, and product URL pulled from their Shopify catalog. The old wall's
+token prices (500/750) were replaced by formula prices (275-325) — real
+retail showed the old numbers were off-band in both directions, and the new
+wall has not been published, so this is the clean break point. Excluded from
+the catalog: the $105-170 Streaming Metal Token Set (a future vault rotation
+candidate) and the two storage cases (accessories to products players may
+not own).
 
 ## Out of scope
 
