@@ -85,6 +85,8 @@ export default $config({
     const podsWebhookUrl = new sst.Secret("PodsWebhookUrl");
     // Discord incoming webhook for the private admins channel: redemption pings.
     const adminWebhookUrl = new sst.Secret("AdminWebhookUrl");
+    // Discord role ID for @LFG table pings on pod launch (Stage 2).
+    const lfgRoleId = new sst.Secret("LfgRoleId");
     // ADR 0003: apex + www redirect, DNS at Cloudflare. Needs
     // CLOUDFLARE_API_TOKEN and CLOUDFLARE_DEFAULT_ACCOUNT_ID in website/.env
     // for every deploy. The store stays on merch. (managed by Fourthwall).
@@ -106,6 +108,7 @@ export default $config({
         redemption,
         podsWebhookUrl,
         adminWebhookUrl,
+        lfgRoleId,
         discordClientId,
         discordClientSecret,
         authSecret,
