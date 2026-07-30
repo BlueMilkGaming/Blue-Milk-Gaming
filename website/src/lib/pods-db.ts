@@ -33,16 +33,17 @@ function seatBar(taken: number): string {
 }
 
 function fillingMessage(taken: number): string {
-  return `${seatBar(taken)}\nA table is filling at Blue Milk Gaming: ${taken} of ${POD_SIZE} chairs taken. The host can launch with ${POD_MIN} or 6; a full table of ${POD_SIZE} deals itself: ${SITE_URL}/play`;
+  return `${seatBar(taken)}\nA table is filling at Blue Milk Gaming: ${taken} of ${POD_SIZE} chairs taken. The host can launch with ${POD_MIN} or 6; a full table of ${POD_SIZE} deals itself: <${SITE_URL}/play>`;
 }
 function launchedMessage(players: number): string {
   return `${[..."🟩".repeat(players)].join(" ")}\nPod launched with ${players} players at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.`;
 }
 function finishedMessage(players: number): string {
-  return `${[..."🟩".repeat(players)].join(" ")}\nPod finished at Blue Milk Gaming: ${players} players, three rounds in the books. Next table: ${SITE_URL}/play`;
+  return `${[..."🟩".repeat(players)].join(" ")}\nPod finished at Blue Milk Gaming: ${players} players, three rounds in the books. Next table: <${SITE_URL}/play>`;
 }
+// No seat bar: a row of empty blocks on a dead table is noise.
 function clearedMessage(): string {
-  return `${seatBar(0)}\nThe table was cleared. The next one opens when someone sits down: ${SITE_URL}/play`;
+  return `The table was cleared. The next one opens when someone sits down: <${SITE_URL}/play>`;
 }
 
 /** TransactWriteItems element: mark this player seated in `podId`. */
