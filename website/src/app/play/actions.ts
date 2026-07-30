@@ -22,8 +22,8 @@ export async function joinAction(): Promise<ActionResult> {
   const session = await auth();
   if (!session) return { error: "Sign in first." };
   return run(async () => {
-    await ensureAccount(session.user.discordUserId, session.user.name);
-    await joinOrCreate(session.user.discordUserId, session.user.name);
+    await ensureAccount(session.user.discordUserId, session.user.name, session.user.avatar);
+    await joinOrCreate(session.user.discordUserId, session.user.name, session.user.avatar);
   });
 }
 

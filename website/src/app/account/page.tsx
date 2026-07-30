@@ -20,7 +20,15 @@ export default async function AccountPage() {
       <SiteHeader current="/account" />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <span className="tape">Your card</span>
-        {session ? <SignedIn name={session.user.name} discordUserId={session.user.discordUserId} /> : <SignedOut />}
+        {session ? (
+          <SignedIn
+            name={session.user.name}
+            discordUserId={session.user.discordUserId}
+            avatar={session.user.avatar}
+          />
+        ) : (
+          <SignedOut />
+        )}
       </main>
       <SiteFooter />
     </div>
@@ -44,9 +52,17 @@ function SignedOut() {
   );
 }
 
-async function SignedIn({ name, discordUserId }: { name: string; discordUserId: string }) {
+async function SignedIn({
+  name,
+  discordUserId,
+  avatar,
+}: {
+  name: string;
+  discordUserId: string;
+  avatar: string | null;
+}) {
   const [account, balance, redemptions] = await Promise.all([
-    ensureAccount(discordUserId, name),
+    ensureAccount(discordUserId, name, avatar),
     getBalance(discordUserId),
     playerRedemptions(discordUserId),
   ]);

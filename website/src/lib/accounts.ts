@@ -18,6 +18,7 @@ const TABLE = () => Resource.Account.name;
 export type AccountRow = {
   discordUserId: string;
   displayName: string;
+  avatar?: string | null;
   meleeUserIdentity?: string;
   pendingClaim?: string;
   activePodId?: string; // one active pod per player; set on join, cleared on leave/close
@@ -56,13 +57,18 @@ export async function getAccount(discordUserId: string): Promise<AccountRow | un
   return res.Item as AccountRow | undefined;
 }
 
-export async function ensureAccount(discordUserId: string, displayName: string): Promise<AccountRow> {
+export async function ensureAccount(
+  discordUserId: string,
+  displayName: string,
+  avatar: string | null = null,
+): Promise<AccountRow> {
   const res = await doc.send(new UpdateCommand({
     TableName: TABLE(),
     Key: { discordUserId },
-    // Refresh the Discord display name on every touch; set createdAt once.
-    UpdateExpression: "SET displayName = :n, createdAt = if_not_exists(createdAt, :now)",
-    ExpressionAttributeValues: { ":n": displayName, ":now": new Date().toISOString() },
+    // Refresh Discord display name and avatar on every touch; set createdAt once.
+    UpdateExpression:
+      "SET displayName = :n, avatar = :a, createdAt = if_not_exists(createdAt, :now)",
+    ExpressionAttributeValues: { ":n": displayName, ":a": avatar, ":now": new Date().toISOString() },
     ReturnValues: "ALL_NEW",
   }));
   return res.Attributes as AccountRow;

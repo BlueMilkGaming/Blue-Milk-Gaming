@@ -7,7 +7,7 @@ import { parseAdminIds } from "./admins.ts";
 
 declare module "next-auth" {
   interface Session {
-    user: { discordUserId: string; name: string; isAdmin: boolean };
+    user: { discordUserId: string; name: string; avatar: string | null; isAdmin: boolean };
   }
 }
 
@@ -27,6 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (profile) {
         token.discordUserId = String(profile.id);
         token.name = String(profile.global_name ?? profile.username);
+        token.avatar = profile.avatar ? String(profile.avatar) : null;
       }
       return token;
     },
@@ -34,6 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user = {
         discordUserId: token.discordUserId as string,
         name: token.name as string,
+        avatar: (token.avatar as string | null) ?? null,
         isAdmin: parseAdminIds(Resource.AdminDiscordIds.value).has(
           token.discordUserId as string,
         ),
