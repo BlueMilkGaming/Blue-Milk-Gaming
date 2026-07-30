@@ -25,33 +25,33 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 3000,
     retail: 95,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-token-set.png",
+    imageUrl: "/prize-images/metal-token-set.png",
     productUrl: "https://premiergames.store/products/metal-token-set",
   },
   {
     name: "Mother Talzin playmat (Regional)",
     points: 1500,
-    imageUrl: "/prizes/mother-talzin-playmat.png",
+    imageUrl: "/prize-images/mother-talzin-playmat.png",
   },
   {
     name: "Sneaking Suspicion playmat (Regional)",
     points: 1500,
-    imageUrl: "/prizes/sneaking-suspicion-playmat.png",
+    imageUrl: "/prize-images/sneaking-suspicion-playmat.png",
   },
   {
     name: "Shien Flurry playmat (Regional)",
     points: 1500,
-    imageUrl: "/prizes/shien-flurry-playmat.png",
+    imageUrl: "/prize-images/shien-flurry-playmat.png",
   },
   {
     name: "Darth Tyrannus playmat (Regional)",
     points: 1500,
-    imageUrl: "/prizes/darth-tyrannus-playmat.png",
+    imageUrl: "/prize-images/darth-tyrannus-playmat.png",
   },
   {
     name: "Princess Leia playmat (Regional)",
     points: 1000,
-    imageUrl: "/prizes/princess-leia-playmat.png",
+    imageUrl: "/prize-images/princess-leia-playmat.png",
   },
 
   // Premier Games catalog
@@ -60,7 +60,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 500,
     retail: 15,
     by: "Premier Games",
-    imageUrl: "/prizes/mandalorian-spy-token.png",
+    imageUrl: "/prize-images/mandalorian-spy-token.png",
     productUrl: "https://premiergames.store/products/mandalorian-spy-token",
   },
   {
@@ -68,7 +68,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 500,
     retail: 15,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-advantage-token.png",
+    imageUrl: "/prize-images/metal-advantage-token.png",
     productUrl: "https://premiergames.store/products/metal-advantage-token",
   },
   {
@@ -76,7 +76,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 500,
     retail: 15,
     by: "Premier Games",
-    imageUrl: "/prizes/x-wing-tie-fighter-token.png",
+    imageUrl: "/prize-images/x-wing-tie-fighter-token.png",
     productUrl: "https://premiergames.store/products/x-wing-tie-fighter-token",
   },
   {
@@ -84,7 +84,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 475,
     retail: 14,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-imperial-credit-token.png",
+    imageUrl: "/prize-images/metal-imperial-credit-token.png",
     productUrl: "https://premiergames.store/products/metal-imperial-credit-token",
   },
   {
@@ -92,7 +92,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 475,
     retail: 14,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-old-republic-credit-token.png",
+    imageUrl: "/prize-images/metal-old-republic-credit-token.png",
     productUrl: "https://premiergames.store/products/metal-old-republic-credit-token",
   },
   {
@@ -100,7 +100,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 400,
     retail: 12,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-force-token.png",
+    imageUrl: "/prize-images/metal-force-token.png",
     productUrl: "https://premiergames.store/products/metal-force-token",
   },
   {
@@ -108,7 +108,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 400,
     retail: 12,
     by: "Premier Games",
-    imageUrl: "/prizes/beskar-initiative-token.png",
+    imageUrl: "/prize-images/beskar-initiative-token.png",
     productUrl: "https://premiergames.store/products/beskar-initiative-token",
   },
   {
@@ -116,7 +116,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 400,
     retail: 12,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-twin-suns-token-set.png",
+    imageUrl: "/prize-images/metal-twin-suns-token-set.png",
     productUrl: "https://premiergames.store/products/metal-twin-suns-token-set",
   },
   {
@@ -124,7 +124,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-damage-token.png",
+    imageUrl: "/prize-images/metal-damage-token.png",
     productUrl: "https://premiergames.store/products/metal-damage-token",
   },
   {
@@ -132,7 +132,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-epic-action-reminder-token.png",
+    imageUrl: "/prize-images/metal-epic-action-reminder-token.png",
     productUrl: "https://premiergames.store/products/metal-epic-action-reminder-token",
   },
   {
@@ -140,7 +140,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-experience-token.png",
+    imageUrl: "/prize-images/metal-experience-token.png",
     productUrl: "https://premiergames.store/products/metal-experience-token",
   },
   {
@@ -148,7 +148,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-hand-token.png",
+    imageUrl: "/prize-images/metal-hand-token.png",
     productUrl: "https://premiergames.store/products/metal-hand-token",
   },
   {
@@ -156,7 +156,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-hidden-sentinel-token.png",
+    imageUrl: "/prize-images/metal-hidden-sentinel-token.png",
     productUrl: "https://premiergames.store/products/metal-hidden-sentinel-token",
   },
   {
@@ -164,7 +164,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-initiative-token-data-card.png",
+    imageUrl: "/prize-images/metal-initiative-token-data-card.png",
     productUrl: "https://premiergames.store/products/metal-initiative-token-data-card",
   },
   {
@@ -172,7 +172,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-modifier-token.png",
+    imageUrl: "/prize-images/metal-modifier-token.png",
     productUrl: "https://premiergames.store/products/metal-modifier-token",
   },
   {
@@ -180,7 +180,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 275,
     retail: 8,
     by: "Premier Games",
-    imageUrl: "/prizes/metal-shield-token.png",
+    imageUrl: "/prize-images/metal-shield-token.png",
     productUrl: "https://premiergames.store/products/metal-shield-token",
   },
 ];
