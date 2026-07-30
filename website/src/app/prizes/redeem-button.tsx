@@ -13,6 +13,8 @@ export function RedeemButton({ prizeId, points }: { prizeId: string; points: num
           if (!armed) {
             e.preventDefault();
             setArmed(true);
+          } else {
+            setArmed(false);
           }
         }}
       >
