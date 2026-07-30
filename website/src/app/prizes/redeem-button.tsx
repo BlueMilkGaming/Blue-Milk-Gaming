@@ -30,16 +30,23 @@ export function RedeemButton({ prizeId, points }: { prizeId: string; points: num
               : "Redeem"}
         </button>
       </form>
-      {state && "error" in state && (
-        <p className="mt-2 text-sm font-extrabold text-[color-mix(in_srgb,var(--hot)_70%,var(--ink))]">
-          {state.error}
-        </p>
-      )}
-      {state && "ok" in state && (
-        <p className="mt-2 text-sm font-extrabold">
-          Yours. The shopkeeper will DM you on Discord.
-        </p>
-      )}
+      <div aria-live="polite">
+        {armed && !pending && (
+          <p className="sr-only">
+            Press the button again to confirm spending {points.toLocaleString("en-US")} points.
+          </p>
+        )}
+        {state && "error" in state && (
+          <p className="mt-2 text-sm font-extrabold text-[color-mix(in_srgb,var(--hot)_70%,var(--ink))]">
+            {state.error}
+          </p>
+        )}
+        {state && "ok" in state && (
+          <p className="mt-2 text-sm font-extrabold">
+            Yours. The shopkeeper will DM you on Discord.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

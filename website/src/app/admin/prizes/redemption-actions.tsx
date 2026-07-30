@@ -25,7 +25,8 @@ export function RedemptionActions({ playerId, redemptionId }: { playerId: string
           <input
             name="note"
             placeholder="note (optional)"
-            className="w-36 border-2 border-[color-mix(in_srgb,var(--ink)_30%,transparent)] px-2 py-1 text-sm font-extrabold"
+            disabled={busy}
+            className="w-36 border-2 border-[color-mix(in_srgb,var(--ink)_30%,transparent)] px-2 py-1 text-sm font-extrabold disabled:cursor-not-allowed"
           />
           <button
             disabled={busy}
