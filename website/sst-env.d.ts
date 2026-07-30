@@ -14,6 +14,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "AdminWebhookUrl": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "AuthSecret": {
       "type": "sst.sst.Secret"
       "value": string
@@ -55,6 +59,14 @@ declare module "sst" {
       "value": string
     }
     "PointsLedger": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Prize": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Redemption": {
       "name": string
       "type": "sst.aws.Dynamo"
     }
