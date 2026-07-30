@@ -44,8 +44,8 @@ export function TablesSection() {
         Sit down, play a pod.
       </h2>
       <p className="mt-3 max-w-md text-[color-mix(in_srgb,var(--paper)_65%,transparent)]">
-        Eight chairs, three rounds, points for every win. Open whenever enough
-        of us are around.
+        Four to eight chairs, three rounds, points for every win. Open whenever
+        enough of us are around.
       </p>
       <div className="tilt-s taped paper mt-10 max-w-xl p-7">
         {snap?.lobby ? (
