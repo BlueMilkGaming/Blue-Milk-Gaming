@@ -1,7 +1,7 @@
 "use server";
 import { auth, signIn } from "@/lib/auth";
 import { ensureAccount } from "@/lib/accounts";
-import { joinOrCreate, leavePod, reportResult, flagResult } from "@/lib/pods-db";
+import { joinOrCreate, leavePod, reportResult, flagResult, firePod } from "@/lib/pods-db";
 
 type ActionResult = { error: string } | { ok: true };
 
@@ -48,4 +48,10 @@ export async function flagAction(
   const session = await auth();
   if (!session) return { error: "Sign in first." };
   return run(() => flagResult(session.user.discordUserId, podId, roundIndex, matchIndex));
+}
+
+export async function fireAction(podId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session) return { error: "Sign in first." };
+  return run(() => firePod(session.user.discordUserId, podId));
 }

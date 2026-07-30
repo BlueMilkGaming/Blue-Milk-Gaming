@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { joinAction, leaveAction, reportAction, flagAction } from "./actions";
-import { NO_SHOW_CLAIM_MS, LOBBY_TTL_MS, POD_ROUNDS, type Match, type PodRow } from "@/lib/pods";
+import { joinAction, leaveAction, reportAction, flagAction, fireAction } from "./actions";
+import { NO_SHOW_CLAIM_MS, LOBBY_TTL_MS, POD_MIN, POD_ROUNDS, type Match, type PodRow, type Seat } from "@/lib/pods";
 
 type Snapshot = {
   lobby: { podId: string; seats: string[]; createdAt: string } | null;
@@ -66,7 +66,10 @@ export function PlayClient() {
       {error && (
         <p className="tilt-r inline-block bg-[var(--hot)] px-4 py-2 font-extrabold text-[var(--ink)]">{error}</p>
       )}
-      {you?.status === "filling" && <Lobby pod={you} yourId={snap.yourId!} onLeave={() => act(() => leaveAction(you.podId))} pending={pending} />}
+      {you?.status === "filling" && <Lobby pod={you} yourId={snap.yourId!}
+        onLeave={() => act(() => leaveAction(you.podId))}
+        onFire={() => act(() => fireAction(you.podId))}
+        pending={pending} />}
       {you?.status === "playing" && <Playing pod={you} yourId={snap.yourId!} act={act} pending={pending} />}
       {!you && lastPod && <Finished pod={lastPod} yourId={snap.yourId!} paidToday={snap.paidToday} onAgain={() => { setLastPod(null); act(joinAction); }} pending={pending} />}
       {!you && !lastPod && <PlayNow snap={snap} onJoin={() => act(joinAction)} pending={pending} />}
@@ -80,7 +83,7 @@ function PlayNow({ snap, onJoin, pending }: { snap: Snapshot; onJoin: () => void
       <h1 className="display text-4xl">Play now</h1>
       <p className="mt-4 leading-relaxed text-[color-mix(in_srgb,var(--ink)_80%,transparent)]">
         {snap.lobby
-          ? `A table is filling: ${snap.lobby.seats.length} of 8 chairs taken.`
+          ? `A table is filling: ${snap.lobby.seats.length} of 8 chairs taken. A full 8 deals itself; the host can launch with 4 or 6.`
           : "Tables are quiet right now. First pod of the day opens when you sit down."}
         {snap.playingCount > 0 && ` ${snap.playingCount} pod${snap.playingCount > 1 ? "s" : ""} in play.`}
       </p>
@@ -95,17 +98,41 @@ function PlayNow({ snap, onJoin, pending }: { snap: Snapshot; onJoin: () => void
   );
 }
 
-function Lobby({ pod, yourId, onLeave, pending }: {
-  pod: NonNullable<Snapshot["you"]>; yourId: string; onLeave: () => void; pending: boolean;
+function SeatAvatar({ seat }: { seat: Seat }) {
+  if (!seat.avatar) {
+    return (
+      <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-extrabold text-[var(--ink)]">
+        {seat.displayName.slice(0, 1).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set; Discord CDN serves the sized file
+    <img src={`https://cdn.discordapp.com/avatars/${seat.playerId}/${seat.avatar}.png?size=64`}
+      alt="" className="h-8 w-8 shrink-0 rounded-full" />
+  );
+}
+
+function Lobby({ pod, yourId, onLeave, onFire, pending }: {
+  pod: NonNullable<Snapshot["you"]>; yourId: string;
+  onLeave: () => void; onFire: () => void; pending: boolean;
 }) {
   const minutesLeft = Math.max(0, Math.ceil((Date.parse(pod.createdAt) + LOBBY_TTL_MS - Date.now()) / 60000));
+  const host = pod.seats[0];
+  const isHost = host?.playerId === yourId;
+  const canFire = pod.seats.length >= POD_MIN && pod.seats.length % 2 === 0;
   return (
     <div className="tilt-l taped paper p-8">
       <h1 className="display text-4xl">Filling: {pod.seats.length} of 8</h1>
       <ul className="nums mt-5 grid grid-cols-2 gap-2">
         {pod.seats.map((s) => (
-          <li key={s.playerId} className="border-b-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] py-2 font-extrabold">
-            {s.displayName}{s.playerId === yourId && " (you)"}
+          <li key={s.playerId} className="flex items-center gap-2.5 border-b-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] py-2 font-extrabold">
+            <SeatAvatar seat={s} />
+            <span>
+              {s.displayName}
+              {s.playerId === yourId && " (you)"}
+              {s.playerId === host?.playerId && " (host)"}
+            </span>
           </li>
         ))}
         {Array.from({ length: 8 - pod.seats.length }, (_, i) => (
@@ -115,10 +142,22 @@ function Lobby({ pod, yourId, onLeave, pending }: {
         ))}
       </ul>
       <p className="mt-4 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
-        The table clears in {minutesLeft} min if it doesn&apos;t fill. Deals when the 8th chair is taken.
+        The table clears in {minutesLeft} min if it doesn&apos;t fill. A full 8
+        deals itself, or the host can launch with 4 or 6.
       </p>
+      {canFire && isHost && (
+        <button onClick={onFire} disabled={pending}
+          className="mt-5 cursor-pointer rounded-full bg-[var(--hot)] px-6 py-2.5 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2 disabled:opacity-50">
+          Launch with {pod.seats.length} players
+        </button>
+      )}
+      {canFire && !isHost && (
+        <p className="mt-4 text-sm font-extrabold">
+          {host.displayName} can launch the pod now, or you can wait for more players.
+        </p>
+      )}
       <button onClick={onLeave} disabled={pending}
-        className="mt-5 cursor-pointer text-sm font-extrabold underline transition-colors hover:text-[var(--accent)]">
+        className="mt-5 ml-0 block cursor-pointer text-sm font-extrabold underline transition-colors hover:text-[var(--accent)]">
         Stand up
       </button>
     </div>
