@@ -37,7 +37,7 @@ Later phases: home page (Phase 2), leaderboard UI. Full plan at `~/.claude/plans
 
 ## Domain
 
-`bluemilkgaming.com` is owned, DNS at Cloudflare, and currently serves the Fourthwall store. Per ADR 0003 the site takes the apex and the store moves to `shop.`. **Cutover has not started** — the store must be working at `shop.` first. Until then, deploys are only reachable at the CloudFront URL, and `sst.config.ts` deliberately has no `domain` block.
+`bluemilkgaming.com` is owned, DNS at Cloudflare. The Fourthwall store moved to `merch.bluemilkgaming.com` (2026-07-30, via Fourthwall's Entri auto-setup; `merch.` not `shop.` to match the nav label). The apex serves nothing until the site takes it — acceptable, the store had zero traffic. **Apex cutover has not started**: deploys are only reachable at the CloudFront URL, and `sst.config.ts` deliberately has no `domain` block. See ADR 0003 for the cutover steps.
 
 ## Commands (run in `website/`)
 

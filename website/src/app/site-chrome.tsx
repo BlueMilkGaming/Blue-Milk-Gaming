@@ -16,7 +16,7 @@ const NAV = [
   { label: "The Prize Wall", href: "/prizes" },
 ];
 
-// Single source for the store URL: it moves to shop. at domain cutover.
+// Single source for the store URL (merch.bluemilkgaming.com).
 const SHOP = CHANNELS.find((c) => c.label === "Merch");
 
 export function SiteHeader({ current }: { current?: string }) {

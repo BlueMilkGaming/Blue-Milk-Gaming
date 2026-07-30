@@ -20,9 +20,9 @@
 | YouTube | https://www.youtube.com/@BlueMilkGaming |
 | Discord | https://discord.gg/pyVPPHwemq |
 | Patreon | https://www.patreon.com/cw/BlueMilkGaming |
-| Store / current site | https://bluemilkgaming.com/ (Fourthwall) |
+| Store | https://merch.bluemilkgaming.com/ (Fourthwall) |
 
-**Note:** `bluemilkgaming.com` (DNS at Cloudflare) currently resolves to the Fourthwall merch store as a temporary arrangement. Per [ADR 0003](decisions/0003-domain.md) the new site will take the apex and the store moves to `shop.bluemilkgaming.com`.
+**Note:** the Fourthwall store moved off the apex to `merch.bluemilkgaming.com` on 2026-07-30. Per [ADR 0003](decisions/0003-domain.md) the new site will take the apex; until that cutover, `bluemilkgaming.com` serves nothing.
 
 ## What we do
 

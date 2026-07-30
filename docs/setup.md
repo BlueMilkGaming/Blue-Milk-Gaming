@@ -106,7 +106,7 @@ These four live only as SST secrets. `src/lib/auth.ts` reads `Resource.*` direct
 
 ## Domain
 
-Decided in [ADR 0003](decisions/0003-domain.md): the new site takes `bluemilkgaming.com`, the Fourthwall store moves to `shop.bluemilkgaming.com`. DNS stays at Cloudflare.
+Decided in [ADR 0003](decisions/0003-domain.md): the new site takes `bluemilkgaming.com`; the Fourthwall store lives at `merch.bluemilkgaming.com` (moved 2026-07-30). DNS stays at Cloudflare.
 
 For deploys that configure the domain you'll need a Cloudflare API token with the **Edit zone DNS** policy:
 
