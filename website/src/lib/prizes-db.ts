@@ -157,9 +157,11 @@ export async function cancelRedemption(playerId: string, redemptionId: string, n
         TableName: PRIZE(),
         Key: { prizeId: redemption.prizeId },
         UpdateExpression: "ADD stock :one",
-        // Guards the race where an admin just cleared stock: ADD on a missing
-        // row would otherwise resurrect it as a stock-1 item.
-        ConditionExpression: "attribute_exists(prizeId)",
+        // Guards the race where an admin just cleared stock: if concurrent
+        // clearStock removes the stock attribute, ADD would initialize it to 1.
+        // This condition makes the increment fail loudly; the whole cancel aborts
+        // and a retry's fresh read sees stock is gone, skipping the increment.
+        ConditionExpression: "attribute_exists(stock)",
         ExpressionAttributeValues: { ":one": 1 },
       },
     });

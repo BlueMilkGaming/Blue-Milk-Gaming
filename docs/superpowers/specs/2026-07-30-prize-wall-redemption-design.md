@@ -152,8 +152,8 @@ sections:
   requested date) with Fulfil and Cancel buttons; cancel takes an optional
   note.
 - **Stock:** every catalog item with its count or "unlimited", an editable
-  count (setting a count creates the `Prize` row; clearing it deletes the
-  row, returning the item to unlimited), and a hide toggle.
+  count (setting a count creates the `Prize` row; clearing it removes the
+  stock attribute, returning the item to unlimited), and a hide toggle.
 
 **`/admin`** — new index: links to Claims, Flags, and Prizes with pending
 counts beside each, so it doubles as "anything need my attention?". A small
