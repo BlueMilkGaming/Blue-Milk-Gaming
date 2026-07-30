@@ -218,9 +218,11 @@ export async function joinOrCreate(
   }
 }
 
-/** Flip filling → playing and deal round 1. Condition on the exact seat count
- * the caller read, so a racing join fails the launch cleanly. Any caller may
- * race; one wins. Returns whether this call did the launch. */
+/** Flip filling → playing and deal round 1. Condition on the exact seats the
+ * caller read (set equality, not just count), so any membership change
+ * (a swap that leaves the count unchanged, not just a join/leave that
+ * changes it) fails the launch cleanly. Any caller may race; one wins.
+ * Returns whether this call did the launch. */
 async function launchPod(pod: PodRow): Promise<boolean> {
   const players = pod.seats.length;
   const now = new Date().toISOString();
@@ -229,10 +231,11 @@ async function launchPod(pod: PodRow): Promise<boolean> {
       TableName: POD(),
       Key: { podId: pod.podId },
       UpdateExpression: "SET #s = :playing, filledAt = :now, rounds = :r1",
-      ConditionExpression: "#s = :filling AND size(seatIds) = :n",
+      ConditionExpression: "#s = :filling AND seatIds = :ids",
       ExpressionAttributeNames: { "#s": "status" },
       ExpressionAttributeValues: {
-        ":playing": "playing", ":filling": "filling", ":now": now, ":n": players,
+        ":playing": "playing", ":filling": "filling", ":now": now,
+        ":ids": new Set(pod.seats.map((s) => s.playerId)),
         ":r1": [{ pairings: dealRound(pod.seats, []), dealtAt: now }],
       },
     }));
