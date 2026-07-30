@@ -12,6 +12,8 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 
 **Stage 1 shipped:** Discord sign-in and the claim flow are live. `/account` links players to their melee results. `/admin/claims` (for admins only) shows the claim queue. The `Account` table is live. Verified end to end in production 2026-07-29 (sign-in, claim, approve, linked).
 
+**Stage 2 shipped (pods):** `/play` runs 8-player, 3-round pods end to end; the home page has a live Tables section; `/admin/flags` resolves disputes. `Pod`, `PointsLedger` and `PlayerBalance` tables are live (ledger and balance get their first consumers here; pods pay currency only, best 2 pods per club day, 25 per win via `PODS_V1`). Discord webhook announces lobbies. Verified end to end in production 2026-07-30 (solo, using `scripts/pod-sim.ts` for synthetic opponents: join, launch, report, false-report → flag → resolve, payout, cleanup). Spec: `docs/superpowers/specs/2026-07-29-online-premier-pods-design.md`.
+
 Later phases: home page (Phase 2), leaderboard UI. Full plan at `~/.claude/plans/cheerful-snuggling-snowglobe.md`.
 
 ## Key docs
