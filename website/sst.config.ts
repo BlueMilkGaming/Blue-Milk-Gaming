@@ -59,6 +59,19 @@ export default $config({
       fields: { playerId: "string" },
       primaryIndex: { hashKey: "playerId" },
     });
+    // Prize wall (redemption spec 2026-07-30). Prize rows hold only mutable
+    // state (stock/hidden); the catalog itself lives in src/data/prize-wall.ts.
+    // A stock attribute means finite stock; absent means unlimited.
+    const prize = new sst.aws.Dynamo("Prize", {
+      fields: { prizeId: "string" },
+      primaryIndex: { hashKey: "prizeId" },
+    });
+    // One row per redemption request. Partition per player reads their
+    // history in time order (ULID range key); the admin queue is a scan.
+    const redemption = new sst.aws.Dynamo("Redemption", {
+      fields: { playerId: "string", redemptionId: "string" },
+      primaryIndex: { hashKey: "playerId", rangeKey: "redemptionId" },
+    });
     // melee.gg API credentials. Set with:
     //   npx sst secret set MeleeClientId "..." --stage production
     const meleeClientId = new sst.Secret("MeleeClientId");
@@ -70,6 +83,8 @@ export default $config({
     const adminDiscordIds = new sst.Secret("AdminDiscordIds");
     // Discord incoming webhook for pod announcements. No bot user.
     const podsWebhookUrl = new sst.Secret("PodsWebhookUrl");
+    // Discord incoming webhook for the private admins channel: redemption pings.
+    const adminWebhookUrl = new sst.Secret("AdminWebhookUrl");
     // ADR 0003: apex + www redirect, DNS at Cloudflare. Needs
     // CLOUDFLARE_API_TOKEN and CLOUDFLARE_DEFAULT_ACCOUNT_ID in website/.env
     // for every deploy. The store stays on merch. (managed by Fourthwall).
@@ -87,7 +102,10 @@ export default $config({
         pod,
         pointsLedger,
         playerBalance,
+        prize,
+        redemption,
         podsWebhookUrl,
+        adminWebhookUrl,
         discordClientId,
         discordClientSecret,
         authSecret,
@@ -102,7 +120,7 @@ export default $config({
       schedule: "cron(0 14 ? * MON *)",
       function: {
         handler: "src/cron/sync-melee.handler",
-        link: [player, tournament, placement, meleeClientId, meleeClientSecret],
+        link: [player, tournament, placement, account, pointsLedger, playerBalance, meleeClientId, meleeClientSecret],
         // A normal week imports one event in seconds. The headroom is for a
         // run that has several weeks to catch up, each paced by the delay
         // between melee requests.

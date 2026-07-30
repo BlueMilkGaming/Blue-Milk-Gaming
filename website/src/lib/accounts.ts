@@ -7,6 +7,8 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { Resource } from "sst";
 
+import { reconcilePlayer } from "./ledger.ts";
+
 const doc = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
 });
@@ -73,6 +75,14 @@ async function allAccounts(): Promise<AccountRow[]> {
   return (res.Items ?? []) as AccountRow[];
 }
 
+/** meleeUserIdentity → discordUserId for every linked account. */
+export async function linkedIdentityMap(): Promise<Map<string, string>> {
+  const accounts = await allAccounts();
+  return new Map(
+    accounts.flatMap((a) => (a.meleeUserIdentity ? [[a.meleeUserIdentity, a.discordUserId] as const] : [])),
+  );
+}
+
 export async function requestClaim(discordUserId: string, meleeUserIdentity: string): Promise<void> {
   const [account, accounts] = await Promise.all([getAccount(discordUserId), allAccounts()]);
   const taken = new Set(
@@ -111,6 +121,11 @@ export async function resolveClaim(discordUserId: string, approve: boolean): Pro
       ConditionExpression: "pendingClaim = :m",
       ExpressionAttributeValues: { ":m": account.pendingClaim },
     }));
+
+    // The opening credit: pay out the full tournament history now that the
+    // Discord account and the melee identity are one player. Idempotent, and
+    // the weekly cron re-runs it, so a crash here self-heals on Monday.
+    await reconcilePlayer(discordUserId, account.pendingClaim);
     return;
   }
 

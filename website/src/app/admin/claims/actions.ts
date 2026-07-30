@@ -1,13 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { resolveClaim } from "@/lib/accounts";
-
-async function requireAdmin() {
-  const session = await auth();
-  // Server-side gate (CLAUDE.md): the page hides itself too, but this is the wall.
-  if (!session?.user.isAdmin) throw new Error("admins only");
-}
 
 export async function approveAction(
   prevState: { error: string } | null,

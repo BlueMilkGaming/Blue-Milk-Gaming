@@ -8,6 +8,8 @@
 import { listOnlineLocals, getStandings } from "./melee.ts";
 import { getTournament, importTournament } from "./db.ts";
 import { seasonFor } from "./seasons.ts";
+import { linkedIdentityMap } from "./accounts.ts";
+import { reconcilePlacementCredits } from "./ledger.ts";
 
 const DELAY_MS = 1500;
 
@@ -66,5 +68,11 @@ export async function syncTournaments({ force = false, only = [] }: SyncOptions 
   console.log(
     `${result.imported.length} imported, ${result.skipped.length} skipped, ${result.failed.length} failed`,
   );
+
+  // Placement credits for linked players (redemption spec 2026-07-30): pays
+  // this week's placements and self-heals any credit an earlier crash lost.
+  const credited = await reconcilePlacementCredits(await linkedIdentityMap());
+  console.log(`${credited} placement credit(s) written`);
+
   return result;
 }
