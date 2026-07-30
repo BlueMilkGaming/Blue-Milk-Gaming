@@ -4,11 +4,13 @@ import { PODS_V1 } from "./scoring.ts";
 
 export const POD_SIZE = 8;
 export const POD_ROUNDS = 3;
+export const POD_MIN = 4;
 export const LOBBY_TTL_MS = 60 * 60 * 1000;      // filling > 60 min → abandoned
 export const POD_TTL_MS = 4 * 60 * 60 * 1000;    // playing > 4 h → done as-is
 export const NO_SHOW_CLAIM_MS = 30 * 60 * 1000;  // claimable 30 min into a round
+export const LFG_PING_COOLDOWN_MS = 60 * 60 * 1000; // one @LFG ping per hour
 
-export type Seat = { playerId: string; displayName: string; joinedAt: string };
+export type Seat = { playerId: string; displayName: string; joinedAt: string; avatar?: string | null };
 export type Match = {
   a: string;
   b: string;
@@ -30,6 +32,7 @@ export type PodRow = {
   createdAt: string;
   filledAt?: string;
   closedAt?: string;
+  announceMessageId?: string; // Discord message edited across the pod's lifetime
 };
 
 function pairKey(a: string, b: string): string {
@@ -202,4 +205,29 @@ export function flagError(
   if (match.reportedBy === playerId) return "You reported this result; only your opponent can flag it.";
   if (match.flaggedBy) return "Already flagged.";
   return null;
+}
+
+/** Why this early launch is not allowed, or null if it is. Pure; caller supplies state. */
+export function fireError(pod: PodRow, playerId: string): string | null {
+  if (pod.status !== "filling") return "This table is not filling.";
+  if (pod.seats[0]?.playerId !== playerId) return "Only the host can launch the pod early.";
+  const seated = pod.seats.length;
+  if (seated < POD_MIN) return `A pod needs at least ${POD_MIN} players.`;
+  if (seated % 2 !== 0) return "A pod needs an even number of players.";
+  return null;
+}
+
+/**
+ * Ping @LFG only for the first table of the hour. Join/leave/join spam
+ * creates fresh pods, so recent creations (any status) suppress the ping.
+ * ponytail: byDay scoping means a 23:50 pod never suppresses a 00:10 ping
+ * across club midnight; harmless at this scale.
+ */
+export function shouldPingLfg(
+  todaysPods: { createdAt: string }[],
+  now: Date = new Date(),
+): boolean {
+  return todaysPods.every(
+    (p) => now.getTime() - Date.parse(p.createdAt) >= LFG_PING_COOLDOWN_MS,
+  );
 }

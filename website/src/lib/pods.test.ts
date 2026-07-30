@@ -52,8 +52,8 @@ test("roundComplete needs all four winners", () => {
 
 import {
   settleUp, perWinDeltas, unfrozenWins, effectiveStatus,
-  reportError, flagError, clubDay,
-  LOBBY_TTL_MS, POD_TTL_MS, NO_SHOW_CLAIM_MS,
+  reportError, flagError, fireError, shouldPingLfg, clubDay,
+  LOBBY_TTL_MS, POD_TTL_MS, NO_SHOW_CLAIM_MS, POD_MIN, LFG_PING_COOLDOWN_MS,
   type PodRow,
 } from "./pods.ts";
 
@@ -132,4 +132,48 @@ test("flag validation: only the opponent, only once, only while playing", () => 
 test("clubDay uses the club's timezone, not UTC", () => {
   // 11 PM Central on the 28th is 4 AM UTC on the 29th.
   assert.equal(clubDay(new Date("2026-07-29T04:00:00Z")), "2026-07-28");
+});
+
+test("4 players deal a full round robin across three rounds", () => {
+  const four = seats.slice(0, 4);
+  for (const rng of [() => 0, () => 0.5, () => 0.999]) {
+    const rounds: Round[] = [];
+    for (let i = 0; i < 3; i++) {
+      // Winner choice must not matter: always report the first-listed player.
+      const pairings = dealRound(four, rounds, rng).map((m) => ({ ...m, winner: m.a }));
+      rounds.push({ pairings, dealtAt: "2026-07-30T00:00:00Z" });
+    }
+    const met = new Set(rounds.flatMap((r) => r.pairings.map(key)));
+    assert.equal(met.size, 6, "every pair meets exactly once (C(4,2) = 6)");
+  }
+});
+
+test("6 players get three rounds with no rematches", () => {
+  const six = seats.slice(0, 6);
+  const rounds: Round[] = [];
+  for (let i = 0; i < 3; i++) {
+    const pairings = dealRound(six, rounds, () => 0.3).map((m) => ({ ...m, winner: m.b }));
+    rounds.push({ pairings, dealtAt: "2026-07-30T00:00:00Z" });
+  }
+  const met = rounds.flatMap((r) => r.pairings.map(key));
+  assert.equal(new Set(met).size, 9, "3 rounds x 3 matches, all distinct");
+});
+
+test("fireError: host only, even count of at least four, filling only", () => {
+  const lobby = (n: number) => pod({ status: "filling", seats: seats.slice(0, n), seatIds: new Set(ids.slice(0, n)) });
+  assert.equal(fireError(lobby(4), "p0"), null);
+  assert.equal(fireError(lobby(6), "p0"), null);
+  assert.match(fireError(lobby(4), "p1")!, /host/i);
+  assert.match(fireError(lobby(3), "p0")!, /at least/i);
+  assert.match(fireError(lobby(5), "p0")!, /even/i);
+  assert.match(fireError(pod({ status: "playing" }), "p0")!, /not filling/i);
+});
+
+test("shouldPingLfg: pings when the last table is an hour old, or there is none", () => {
+  const now = new Date("2026-07-30T02:00:00Z");
+  const at = (msAgo: number) => ({ createdAt: new Date(now.getTime() - msAgo).toISOString() });
+  assert.equal(shouldPingLfg([], now), true);
+  assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS + 1)], now), true);
+  assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS - 1)], now), false);
+  assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS + 1), at(60_000)], now), false);
 });
