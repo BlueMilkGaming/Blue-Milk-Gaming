@@ -28,7 +28,11 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     imageUrl: "/prizes/metal-token-set.png",
     productUrl: "https://premiergames.store/products/metal-token-set",
   },
-  { name: "Mother Talzin playmat (Regional)", points: 1500 },
+  {
+    name: "Mother Talzin playmat (Regional)",
+    points: 1500,
+    imageUrl: "/prizes/mother-talzin-playmat.png",
+  },
   { name: "Sneaking Suspicion playmat (Regional)", points: 1500 },
   { name: "Shien Flurry playmat (Regional)", points: 1500 },
   { name: "Darth Tyrannus playmat (Regional)", points: 1500 },
