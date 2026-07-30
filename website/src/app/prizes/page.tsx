@@ -38,7 +38,7 @@ export default function PrizeWallPage() {
         <div className="pegboard mt-12 rounded-xl border-2 border-[color-mix(in_srgb,var(--paper)_40%,transparent)] p-8 shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-10">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {PRIZE_WALL.map((item) => (
-              <div key={item.name} className="tilt-r paper p-6 pt-5 text-center">
+              <div key={item.id} className="tilt-r paper p-6 pt-5 text-center">
                 <span aria-hidden="true" className="mx-auto flex h-4 w-4 items-center justify-center rounded-full bg-[var(--wall-deep)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[color-mix(in_srgb,var(--paper)_45%,var(--wall-deep))]" />
                 </span>
