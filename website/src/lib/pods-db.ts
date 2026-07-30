@@ -15,7 +15,7 @@ import {
 } from "./pods.ts";
 import { ulid } from "./ulid.ts";
 import { paidToday, entryPut, balanceCredit, type LedgerEntry } from "./ledger.ts";
-import { announce, SITE_URL } from "./discord.ts";
+import { announce, announceAdmin, SITE_URL } from "./discord.ts";
 import { getAccount } from "./accounts.ts";
 import { PODS_V1 } from "./scoring.ts";
 import { isConditionFailure } from "./dynamo.ts";
@@ -347,6 +347,8 @@ export async function flagResult(
     ExpressionAttributeNames: { "#s": "status" },
     ExpressionAttributeValues: { ":p": playerId, ":playing": "playing" },
   }));
+  const flagger = pod.seats.find((s) => s.playerId === playerId)?.displayName ?? "A player";
+  await announceAdmin(`**${flagger}** flagged a match result at the tables: ${SITE_URL}/admin/flags`);
 }
 
 /**

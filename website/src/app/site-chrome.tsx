@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CHANNELS, DISCORD_URL } from "@/data/season";
+import { CHANNELS, DISCORD_URL } from "@/data/org";
 import { TablesNavDot } from "./tables-live";
 
 /*

@@ -102,7 +102,7 @@ export function roundComplete(round: Round): boolean {
 }
 
 /**
- * The club's calendar day (fixture is 6:30 PM CT). An evening of pods must not
+ * The club's calendar day (the Online Local runs 6:30 PM CT). An evening of pods must not
  * split across a UTC midnight, or the best-2-per-day cap would loosen mid-session.
  */
 export function clubDay(at: Date = new Date()): string {

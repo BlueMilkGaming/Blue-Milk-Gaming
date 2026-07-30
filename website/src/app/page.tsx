@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getLatestVideos, type Video } from "@/lib/youtube";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { CURRENT_SEASON } from "@/lib/seasons";
-import { FIXTURE, PARTNERS, DISCORD_URL } from "@/data/season";
+import { ONLINE_LOCAL, PARTNERS, DISCORD_URL } from "@/data/org";
 import { PRIZE_WALL } from "@/data/prize-wall";
 import { StoreStyles } from "./store-styles";
 import { SiteHeader, SiteFooter } from "./site-chrome";
@@ -31,7 +31,7 @@ const BOARD_ROWS = 10;
     and a tear-off tab is the way in. The regulars, the board, the shelf, then
     the back room: join the Discord.
   FIRST VIEWPORT: The flyer dominates, taped up at a slight tilt: ONLINE LOCAL,
-    the fixture block, tear-off DISCORD tabs along the bottom edge with one tab
+    the when/format/where block, tear-off DISCORD tabs along the bottom edge with one tab
     already taken. The crew photo hangs pinned beside it.
   FORM: LGS counter (grounded #6, assigned); flyer-on-the-door staging;
     seed 6254c3ee.
@@ -82,13 +82,13 @@ function Door() {
           </h1>
           <p className="mt-5 max-w-sm leading-relaxed text-[color-mix(in_srgb,var(--ink)_80%,transparent)]">
             Our weekly Star Wars: Unlimited tournament, every Sunday night. Four
-            rounds of Swiss, one table that runs all season.
+            rounds of Swiss, one leaderboard that runs all season.
           </p>
           <dl className="nums mt-7 border-t-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)]">
             {[
-              ["When", `${FIXTURE.day}s · ${FIXTURE.time}`],
-              ["Format", FIXTURE.format],
-              ["Where", FIXTURE.venue],
+              ["When", `${ONLINE_LOCAL.day}s · ${ONLINE_LOCAL.time}`],
+              ["Format", ONLINE_LOCAL.format],
+              ["Where", ONLINE_LOCAL.venue],
             ].map(([k, v]) => (
               <div
                 key={k}

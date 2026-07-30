@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { SEASONS, CURRENT_SEASON, getSeason } from "@/lib/seasons";
-import { DISCORD_URL } from "@/data/season";
+import { DISCORD_URL } from "@/data/org";
 import { StoreStyles } from "../store-styles";
 import { SiteHeader, SiteFooter } from "../site-chrome";
 

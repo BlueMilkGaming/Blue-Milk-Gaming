@@ -8,6 +8,7 @@ import {
 import { Resource } from "sst";
 
 import { reconcilePlayer } from "./ledger.ts";
+import { announceAdmin, SITE_URL } from "./discord.ts";
 
 const doc = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
@@ -98,6 +99,9 @@ export async function requestClaim(discordUserId: string, meleeUserIdentity: str
     ConditionExpression: "attribute_not_exists(pendingClaim) AND attribute_not_exists(meleeUserIdentity)",
     ExpressionAttributeValues: { ":m": meleeUserIdentity },
   }));
+  await announceAdmin(
+    `**${account?.displayName ?? "Someone"}** wants to claim a melee name: ${SITE_URL}/admin/claims`,
+  );
 }
 
 export async function listPendingClaims(): Promise<AccountRow[]> {

@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { getAccount } from "@/lib/accounts";
 import { getBalance } from "@/lib/ledger";
 import { allPrizeRows } from "@/lib/prizes-db";
-import { DISCORD_URL } from "@/data/season";
+import { DISCORD_URL } from "@/data/org";
 import { PRIZE_WALL } from "@/data/prize-wall";
 import { StoreStyles } from "../store-styles";
 import { SiteHeader, SiteFooter } from "../site-chrome";

@@ -1,10 +1,10 @@
-// Authored club data. Real facts only — no invented standings (see PRODUCT.md:
-// "real data or nothing"). Live YouTube comes from src/lib/youtube.ts; live
-// standings arrive with the melee.gg sync.
+// Authored org facts and links. Real facts only — no invented standings (see
+// PRODUCT.md: "real data or nothing"). Live YouTube comes from
+// src/lib/youtube.ts; live standings arrive with the melee.gg sync.
 
 export const DISCORD_URL = "https://discord.gg/sTWmJaXS5w";
 
-export const FIXTURE = {
+export const ONLINE_LOCAL = {
   competition: "Online Local",
   day: "Sunday",
   time: "6:30 PM CT",
