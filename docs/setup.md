@@ -108,11 +108,11 @@ These four live only as SST secrets. `src/lib/auth.ts` reads `Resource.*` direct
 
 Decided in [ADR 0003](decisions/0003-domain.md): the new site takes `bluemilkgaming.com`; the Fourthwall store lives at `merch.bluemilkgaming.com` (moved 2026-07-30). DNS stays at Cloudflare.
 
-For deploys that configure the domain you'll need a Cloudflare API token with the **Edit zone DNS** policy:
+Deploys that configure the domain need a Cloudflare API token with the **Edit zone DNS** policy plus the account ID. They live in `website/.env` (gitignored, auto-loaded by every `sst` command — `.env.local` is Next-only and `sst deploy` won't read it):
 
-```bash
-export CLOUDFLARE_API_TOKEN="..."
-export CLOUDFLARE_DEFAULT_ACCOUNT_ID="..."
+```
+CLOUDFLARE_API_TOKEN=...
+CLOUDFLARE_DEFAULT_ACCOUNT_ID=...
 ```
 
 Keep the apex record **DNS-only (grey cloud)** — proxying Cloudflare in front of CloudFront breaks certificate validation. Until cutover, deploys are reachable at the CloudFront URL SST prints, so no DNS change is needed to start.

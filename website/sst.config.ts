@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./.sst/platform/config.d.ts" />
-
 export default $config({
   app(input) {
     return {
@@ -8,6 +7,9 @@ export default $config({
       removal: input?.stage === "production" ? "retain" : "remove",
       protect: ["production"].includes(input?.stage),
       home: "aws",
+      providers: {
+        cloudflare: { package: "@pulumi/cloudflare", version: "6.18.0" },
+      },
     };
   },
   async run() {
@@ -22,24 +24,20 @@ export default $config({
       fields: { meleeUserIdentity: "string" },
       primaryIndex: { hashKey: "meleeUserIdentity" },
     });
-
     const tournament = new sst.aws.Dynamo("Tournament", {
       fields: { meleeId: "number" },
       primaryIndex: { hashKey: "meleeId" },
     });
-
     const placement = new sst.aws.Dynamo("Placement", {
       fields: { meleeId: "number", meleeUserIdentity: "string" },
       primaryIndex: { hashKey: "meleeId", rangeKey: "meleeUserIdentity" },
     });
-
     // Discord-side identity (pods spec, Stage 1). Keyed on the snowflake; a
     // claim links it to a Player by setting meleeUserIdentity. Nothing re-keys.
     const account = new sst.aws.Dynamo("Account", {
       fields: { discordUserId: "string" },
       primaryIndex: { hashKey: "discordUserId" },
     });
-
     // Pods (pods spec, Stage 2). One pod = one item. byStatus finds the open
     // lobby and running pods; byDay feeds the best-2-pods-per-day settle-up.
     const pod = new sst.aws.Dynamo("Pod", {
@@ -50,7 +48,6 @@ export default $config({
         byDay: { hashKey: "day" },
       },
     });
-
     // Points (ADR 0004), first real consumers. Ledger entries for pods key on
     // the Discord snowflake; Sunday placements stay melee-keyed and join through
     // Account.meleeUserIdentity later.
@@ -58,32 +55,45 @@ export default $config({
       fields: { playerId: "string", entryId: "string" },
       primaryIndex: { hashKey: "playerId", rangeKey: "entryId" },
     });
-
     const playerBalance = new sst.aws.Dynamo("PlayerBalance", {
       fields: { playerId: "string" },
       primaryIndex: { hashKey: "playerId" },
     });
-
     // melee.gg API credentials. Set with:
     //   npx sst secret set MeleeClientId "..." --stage production
     const meleeClientId = new sst.Secret("MeleeClientId");
     const meleeClientSecret = new sst.Secret("MeleeClientSecret");
-
     // Discord OAuth + session signing (Stage 1 of the pods spec).
     const discordClientId = new sst.Secret("DiscordClientId");
     const discordClientSecret = new sst.Secret("DiscordClientSecret");
     const authSecret = new sst.Secret("AuthSecret");
     const adminDiscordIds = new sst.Secret("AdminDiscordIds");
-
     // Discord incoming webhook for pod announcements. No bot user.
     const podsWebhookUrl = new sst.Secret("PodsWebhookUrl");
-
+    // ADR 0003: apex + www redirect, DNS at Cloudflare. Needs
+    // CLOUDFLARE_API_TOKEN and CLOUDFLARE_DEFAULT_ACCOUNT_ID in website/.env
+    // for every deploy. The store stays on merch. (managed by Fourthwall).
     new sst.aws.Nextjs("Web", {
-      link: [player, tournament, placement, account,
-             pod, pointsLedger, playerBalance, podsWebhookUrl,
-             discordClientId, discordClientSecret, authSecret, adminDiscordIds],
+      domain: {
+        name: "bluemilkgaming.com",
+        redirects: ["www.bluemilkgaming.com"],
+        dns: sst.cloudflare.dns(),
+      },
+      link: [
+        player,
+        tournament,
+        placement,
+        account,
+        pod,
+        pointsLedger,
+        playerBalance,
+        podsWebhookUrl,
+        discordClientId,
+        discordClientSecret,
+        authSecret,
+        adminDiscordIds,
+      ],
     });
-
     // Weekly results sync. Monday 14:00 UTC is the morning after Sunday
     // night's Online Local with hours to spare, in either US daylight or
     // standard time. Melee has no webhooks and asks not to be polled, so once
