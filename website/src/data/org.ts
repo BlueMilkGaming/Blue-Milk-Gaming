@@ -12,11 +12,11 @@ export const ONLINE_LOCAL = {
   venue: "melee.gg",
 } as const;
 
-// Partner logos are the white marks on the navy panel. Both are stacked
-// lockups at near-identical aspect ratios (2.69:1 and 2.38:1), so they share a
-// height class and balance without per-logo fudging. The Premier Games source
-// ships black on a padded canvas; the committed copy is recolored white with
-// the viewBox trimmed to the mark.
+// Partner logos are the white marks on the navy panel. All three are stacked
+// lockups at near-identical aspect ratios (2.69:1, 2.38:1, 2.26:1), so they
+// share a height class and balance without per-logo fudging. Every source
+// ships in its own brand color; the committed copies are recolored white, and
+// the Premier Games one also has its padded canvas trimmed to the mark.
 export const PARTNERS = [
   {
     name: "Premier Games",
@@ -30,6 +30,13 @@ export const PARTNERS = [
     href: "https://fontawesome.com/",
     logo: "/brand/partners/font-awesome.svg",
     width: 81,
+    height: 34,
+  },
+  {
+    name: "Web Awesome",
+    href: "https://webawesome.com/",
+    logo: "/brand/partners/web-awesome.svg",
+    width: 77,
     height: 34,
   },
 ] as const;
