@@ -52,7 +52,7 @@ Create a new application at **https://discord.com/developers/applications**:
 2. In the OAuth2 section, get the **Client ID** and click "Reset Secret" to get the **Client Secret**.
 3. Under Redirects, add two URIs:
    - Local: `http://localhost:3000/api/auth/callback/discord`
-   - Production: `https://d3fdgelj2nhbqw.cloudfront.net/api/auth/callback/discord` (replace with the production domain once cutover happens)
+   - Production: `https://bluemilkgaming.com/api/auth/callback/discord` (Auth.js builds this from the request host, so it must match the live domain exactly; sign-in fails with Discord's "Invalid OAuth2 redirect_uri" if it doesn't)
 4. Copy your User ID (visit the app page, yours shows in a tooltip). Collect any other admin Discord IDs.
 
 ### First deploy: the Pulumi provider download
