@@ -42,3 +42,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+/** Server-side admin gate for actions: pages hide themselves, this is the wall. */
+export async function requireAdmin() {
+  const session = await auth();
+  if (!session?.user.isAdmin) throw new Error("admins only");
+  return session;
+}
