@@ -1,6 +1,10 @@
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { ensureAccount } from "@/lib/accounts";
 import { getLeaderboard } from "@/lib/db";
+import { getBalance } from "@/lib/ledger";
+import { playerRedemptions } from "@/lib/prizes-db";
+import { prizeById } from "@/lib/prizes";
 import { StoreStyles } from "../store-styles";
 import { SiteHeader, SiteFooter } from "../site-chrome";
 import { signInAction, signOutAction } from "./actions";
@@ -41,7 +45,11 @@ function SignedOut() {
 }
 
 async function SignedIn({ name, discordUserId }: { name: string; discordUserId: string }) {
-  const account = await ensureAccount(discordUserId, name);
+  const [account, balance, redemptions] = await Promise.all([
+    ensureAccount(discordUserId, name),
+    getBalance(discordUserId),
+    playerRedemptions(discordUserId),
+  ]);
   return (
     <div className="tilt-l taped paper mt-8 p-8">
       <h1 className="display text-4xl">{name}</h1>
@@ -51,6 +59,27 @@ async function SignedIn({ name, discordUserId }: { name: string; discordUserId: 
         <p className="mt-4 font-extrabold">Claim submitted. It counts once the shopkeeper checks the list.</p>
       ) : (
         <ClaimForm />
+      )}
+      <p className="mt-6 border-t-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] pt-4 text-lg font-extrabold">
+        {balance.currencyBalance.toLocaleString("en-US")} pts to spend.{" "}
+        <Link href="/prizes" className="underline decoration-[var(--accent)] decoration-2 underline-offset-4">
+          See the wall
+        </Link>
+      </p>
+      {redemptions.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-sm font-extrabold uppercase tracking-wide text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
+            Redemptions
+          </h2>
+          <ul className="mt-2 space-y-2">
+            {redemptions.map((r) => (
+              <li key={r.redemptionId} className="text-sm font-extrabold">
+                {prizeById(r.prizeId)?.name ?? r.prizeId}, {r.costAtRedemption.toLocaleString("en-US")} pts,{" "}
+                {r.status}, {r.requestedAt.slice(0, 10)}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <form action={signOutAction}>
         <button className="mt-8 cursor-pointer text-sm font-extrabold underline transition-colors hover:text-[var(--accent)]">
