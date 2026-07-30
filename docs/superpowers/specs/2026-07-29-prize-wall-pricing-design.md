@@ -29,21 +29,20 @@ Decisions fixed with the owner:
 |---|---|
 | Starting balances | **Full history counts** — all backfilled currency is spendable, minus past Discord redemptions |
 | Target feel | **Small win monthly, big goal per season** for a median regular |
-| Budget | **~$150-250/month** retail value shipped, ≈ the old wall's implied 4-5¢/point |
+| Budget | **~$150-250/month** retail value shipped |
 | Supply | Mostly restockable, wide bench of addable items (promos, sleeves, etc.) |
 
 ## The ladder
 
 | Points | Item | Notes |
 |---|---|---|
-| 3,000 | **Vault: Premier Games metal token set** ($95) | One trophy item at a time. 3.2¢/pt, deliberately the worst deal per point |
+| 3,000 | **Vault: Premier Games metal token set** ($95) | One trophy item at a time. Hand-set round number; the formula lands at ~3,175 |
 | 1,500 | Regional playmats (Talzin, Sneaking Suspicion, Shien Flurry, Tyrannus) | Unchanged from the old wall |
 | 1,000 | Leia playmat | Unchanged |
-| 750 | Premier Games credit tokens x4 | Unchanged |
-| 500 | Force / Twin Suns / Initiative token sets | Unchanged |
-| 250-350 | Promo cards (owner's existing stock) | New middle rung; price each at ~4-5¢/pt of rough retail |
+| 275-575 | Premier Games catalog (18 items) | Formula-priced: base retail / 3¢, rounded to 25. $8 singles at 275 up to the $17 streaming token at 575 |
+| 250-350 | Promo cards (owner's existing stock) | New middle rung; price each at ~3¢/pt of rough retail |
 | 200 | Sleeves | New entry-month goal |
-| 100 | OP pack (random set, not current) | Sourced at ~$1.43/unit (box of 70). Feels like 3-5¢/pt at perceived value, costs far less |
+| 100 | OP pack (random set, not current) | Sourced at ~$1.43/unit (box of 70). Feels fair at perceived value, costs far less |
 
 The old wall's top shelf was accidentally correct for the pods world and is
 kept for continuity (those prices were published). The two real fixes are
@@ -53,11 +52,12 @@ like a mountain.
 
 ## Guardrails
 
-- **Every item sits in a 3-6¢-of-retail-per-point band.** This is the entire
+- **Catalog items are priced at 3¢ of retail per point.** This is the entire
   budget mechanism: with no arbitrage rung, exposure is capped by points
-  issued (~10k/month in the pods world → $150-250/month worst case at full
-  redemption, less in practice). The vault item may sit below the band; a
-  trophy is allowed to be a bad deal.
+  issued (~10k/month in the pods world → $300/month of retail at full
+  redemption, far less in practice, before the sponsor's $50). Own-stock
+  entry rungs (pack, sleeves) are deliberately worse per point, so saving up
+  is always the better deal.
 - **Prices are multiples of 25** (one pod win) and the entry rung stays at or
   above 100 (the smallest Sunday award), so no award rounds to nothing.
 - **Sponsor coverage never lowers point prices.** If a sponsor covers an
@@ -84,14 +84,13 @@ headroom, never point prices.)
 ## Catalog
 
 The full wall lives in `website/src/data/prize-wall.ts`: the ladder above
-plus 21 Premier Games catalog items priced by the formula, with retail,
-image URL, and product URL pulled from their Shopify catalog. The old wall's
-token prices (500/750) were replaced by formula prices (275-325) — real
-retail showed the old numbers were off-band in both directions, and the new
-wall has not been published, so this is the clean break point. Excluded from
-the catalog: the $105-170 Streaming Metal Token Set (a future vault rotation
-candidate) and the two storage cases (accessories to products players may
-not own).
+plus 18 Premier Games catalog items priced by the formula, with retail,
+image URL, and product URL pulled from their Shopify catalog. At 3¢/pt the
+$15 tokens land at 500, matching the old published wall, so the repricing
+reads as continuity. Excluded from the catalog: the $105-170 Streaming
+Metal Token Set (a future vault rotation candidate), the two storage cases
+(accessories to products players may not own), and the trays/holder
+(bloat at the bottom of the wall).
 
 ## Out of scope
 

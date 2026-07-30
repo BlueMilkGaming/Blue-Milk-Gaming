@@ -1,9 +1,10 @@
 // The prize wall. Prices follow docs/superpowers/specs/2026-07-29-prize-wall-pricing-design.md:
-// points = base retail / $0.045, rounded to the nearest 25, except the trophy
-// tier which is deliberately stingier. Premier Games items were pulled from
-// their Shopify catalog (premiergames.store/products.json) on 2026-07-30;
-// image URLs point at their CDN. Items with premium
-// finish variants redeem at the base finish; upgrades are handled ad hoc.
+// points = base retail / $0.03, rounded to the nearest 25. The trophy tier's
+// 3,000 is a hand-set round number (the formula lands at ~3,175). Premier
+// Games items were pulled from their Shopify catalog
+// (premiergames.store/products.json) on 2026-07-30; image URLs point at their
+// CDN. Items with premium finish variants redeem at the base finish;
+// upgrades are handled ad hoc.
 
 export type PrizeWallItem = {
   name: string;
@@ -37,7 +38,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   // Premier Games catalog
   {
     name: "Streaming Metal Advantage Token",
-    points: 375,
+    points: 575,
     retail: 17,
     by: "Premier Games",
     imageUrl:
@@ -46,7 +47,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Mandalorian / Spy Token (Double-Sided)",
-    points: 325,
+    points: 500,
     retail: 15,
     by: "Premier Games",
     imageUrl:
@@ -55,7 +56,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Advantage Token",
-    points: 325,
+    points: 500,
     retail: 15,
     by: "Premier Games",
     imageUrl:
@@ -64,7 +65,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "X-Wing / TIE Fighter Token (Double-Sided)",
-    points: 325,
+    points: 500,
     retail: 15,
     by: "Premier Games",
     imageUrl:
@@ -73,7 +74,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Imperial Credit Tokens",
-    points: 300,
+    points: 475,
     retail: 14,
     by: "Premier Games",
     imageUrl:
@@ -82,7 +83,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Old Republic Credit Tokens",
-    points: 300,
+    points: 475,
     retail: 14,
     by: "Premier Games",
     imageUrl:
@@ -91,7 +92,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Force Tokens",
-    points: 275,
+    points: 400,
     retail: 12,
     by: "Premier Games",
     imageUrl:
@@ -100,7 +101,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Initiative Token – Beskar Edition",
-    points: 275,
+    points: 400,
     retail: 12,
     by: "Premier Games",
     imageUrl:
@@ -109,7 +110,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Twin Suns Token Set",
-    points: 275,
+    points: 400,
     retail: 12,
     by: "Premier Games",
     imageUrl:
@@ -118,7 +119,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Damage Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -127,7 +128,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Epic Action / Reminder Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -136,7 +137,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Experience Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -145,7 +146,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Hand Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -154,7 +155,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Hidden / Sentinel Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -163,7 +164,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Initiative Token – Data Card",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -172,7 +173,7 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Modifier Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
@@ -181,38 +182,11 @@ export const PRIZE_WALL: PrizeWallItem[] = [
   },
   {
     name: "Metal Shield Token",
-    points: 175,
+    points: 275,
     retail: 8,
     by: "Premier Games",
     imageUrl:
       "https://cdn.shopify.com/s/files/1/0744/4381/7193/files/shield_2-2.jpg?v=1757041280",
     productUrl: "https://premiergames.store/products/metal-shield-token",
-  },
-  {
-    name: "Force Token Accessory Tray (Tray Only)",
-    points: 125,
-    retail: 6,
-    by: "Premier Games",
-    imageUrl:
-      "https://cdn.shopify.com/s/files/1/0744/4381/7193/files/forceTokenTray_withTokens-2.jpg?v=1754717766",
-    productUrl: "https://premiergames.store/products/force-token-accessory-tray",
-  },
-  {
-    name: "Twin Suns Accessory Tray (Tray Only)",
-    points: 125,
-    retail: 6,
-    by: "Premier Games",
-    imageUrl:
-      "https://cdn.shopify.com/s/files/1/0744/4381/7193/files/initiativeTokenTray_withTokens-2.jpg?v=1754718926",
-    productUrl: "https://premiergames.store/products/twin-suns-accessory-tray",
-  },
-  {
-    name: "Force Token Holder (Holder Only)",
-    points: 100,
-    retail: 5,
-    by: "Premier Games",
-    imageUrl:
-      "https://cdn.shopify.com/s/files/1/0744/4381/7193/files/insertingInDeckBox.png?v=1751654059",
-    productUrl: "https://premiergames.store/products/force-token-holder",
   },
 ];
