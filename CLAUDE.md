@@ -4,7 +4,7 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 
 ## Status
 
-**Phase 1 complete.** The site is live at **https://d3fdgelj2nhbqw.cloudfront.net** (stage `production`, `us-east-2`) serving a branded placeholder page. Billing alarms are set. The custom domain is not cut over yet.
+**Phase 1 complete.** The site is live at **https://bluemilkgaming.com** (stage `production`, `us-east-2`; apex cutover 2026-07-30, www redirects to apex). Billing alarms are set.
 
 **Phase 2 in progress:** home page (roster of the four members, YouTube RSS content feed, tournament feed), tournaments page describing the Online Local, and the external Fourthwall shop link. Nothing in Phase 2 needs a database.
 
@@ -37,7 +37,7 @@ Later phases: home page (Phase 2), leaderboard UI. Full plan at `~/.claude/plans
 
 ## Domain
 
-`bluemilkgaming.com` is owned, DNS at Cloudflare. The Fourthwall store moved to `merch.bluemilkgaming.com` (2026-07-30, via Fourthwall's Entri auto-setup; `merch.` not `shop.` to match the nav label). The apex serves nothing until the site takes it — acceptable, the store had zero traffic. **Apex cutover has not started**: deploys are only reachable at the CloudFront URL, and `sst.config.ts` deliberately has no `domain` block. See ADR 0003 for the cutover steps.
+`bluemilkgaming.com` is owned, DNS at Cloudflare. The Fourthwall store moved to `merch.bluemilkgaming.com` (2026-07-30, via Fourthwall's Entri auto-setup; `merch.` not `shop.` to match the nav label). **Apex cutover done 2026-07-30**: `sst.config.ts` has the `domain` block (apex + www redirect, `sst.cloudflare.dns()`), so every deploy needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_DEFAULT_ACCOUNT_ID` in `website/.env` (gitignored; `.env.local` is Next-only and `sst deploy` won't read it). The raw CloudFront URL no longer serves the site. Public-folder directory names must not shadow page routes: OpenNext routes public prefixes to S3, which is why prize images live in `public/prize-images/`, not `public/prizes/`.
 
 ## Commands (run in `website/`)
 
