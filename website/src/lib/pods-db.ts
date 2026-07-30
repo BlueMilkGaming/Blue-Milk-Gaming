@@ -9,13 +9,13 @@ import {
 import { Resource } from "sst";
 
 import {
-  POD_SIZE, POD_ROUNDS, clubDay, dealRound, effectiveStatus, roundComplete,
-  reportError, flagError, unfrozenWins, settleUp, perWinDeltas,
+  POD_SIZE, POD_ROUNDS, POD_MIN, clubDay, dealRound, effectiveStatus, roundComplete,
+  reportError, flagError, fireError, shouldPingLfg, unfrozenWins, settleUp, perWinDeltas,
   type PodRow, type Seat,
 } from "./pods.ts";
 import { ulid } from "./ulid.ts";
 import { paidToday, entryPut, balanceCredit, type LedgerEntry } from "./ledger.ts";
-import { announce, announceAdmin, SITE_URL } from "./discord.ts";
+import { announceWait, editAnnouncement, announceAdmin, SITE_URL } from "./discord.ts";
 import { getAccount } from "./accounts.ts";
 import { PODS_V1 } from "./scoring.ts";
 import { isConditionFailure } from "./dynamo.ts";
@@ -29,6 +29,19 @@ const ACCOUNT = () => Resource.Account.name;
 // Green = taken, white = open. Red reads as "bad seat", not "open seat".
 function seatBar(taken: number): string {
   return "🟩".repeat(taken) + "⬜".repeat(POD_SIZE - taken);
+}
+
+function fillingMessage(taken: number): string {
+  return `${seatBar(taken)}\nA table is filling at Blue Milk Gaming: ${taken} of ${POD_SIZE} chairs taken. The host can launch with ${POD_MIN} or 6; a full table of ${POD_SIZE} deals itself: ${SITE_URL}/play`;
+}
+function launchedMessage(players: number): string {
+  return `${"🟩".repeat(players)}\nPod launched with ${players} players at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.`;
+}
+function finishedMessage(players: number): string {
+  return `${"🟩".repeat(players)}\nPod finished at Blue Milk Gaming: ${players} players, three rounds in the books. Next table: ${SITE_URL}/play`;
+}
+function clearedMessage(): string {
+  return `${seatBar(0)}\nThe table was cleared. The next one opens when someone sits down: ${SITE_URL}/play`;
 }
 
 /** TransactWriteItems element: mark this player seated in `podId`. */
@@ -111,7 +124,11 @@ export async function tablesSnapshot(): Promise<{ lobby: PodRow | null; playingC
  * the 8th seat falls through to create; overflow is the next pod (spec).
  * Idempotent for an already-seated player.
  */
-export async function joinOrCreate(playerId: string, displayName: string): Promise<PodRow> {
+export async function joinOrCreate(
+  playerId: string,
+  displayName: string,
+  avatar: string | null = null,
+): Promise<PodRow> {
   const account = await getAccount(playerId);
   if (account?.activePodId) {
     const pointedPod = await getPod(account.activePodId);
@@ -134,7 +151,7 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
   }
 
   const now = new Date().toISOString();
-  const seat: Seat = { playerId, displayName, joinedAt: now };
+  const seat: Seat = { playerId, displayName, joinedAt: now, avatar };
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const { lobby } = await tablesSnapshot();
@@ -160,8 +177,7 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
       // Consistent: a stale 7-seat read here means nobody ever launches this pod.
       const joined = await getPod(lobby.podId, { consistent: true });
       if (joined.seats.length >= POD_SIZE) await launchPod(joined);
-      else if (joined.seats.length === POD_SIZE - 2)
-        await announce(`${seatBar(6)}\nSix of eight chairs taken at the Blue Milk Gaming tables. Two left: ${SITE_URL}/play`);
+      else await editAnnouncement(joined.announceMessageId, fillingMessage(joined.seats.length));
       return getPod(lobby.podId);
     } catch (err) {
       if (!isConditionFailure(err)) throw err;
@@ -169,6 +185,7 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
     }
   }
 
+  const ping = shouldPingLfg(await byDay(clubDay()));
   const pod: PodRow = {
     podId: ulid(), status: "filling", day: clubDay(),
     seats: [seat], seatIds: new Set([playerId]), rounds: [], createdAt: now,
@@ -178,7 +195,19 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
       { Put: { TableName: POD(), Item: pod, ConditionExpression: "attribute_not_exists(podId)" } },
       claimActiveSeat(playerId, pod.podId),
     ]}));
-    await announce(`${seatBar(1)}\nA table just opened at Blue Milk Gaming. First chair taken, seven to go: ${SITE_URL}/play`);
+    const messageId = await announceWait(
+      fillingMessage(1),
+      ping ? { pingRoleId: Resource.LfgRoleId.value } : {},
+    );
+    if (messageId) {
+      pod.announceMessageId = messageId;
+      // Best effort: if this write is lost the pod just has no editable card.
+      await doc.send(new UpdateCommand({
+        TableName: POD(), Key: { podId: pod.podId },
+        UpdateExpression: "SET announceMessageId = :m",
+        ExpressionAttributeValues: { ":m": messageId },
+      })).catch(() => {});
+    }
     return pod;
   } catch (err) {
     if (!isConditionFailure(err)) throw err;
@@ -189,26 +218,40 @@ export async function joinOrCreate(playerId: string, displayName: string): Promi
   }
 }
 
-/** The 8th seat flips the pod to playing and deals round 1. Any caller may race; one wins. */
-async function launchPod(pod: PodRow): Promise<void> {
+/** Flip filling → playing and deal round 1. Condition on the exact seat count
+ * the caller read, so a racing join fails the launch cleanly. Any caller may
+ * race; one wins. Returns whether this call did the launch. */
+async function launchPod(pod: PodRow): Promise<boolean> {
+  const players = pod.seats.length;
   const now = new Date().toISOString();
   try {
     await doc.send(new UpdateCommand({
       TableName: POD(),
       Key: { podId: pod.podId },
       UpdateExpression: "SET #s = :playing, filledAt = :now, rounds = :r1",
-      ConditionExpression: "#s = :filling AND size(seatIds) = :cap",
+      ConditionExpression: "#s = :filling AND size(seatIds) = :n",
       ExpressionAttributeNames: { "#s": "status" },
       ExpressionAttributeValues: {
-        ":playing": "playing", ":filling": "filling", ":now": now, ":cap": POD_SIZE,
+        ":playing": "playing", ":filling": "filling", ":now": now, ":n": players,
         ":r1": [{ pairings: dealRound(pod.seats, []), dealtAt: now }],
       },
     }));
   } catch (err) {
     if (!isConditionFailure(err)) throw err;
-    return; // another caller dealt it
+    return false; // another caller dealt it, or the seats changed underneath
   }
-  await announce(`${seatBar(POD_SIZE)}\nPod launched at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.`);
+  await editAnnouncement(pod.announceMessageId, launchedMessage(players));
+  return true;
+}
+
+/** The host launches early with 4 or 6 seated. */
+export async function firePod(playerId: string, podId: string): Promise<void> {
+  // Consistent: firing on a stale seat list would deal the wrong table.
+  const pod = await getPod(podId, { consistent: true });
+  const error = fireError(pod, playerId);
+  if (error) throw new Error(error);
+  if (!(await launchPod(pod)))
+    throw new Error("The table changed as you launched; look again.");
 }
 
 /** Leave a filling lobby. CAS on the seat set so a concurrent join is never dropped. */
@@ -238,8 +281,10 @@ export async function leavePod(playerId: string, podId: string): Promise<void> {
         },
         releaseActiveSeat(playerId, podId),
       ]}));
-      if (seats.length === 0)
-        await announce(`${seatBar(0)}\nThe last player left and the table was cleared. The next one opens when someone sits down: ${SITE_URL}/play`);
+      await editAnnouncement(
+        pod.announceMessageId,
+        seats.length === 0 ? clearedMessage() : fillingMessage(seats.length),
+      );
       return;
     } catch (err) {
       if (!isConditionFailure(err)) throw err;
@@ -269,7 +314,7 @@ async function abandonPod(pod: PodRow): Promise<void> {
     if (!isConditionFailure(err)) throw err;
     return; // someone else expired it
   }
-  await announce(`${seatBar(0)}\nA table sat unfilled for an hour and was cleared. The next one opens when someone sits down.`);
+  await editAnnouncement(pod.announceMessageId, clearedMessage());
 }
 
 /** Either player reports; a no-show claim is a report with the 30-minute gate. */
@@ -406,8 +451,10 @@ export async function closePod(pod: PodRow): Promise<void> {
   try {
     await doc.send(new TransactWriteCommand({ TransactItems: items }));
   } catch (err) {
-    if (!isConditionFailure(err)) throw err; // another closer already paid
+    if (!isConditionFailure(err)) throw err;
+    return; // another closer already paid (and edited)
   }
+  await editAnnouncement(pod.announceMessageId, finishedMessage(pod.seats.length));
 }
 
 export type FlaggedMatch = { pod: PodRow; roundIndex: number; matchIndex: number };
