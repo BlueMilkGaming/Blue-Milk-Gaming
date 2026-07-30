@@ -34,9 +34,21 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     imageUrl: "/prizes/mother-talzin-playmat.png",
   },
   { name: "Sneaking Suspicion playmat (Regional)", points: 1500 },
-  { name: "Shien Flurry playmat (Regional)", points: 1500 },
-  { name: "Darth Tyrannus playmat (Regional)", points: 1500 },
-  { name: "Princess Leia playmat (Regional)", points: 1000 },
+  {
+    name: "Shien Flurry playmat (Regional)",
+    points: 1500,
+    imageUrl: "/prizes/shien-flurry-playmat.png",
+  },
+  {
+    name: "Darth Tyrannus playmat (Regional)",
+    points: 1500,
+    imageUrl: "/prizes/darth-tyrannus-playmat.png",
+  },
+  {
+    name: "Princess Leia playmat (Regional)",
+    points: 1000,
+    imageUrl: "/prizes/princess-leia-playmat.png",
+  },
 
   // Premier Games catalog
   {
