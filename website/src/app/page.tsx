@@ -2,7 +2,8 @@ import Image from "next/image";
 import { getLatestVideos, type Video } from "@/lib/youtube";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { CURRENT_SEASON } from "@/lib/seasons";
-import { FIXTURE, PRIZES, PARTNERS, DISCORD_URL } from "@/data/season";
+import { FIXTURE, PARTNERS, DISCORD_URL } from "@/data/season";
+import { PRIZE_WALL } from "@/data/prize-wall";
 import { StoreStyles } from "./store-styles";
 import { SiteHeader, SiteFooter } from "./site-chrome";
 import { TablesSection } from "./tables-live";
@@ -215,8 +216,19 @@ function Board({ standings }: { standings: LeaderboardEntry[] }) {
   );
 }
 
-/* The pegboard of prizes behind the counter. Real tags only: no invented
-   items or point costs (PRODUCT.md). Empty hooks say the rest honestly. */
+/* The pegboard of prizes behind the counter. The full priced wall lives at
+   /prizes; this teaser hangs the top and bottom of the ladder. */
+const TEASER_TAGS = [
+  { kicker: "The vault", item: PRIZE_WALL[0] },
+  { kicker: "Playmat", item: PRIZE_WALL[1] },
+  { kicker: "Token", item: PRIZE_WALL[PRIZE_WALL.length - 1] },
+].map(({ kicker, item }) => ({
+  kicker,
+  name: item.name,
+  by: item.by && `from ${item.by}`,
+  cost: item.points.toLocaleString("en-US"),
+}));
+
 function PrizeWall() {
   return (
     <section id="prizes" className="mx-auto max-w-6xl scroll-mt-8 px-5 py-20 sm:px-8 sm:py-24">
@@ -225,20 +237,17 @@ function PrizeWall() {
         Points buy things off the wall.
       </h2>
       <p className="mt-3 max-w-md text-[color-mix(in_srgb,var(--paper)_65%,transparent)]">
-        Every Sunday&apos;s top finishes earn points. The first tags are going
-        up now; point costs arrive with the full wall.
+        Every Sunday&apos;s top finishes earn points, and wins at the Tables
+        add more. Every tag is priced.
       </p>
       <div className="pegboard mt-10 rounded-xl border-2 border-[color-mix(in_srgb,var(--paper)_40%,transparent)] p-8 shadow-[0_18px_40px_-18px_rgba(0,2,28,0.9)] sm:p-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {PRIZES.map((prize) => (
+          {TEASER_TAGS.map((prize) => (
             <PrizeTag key={prize.name} prize={prize} />
           ))}
-          {/* Empty hooks waiting for the rest of the wall. */}
-          <GhostTag />
-          <GhostTag className="hidden lg:block" />
         </div>
         <p className="tilt-r mt-8 inline-block bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] px-4 py-2.5 text-sm font-extrabold">
-          More tags and point costs go up with the full wall.
+          To redeem, ping an admin in the Discord.
         </p>
       </div>
       <a
@@ -251,8 +260,8 @@ function PrizeWall() {
   );
 }
 
-/* A swing tag hung on a peg: punched hole, item in ink, hand-priced later. */
-function PrizeTag({ prize }: { prize: (typeof PRIZES)[number] }) {
+/* A swing tag hung on a peg: punched hole, item in ink, hand-priced. */
+function PrizeTag({ prize }: { prize: (typeof TEASER_TAGS)[number] }) {
   return (
     <a
       href="/prizes"
@@ -266,25 +275,15 @@ function PrizeTag({ prize }: { prize: (typeof PRIZES)[number] }) {
         {prize.kicker}
       </p>
       <p className="mt-2 text-xl font-extrabold leading-tight">{prize.name}</p>
-      <p className="mt-1 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
-        {prize.by}
-      </p>
-      <p className="mt-4 border-t-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] pt-3 text-sm font-extrabold text-[color-mix(in_srgb,var(--accent)_70%,var(--ink))] transition-colors group-hover:text-[color-mix(in_srgb,var(--accent)_90%,var(--ink))]">
-        See the wall ↗
+      {prize.by && (
+        <p className="mt-1 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
+          {prize.by}
+        </p>
+      )}
+      <p className="mt-4 border-t-2 border-[color-mix(in_srgb,var(--ink)_15%,transparent)] pt-3 text-lg font-extrabold text-[color-mix(in_srgb,var(--accent)_70%,var(--ink))] transition-colors group-hover:text-[color-mix(in_srgb,var(--accent)_90%,var(--ink))]">
+        {prize.cost} pts
       </p>
     </a>
-  );
-}
-
-/* An empty spot on the pegboard: a peg, no tag yet. */
-function GhostTag({ className = "" }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={`tilt-s flex min-h-44 flex-col items-center justify-start rounded-sm border-2 border-dashed border-[color-mix(in_srgb,var(--paper)_25%,transparent)] p-6 pt-5 ${className}`}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-[color-mix(in_srgb,var(--paper)_45%,var(--wall-deep))]" />
-    </div>
   );
 }
 

@@ -40,9 +40,13 @@ Decisions fixed with the owner:
 | 1,500 | Regional playmats (Talzin, Sneaking Suspicion, Shien Flurry, Tyrannus) | Unchanged from the old wall |
 | 1,000 | Leia playmat | Unchanged |
 | 275-575 | Premier Games catalog (18 items) | Formula-priced: base retail / 3¢, rounded to 25. $8 singles at 275 up to the $17 streaming token at 575 |
-| 250-350 | Promo cards (owner's existing stock) | New middle rung; price each at ~3¢/pt of rough retail |
-| 200 | Sleeves | New entry-month goal |
-| 100 | OP pack (random set, not current) | Sourced at ~$1.43/unit (box of 70). Feels fair at perceived value, costs far less |
+| 250-350 | Promo cards (owner's existing stock) | **Deferred at launch.** Price each at ~3¢/pt of rough retail when added |
+| 200 | Sleeves | **Deferred at launch** |
+| 100 | OP pack (random set, not current) | **Deferred at launch.** Sourced at ~$1.43/unit (box of 70); feels fair at perceived value, costs far less |
+
+The wall launches with the trophy, the playmats, and the Premier Games
+tokens only: a deliberately sponsor-plus-playmats start. The deferred rungs
+keep their prices for when they go up.
 
 The old wall's top shelf was accidentally correct for the pods world and is
 kept for continuity (those prices were published). The two real fixes are
@@ -84,13 +88,14 @@ headroom, never point prices.)
 ## Catalog
 
 The full wall lives in `website/src/data/prize-wall.ts`: the ladder above
-plus 18 Premier Games catalog items priced by the formula, with retail,
+plus 16 Premier Games catalog items priced by the formula, with retail,
 image URL, and product URL pulled from their Shopify catalog. At 3¢/pt the
 $15 tokens land at 500, matching the old published wall, so the repricing
 reads as continuity. Excluded from the catalog: the $105-170 Streaming
 Metal Token Set (a future vault rotation candidate), the two storage cases
-(accessories to products players may not own), and the trays/holder
-(bloat at the bottom of the wall).
+(accessories to products players may not own), the trays/holder (bloat at
+the bottom of the wall), and the Streaming Metal Advantage Token (a lone
+streamer-line item with no siblings on the wall).
 
 ## Out of scope
 
