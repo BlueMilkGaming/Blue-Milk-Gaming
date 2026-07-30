@@ -33,7 +33,11 @@ export const PRIZE_WALL: PrizeWallItem[] = [
     points: 1500,
     imageUrl: "/prizes/mother-talzin-playmat.png",
   },
-  { name: "Sneaking Suspicion playmat (Regional)", points: 1500 },
+  {
+    name: "Sneaking Suspicion playmat (Regional)",
+    points: 1500,
+    imageUrl: "/prizes/sneaking-suspicion-playmat.png",
+  },
   {
     name: "Shien Flurry playmat (Regional)",
     points: 1500,
