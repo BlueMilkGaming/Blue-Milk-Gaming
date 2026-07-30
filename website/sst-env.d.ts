@@ -30,6 +30,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "LfgRoleId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MeleeClientId": {
       "type": "sst.sst.Secret"
       "value": string
