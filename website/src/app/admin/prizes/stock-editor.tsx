@@ -20,7 +20,8 @@ export function StockEditor({ prizeId, stock, hidden }: { prizeId: string; stock
             step={1}
             defaultValue={stock}
             aria-label={`Stock count for ${prizeId}`}
-            className="w-20 border-2 border-[color-mix(in_srgb,var(--ink)_30%,transparent)] px-2 py-1 text-sm font-extrabold"
+            disabled={busy}
+            className="w-20 border-2 border-[color-mix(in_srgb,var(--ink)_30%,transparent)] px-2 py-1 text-sm font-extrabold disabled:cursor-not-allowed"
           />
           <button
             disabled={busy}
