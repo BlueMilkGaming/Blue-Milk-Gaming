@@ -2,9 +2,10 @@ import Image from "next/image";
 import { getLatestVideos, type Video } from "@/lib/youtube";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { CURRENT_SEASON } from "@/lib/seasons";
-import { FIXTURE, PRIZES, PARTNERS, CHANNELS, DISCORD_URL } from "@/data/season";
+import { FIXTURE, PRIZES, PARTNERS, DISCORD_URL } from "@/data/season";
 import { StoreStyles } from "./store-styles";
-import { TablesSection, TablesNavDot } from "./tables-live";
+import { SiteHeader, SiteFooter } from "./site-chrome";
+import { TablesSection } from "./tables-live";
 
 // Results land once a week via the Monday cron, so hourly is already far
 // finer-grained than the data changes.
@@ -48,7 +49,7 @@ export default async function Home() {
   return (
     <div className="store min-h-screen">
       <StoreStyles />
-      <SiteNav />
+      <SiteHeader />
       <main>
         <Door />
         <TablesSection />
@@ -60,47 +61,6 @@ export default async function Home() {
       </main>
       <SiteFooter />
     </div>
-  );
-}
-
-function SiteNav() {
-  const nav = [
-    { label: "The Tables", href: "/play" },
-    { label: "The Board", href: "#board" },
-    { label: "The Prize Wall", href: "#prizes" },
-    { label: "The Shelf", href: "#shelf" },
-  ];
-  return (
-    <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
-      <Image
-        src="/brand/logo-horizontal.png"
-        alt="Blue Milk Gaming"
-        width={1200}
-        height={453}
-        className="h-11 w-auto"
-        priority
-      />
-      <nav className="hidden items-center gap-7 md:flex">
-        {nav.map((n) => (
-          <a
-            key={n.href}
-            href={n.href}
-            className="font-extrabold text-[color-mix(in_srgb,var(--paper)_80%,transparent)] transition-colors hover:text-[var(--accent)]"
-          >
-            {n.label}{n.href === "/play" && <TablesNavDot />}
-          </a>
-        ))}
-      </nav>
-      {/* The sticker by the register. */}
-      <a
-        href={DISCORD_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2"
-      >
-        Discord
-      </a>
-    </header>
   );
 }
 
@@ -485,31 +445,5 @@ function BackRoom() {
         </div>
       </div>
     </section>
-  );
-}
-
-function SiteFooter() {
-  return (
-    <footer className="border-t border-[color-mix(in_srgb,var(--accent)_20%,transparent)] bg-[var(--wall-deep)]">
-      <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
-        <nav className="flex flex-wrap gap-x-8 gap-y-3">
-          {CHANNELS.map((c) => (
-            <a
-              key={c.label}
-              href={c.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-extrabold text-[color-mix(in_srgb,var(--paper)_70%,transparent)] transition-colors hover:text-[var(--accent)]"
-            >
-              {c.label}
-            </a>
-          ))}
-        </nav>
-        <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--paper)_55%,transparent)]">
-          Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
-          2025. Star Wars: Unlimited is © its respective owners.
-        </p>
-      </div>
-    </footer>
   );
 }

@@ -49,5 +49,5 @@ export const CHANNELS = [
   { label: "YouTube", href: "https://www.youtube.com/@BlueMilkGaming" },
   { label: "Discord", href: DISCORD_URL },
   { label: "Patreon", href: "https://www.patreon.com/cw/BlueMilkGaming" },
-  { label: "Shop", href: "https://bluemilkgaming.com/" },
+  { label: "Merch", href: "https://bluemilkgaming.com/" },
 ] as const;

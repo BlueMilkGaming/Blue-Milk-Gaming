@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/db";
 import { SEASONS, CURRENT_SEASON, getSeason } from "@/lib/seasons";
 import { DISCORD_URL } from "@/data/season";
 import { StoreStyles } from "../store-styles";
+import { SiteHeader, SiteFooter } from "../site-chrome";
 
 /*
   The whole whiteboard (The Local world, DESIGN.md). The home page's Board
@@ -55,26 +55,7 @@ export default async function StandingsPage({
   return (
     <div className="store min-h-screen">
       <StoreStyles />
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
-        <Link href="/">
-          <Image
-            src="/brand/logo-horizontal.png"
-            alt="Blue Milk Gaming"
-            width={1200}
-            height={453}
-            className="h-11 w-auto"
-            priority
-          />
-        </Link>
-        <a
-          href={DISCORD_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-full bg-[var(--hot)] px-5 py-2.5 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2"
-        >
-          Discord
-        </a>
-      </header>
+      <SiteHeader current="/standings" />
       <main className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <span className="tape">
           {season ? `${season.name} · ${season.set}` : "Every season combined"}
@@ -178,14 +159,7 @@ export default async function StandingsPage({
           </Link>
         </div>
       </main>
-      <footer className="border-t border-[color-mix(in_srgb,var(--accent)_20%,transparent)] bg-[var(--wall-deep)]">
-        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
-          <p className="max-w-2xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--paper)_55%,transparent)]">
-            Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
-            2025. Star Wars: Unlimited is © its respective owners.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

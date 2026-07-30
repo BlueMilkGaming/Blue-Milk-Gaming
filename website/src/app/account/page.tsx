@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { ensureAccount } from "@/lib/accounts";
 import { getLeaderboard } from "@/lib/db";
 import { StoreStyles } from "../store-styles";
+import { SiteHeader, SiteFooter } from "../site-chrome";
 import { signInAction, signOutAction } from "./actions";
 import { ClaimFormClient } from "./claim-form";
 
@@ -10,12 +11,14 @@ export const dynamic = "force-dynamic"; // session-dependent, never prerender
 export default async function AccountPage() {
   const session = await auth();
   return (
-    <div className="store min-h-screen">
+    <div className="store flex min-h-screen flex-col">
       <StoreStyles />
-      <main className="mx-auto max-w-2xl px-5 py-16 sm:px-8">
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <span className="tape">Your card</span>
         {session ? <SignedIn name={session.user.name} discordUserId={session.user.discordUserId} /> : <SignedOut />}
       </main>
+      <SiteFooter />
     </div>
   );
 }

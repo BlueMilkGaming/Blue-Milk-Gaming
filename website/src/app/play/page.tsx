@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { StoreStyles } from "../store-styles";
+import { SiteHeader, SiteFooter } from "../site-chrome";
 import { playSignInAction } from "./actions";
 import { PlayClient } from "./play-client";
 
@@ -8,12 +9,14 @@ export const dynamic = "force-dynamic"; // session-dependent, never prerender
 export default async function PlayPage() {
   const session = await auth();
   return (
-    <div className="store min-h-screen">
+    <div className="store flex min-h-screen flex-col">
       <StoreStyles />
-      <main className="mx-auto max-w-3xl px-5 py-16 sm:px-8">
+      <SiteHeader current="/play" />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <span className="tape">The tables</span>
         {session ? <PlayClient /> : <SignedOut />}
       </main>
+      <SiteFooter />
     </div>
   );
 }
