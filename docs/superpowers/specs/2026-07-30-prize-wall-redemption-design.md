@@ -51,8 +51,10 @@ into spendable balance.
 
 Two new Dynamo tables, both from ADR 0004, both additive:
 
-**`Prize`** — hash key `prizeId` (string). Fields: `stock: number`,
-`hidden?: boolean`. **A row means finite stock; no row means unlimited.**
+**`Prize`** — hash key `prizeId` (string). Fields: `stock?: number`,
+`hidden?: boolean`. **A `stock` attribute means finite stock; no
+attribute (or no row) means unlimited.** (Attribute-level, not row-level:
+hiding an unlimited item creates a row that carries only `hidden`.)
 Rows are seeded from the admin page, not by deploy. `PrizeWallItem` in
 `prize-wall.ts` gains `id: string` (a stable slug; also becomes the React
 key), which is the `prizeId`.
@@ -66,8 +68,10 @@ full-table scan filtered to `pending` — the same dozens-scale pattern as
 `accounts.ts`, with the same upgrade path (sparse GSI) if it ever grows.
 
 `LedgerEntry.kind` widens from `"pod_win" | "adjustment"` to add
-`"redemption"`, `"placement"`, and `"placement_backfill"`. `refType` widens
-to add `"redemption"` and `"placement"`.
+`"redemption"` and `"placement"`. `refType` widens to add `"redemption"`
+and `"placement"`. `day` becomes optional and is omitted on redemption and
+placement entries, so the pods settle-up (`paidToday` filters on `day`)
+never sees them.
 
 ## The redemption transaction
 
@@ -94,30 +98,36 @@ conditional on `status = pending`.
 
 ## The currency bridge
 
-Two write paths, both crediting the Discord-keyed `PlayerBalance`:
+One mechanism, **per-tournament reconciliation**, amended 2026-07-30
+during planning from the original "opening lump at approval + per-import
+credits" design. The lump had two holes the codebase exposed: accounts
+linked before the feature ships (there is at least one) would never
+receive an opening credit, and a `--force` re-import after a backfill
+could double-credit a tournament the lump already covered.
 
-**At claim approval.** `resolveClaim`'s approve path becomes a
-`TransactWriteItems`: the existing `Account` update, plus one opening
-ledger entry (`kind: "placement_backfill"`, `currencyDelta` = the sum of
-`currencyPointsAwarded` across every placement for that melee identity,
-`refType: "placement"`, `refId: meleeUserIdentity`), plus the balance
-credit. A player with no placements gets no opening entry (skip a zero
-credit).
+Every credit a player is owed is one ledger entry per tournament:
+`kind: "placement"`, `currencyDelta: currencyPointsAwarded`, `refType:
+"placement"`, `refId: "<meleeId>#<meleeUserIdentity>"`, and a
+**deterministic `entryId`** of `plc-<meleeId>`. Reconciliation diffs the
+placements a linked player has against the `plc-` entries already in
+their ledger partition and writes only what is missing, each as its own
+small transaction (conditional put on the entry + balance credit, so a
+lost race credits nothing).
 
-**At weekly sync.** After `importTournament` writes a tournament's
-placements, each placement whose melee identity maps to a linked account
-gets a placement credit: ledger entry (`kind: "placement"`, `refId:
-"<meleeId>#<meleeUserIdentity>"`) plus balance credit. Idempotency: the
-entry uses a **deterministic `entryId`** derived from the tournament
-(`plc-<meleeId>`, which still sorts stably within the partition) with a
-conditional put (`attribute_not_exists(entryId)`), so a `--force` re-import
-can never double-credit. If the conditional put fails, the balance credit
-must not apply — each placement credit is its own small transaction.
+Reconciliation runs from two places:
 
-Unlinked players lose nothing: their placements accumulate as today and
-the backfill credits the full history whenever they link. The two paths
-cannot double-count because backfill sums placements at approval time and
-sync only credits accounts that are already linked.
+- **At claim approval:** after `resolveClaim` links the account,
+  reconcile that player — this is the full-history opening credit.
+- **At weekly sync:** after the import loop, reconcile every linked
+  account. This credits new placements, catches accounts linked before
+  the feature existed, and self-heals any credit lost to a crash a week
+  later at worst.
+
+A one-time script (`scripts/backfill-linked.ts`, safe to re-run) runs the
+same reconciliation at launch so already-linked accounts do not wait for
+Monday's cron. Deterministic entryIds make every path idempotent and
+mutually safe: approval racing the cron, re-runs, and `--force`
+re-imports all collide on the same `plc-<meleeId>` key and credit once.
 
 ## Pages
 
@@ -175,12 +185,10 @@ No bot, no DMs, no PII beyond the Discord display name.
 - Balance can never go negative and stock can never oversell (conditions),
   and every point movement has a ledger entry, so `PlayerBalance` remains
   rebuildable from the ledger.
-- Accepted race: a claim approved in the same instant the weekly sync is
-  crediting that player's newly imported placement could double-credit
-  that one tournament (backfill sums it and sync credits it). Weekly cron
-  plus manual approvals makes this vanishingly rare; the ledger makes it
-  visible, and an admin `adjustment` entry is the remedy. Not worth
-  coordination machinery at club scale.
+- Approval racing the weekly sync cannot double-credit: both paths write
+  the same deterministic `plc-<meleeId>` entry with a conditional put, so
+  one wins and the other is a no-op. (The originally accepted race was
+  eliminated by the reconciliation amendment above.)
 
 ## Testing
 
@@ -188,7 +196,8 @@ Same `node --test` pattern as `src/lib`:
 
 - Redemption guard logic (pure): linked, sufficient balance, stock state,
   hidden items.
-- Backfill sum and the deterministic placement `entryId` derivation.
+- The reconciliation diff (which placements are still owed, given
+  existing `plc-` entryIds).
 - Cancel refund math.
 
 The transaction wiring is verified end to end in production the way pods
