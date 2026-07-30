@@ -76,6 +76,7 @@ async function SignedIn({ name, discordUserId }: { name: string; discordUserId: 
               <li key={r.redemptionId} className="text-sm font-extrabold">
                 {prizeById(r.prizeId)?.name ?? r.prizeId}, {r.costAtRedemption.toLocaleString("en-US")} pts,{" "}
                 {r.status}, {r.requestedAt.slice(0, 10)}
+                {r.note && <>: &quot;{r.note}&quot;</>}
               </li>
             ))}
           </ul>
