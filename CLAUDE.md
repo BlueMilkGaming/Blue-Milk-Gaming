@@ -6,9 +6,9 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 
 **Phase 1 complete.** The site is live at **https://bluemilkgaming.com** (stage `production`, `us-east-2`; apex cutover 2026-07-30, www redirects to apex). Billing alarms are set.
 
-**Phase 2 in progress:** home page (roster of the four members, YouTube RSS content feed, tournament feed), tournaments page describing the Online Local, and the external Fourthwall shop link. Nothing in Phase 2 needs a database.
+**Phase 2 shipped:** home page in "The Local" game-store design (crew photo, YouTube RSS content feed, Online Local flyer, partners) plus the external Fourthwall shop link. The planned standalone tournaments page was absorbed into home, `/play` and `/standings` during the redesign; there is no `/tournaments` route on purpose.
 
-**Phase 3 data layer complete** (2026-07-29), built in parallel with Phase 2 since it shares no files. Three DynamoDB tables are live and backfilled with all 27 ended Online Locals: 27 tournaments, 407 placements, 149 players. A weekly cron syncs new results. **No leaderboard UI yet** — that waits on Phase 2's components and tokens.
+**Phase 3 complete** (2026-07-29). Three DynamoDB tables are live and backfilled with all 27 ended Online Locals: 27 tournaments, 407 placements, 149 players. A weekly cron syncs new results and pings the admins channel (`AdminWebhookUrl`) if a run fails; a failed week is re-imported by the next run. The leaderboard UI is live at `/standings` (season switcher, in the shared nav).
 
 **Stage 1 shipped:** Discord sign-in and the claim flow are live. `/account` links players to their melee results. `/admin/claims` (for admins only) shows the claim queue. The `Account` table is live. Verified end to end in production 2026-07-29 (sign-in, claim, approve, linked).
 
@@ -18,7 +18,7 @@ Monorepo for Blue Milk Gaming (BMG), a Star Wars: Unlimited (SWU) content org th
 
 **Stage 3 shipped (prize wall redemption):** `/prizes` is transactional (stock-aware wall, two-step redeem, conditional DynamoDB transaction per ADR 0004); `/account` shows the points balance and redemption history (with admin cancellation notes); `/admin` is a pending-counts index and `/admin/prizes` runs the queue (fulfil / cancel-and-refund) and the stock editor. `Prize` and `Redemption` tables are live; the `AdminWebhookUrl` secret pings a private admins channel on redemption. Tournament currency reaches balances via idempotent per-tournament reconciliation (`plc-<meleeId>` ledger entries) at claim approval, after the weekly sync, and via `scripts/backfill-linked.ts` (run at launch: 8 credits, 1800 pts). Verified end to end in production 2026-07-30 (redeem, webhook, cancel/refund, fulfil, stock, router-cache revalidation; test data cleaned up after). Spec: `docs/superpowers/specs/2026-07-30-prize-wall-redemption-design.md`.
 
-Later phases: home page (Phase 2), leaderboard UI. Full plan at `~/.claude/plans/cheerful-snuggling-snowglobe.md`.
+All phases of the original plan are shipped. Full plan at `~/.claude/plans/cheerful-snuggling-snowglobe.md`.
 
 ## Key docs
 

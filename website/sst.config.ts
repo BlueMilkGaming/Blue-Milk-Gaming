@@ -123,7 +123,7 @@ export default $config({
       schedule: "cron(0 14 ? * MON *)",
       function: {
         handler: "src/cron/sync-melee.handler",
-        link: [player, tournament, placement, account, pointsLedger, playerBalance, meleeClientId, meleeClientSecret],
+        link: [player, tournament, placement, account, pointsLedger, playerBalance, meleeClientId, meleeClientSecret, adminWebhookUrl],
         // A normal week imports one event in seconds. The headroom is for a
         // run that has several weeks to catch up, each paced by the delay
         // between melee requests.

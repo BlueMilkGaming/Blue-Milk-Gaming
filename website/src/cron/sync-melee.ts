@@ -5,6 +5,7 @@
 
 import { Resource } from "sst";
 
+import { announceAdmin } from "../lib/discord.ts";
 import { syncTournaments } from "../lib/sync.ts";
 
 export async function handler() {
@@ -16,17 +17,25 @@ export async function handler() {
   process.env.MELEE_CLIENT_ID = Resource.MeleeClientId.value;
   process.env.MELEE_CLIENT_SECRET = Resource.MeleeClientSecret.value;
 
-  const result = await syncTournaments();
+  try {
+    const result = await syncTournaments();
 
-  // Throwing marks the invocation failed in CloudWatch, which is the only
-  // signal worth having until someone is actually watching an alarm.
-  if (result.failed.length > 0) {
-    throw new Error(
-      `melee sync: ${result.failed.length} event(s) failed — ${result.failed
-        .map((f) => `${f.event}: ${f.error}`)
-        .join("; ")}`,
+    // Throwing marks the invocation failed in CloudWatch on top of the ping.
+    if (result.failed.length > 0) {
+      throw new Error(
+        `melee sync: ${result.failed.length} event(s) failed — ${result.failed
+          .map((f) => `${f.event}: ${f.error}`)
+          .join("; ")}`,
+      );
+    }
+
+    return result;
+  } catch (err) {
+    // The next Monday run re-imports anything missing, so the ping is a
+    // heads-up, not a call to action.
+    await announceAdmin(
+      `⚠️ Weekly melee sync failed: ${err instanceof Error ? err.message : String(err)}`,
     );
+    throw err;
   }
-
-  return result;
 }
