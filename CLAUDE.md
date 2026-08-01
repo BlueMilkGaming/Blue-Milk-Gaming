@@ -60,7 +60,7 @@ All phases of the original plan are shipped. Full plan at `~/.claude/plans/cheer
 - Pin exact versions for `next` and `sst` (OpenNext compatibility; Auth.js v5 churn).
 - Avoid edge-runtime-only Next.js features (OpenNext target).
 - Cost discipline: everything must be free-tier/scale-to-zero.
-- Don't use the bare "BMG" acronym in outward-facing copy; spell out Blue Milk Gaming.
+- Use the "BMG" acronym sparingly in outward-facing copy. Fine where the full name is already on screen (e.g. "BMG Discord" on the site); spell out Blue Milk Gaming in copy that travels off-site.
 - **Never mention Karabast** in site copy, code comments, commits, or any public-facing text. Games are played there, but the devs are cautious about Disney attention and we won't be the ones who point a spotlight at them. Say "play your match however your pod prefers" or point at Discord for coordination.
 - No em dashes in public-facing copy. Rewrite with commas, periods, or colons. (Code comments are exempt.)
 - Secrets live in `website/.env.local` (local) and SST secrets (deployed). Never commit real values; `website/.env.example` is the template.

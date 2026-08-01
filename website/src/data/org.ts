@@ -9,7 +9,7 @@ export const ONLINE_LOCAL = {
   day: "Sunday",
   time: "6:30 PM CT",
   format: "4 rounds · Swiss",
-  venue: "melee.gg",
+  venue: "BMG Discord",
 } as const;
 
 // Partner logos are the white marks on the navy panel. All three are stacked
