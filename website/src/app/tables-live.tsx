@@ -25,12 +25,24 @@ function usePodSnapshot(pollMs: number): HomeSnapshot | null {
   return snap;
 }
 
-/** Blue Milk dot on the nav item when a lobby is open or a pod is running. */
+/**
+ * Nav marker for The Tables. While a lobby is open or a pod is running, the
+ * Blue Milk dot; otherwise a "NEW" sticker, because pods launched 2026-08-01
+ * and nothing like them exists in the community yet. Once the feature is
+ * common knowledge (a few weeks post-launch), delete the chip branch and let
+ * this go back to being just the dot.
+ */
 export function TablesNavDot() {
   const snap = usePodSnapshot(60_000);
-  if (!snap || (!snap.lobby && snap.playingCount === 0)) return null;
+  if (snap && (snap.lobby || snap.playingCount > 0)) {
+    return (
+      <span aria-label="tables active" className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[var(--accent)] align-middle" />
+    );
+  }
   return (
-    <span aria-label="tables active" className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[var(--accent)] align-middle" />
+    <span className="ml-1.5 inline-block -rotate-3 bg-[var(--hot)] px-1 py-0.5 align-middle text-[0.5625rem] font-extrabold uppercase leading-none tracking-wide text-[var(--ink)]">
+      New
+    </span>
   );
 }
 
