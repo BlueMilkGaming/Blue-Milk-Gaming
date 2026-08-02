@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
+
+// Public by nature (visible in page source on every GA site), so no env var.
+const gaMeasurementId = "G-4ZK4P1GT8Q";
 
 const hubotSans = localFont({
   src: [
@@ -24,7 +28,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${hubotSans.variable} antialiased`}>{children}</body>
+      <body className={`${hubotSans.variable} antialiased`}>
+        {children}
+        {process.env.NODE_ENV === "production" && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaMeasurementId}');`}
+            </Script>
+          </>
+        )}
+      </body>
     </html>
   );
 }
