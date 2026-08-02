@@ -4,6 +4,7 @@ const PAGES = [
   { label: "Overview", href: "/admin" },
   { label: "Claims", href: "/admin/claims" },
   { label: "Flags", href: "/admin/flags" },
+  { label: "Pods", href: "/admin/pods" },
   { label: "Prizes", href: "/admin/prizes" },
 ];
 

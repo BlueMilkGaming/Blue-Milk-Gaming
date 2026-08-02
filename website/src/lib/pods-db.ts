@@ -502,6 +502,18 @@ export async function closePod(pod: PodRow): Promise<void> {
   await editAnnouncement(pod.announceMessageId, finishedMessage(pod.seats.length));
 }
 
+/** Current tables for /admin/pods. No lazy expiry here; the poll handles that. */
+export async function openPods(): Promise<{ filling: PodRow[]; playing: PodRow[] }> {
+  const [filling, playing] = await Promise.all([byStatus("filling"), byStatus("playing")]);
+  return { filling, playing };
+}
+
+/** Every pod on the given days, newest first (podId is a ulid, so id order is time order). */
+export async function recentPods(days: string[]): Promise<PodRow[]> {
+  const pods = (await Promise.all(days.map(byDay))).flat();
+  return pods.sort((a, b) => (a.podId > b.podId ? -1 : 1));
+}
+
 export type FlaggedMatch = { pod: PodRow; roundIndex: number; matchIndex: number };
 
 /** Unresolved flags across the given days (newest pods first). */
