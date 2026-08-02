@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { listPendingClaims } from "@/lib/accounts";
 import { pendingRedemptions } from "@/lib/prizes-db";
-import { unresolvedFlags } from "@/lib/pods-db";
+import { unresolvedFlags, openPods } from "@/lib/pods-db";
 import { clubDay } from "@/lib/pods";
 import { StoreStyles } from "../store-styles";
 import { AdminNav } from "./admin-nav";
@@ -18,13 +18,16 @@ export default async function AdminPage() {
   if (!session?.user.isAdmin) notFound(); // invisible to non-admins
   const days = Array.from({ length: LOOKBACK_DAYS }, (_, i) =>
     clubDay(new Date(Date.now() - i * 24 * 60 * 60 * 1000)));
-  const [claims, redemptions, flags] = await Promise.all([
-    listPendingClaims(), pendingRedemptions(), unresolvedFlags(days),
+  const [claims, redemptions, flags, tables] = await Promise.all([
+    listPendingClaims(), pendingRedemptions(), unresolvedFlags(days), openPods(),
   ]);
+  const open = tables.filling.length + tables.playing.length;
+  const queue = (n: number) => (n === 0 ? "clear" : `${n} pending`);
   const sections = [
-    { label: "Claims", href: "/admin/claims", pending: claims.length },
-    { label: "Flags", href: "/admin/flags", pending: flags.length },
-    { label: "Prizes", href: "/admin/prizes", pending: redemptions.length },
+    { label: "Claims", href: "/admin/claims", status: queue(claims.length) },
+    { label: "Flags", href: "/admin/flags", status: queue(flags.length) },
+    { label: "Pods", href: "/admin/pods", status: open === 0 ? "quiet" : `${open} open` },
+    { label: "Prizes", href: "/admin/prizes", status: queue(redemptions.length) },
   ];
   return (
     <div className="store min-h-screen">
@@ -43,8 +46,8 @@ export default async function AdminPage() {
                 <Link href={s.href} className="font-extrabold underline transition-colors hover:text-[var(--accent)]">
                   {s.label}
                 </Link>
-                <span className={`font-extrabold${s.pending === 0 ? " text-[color-mix(in_srgb,var(--ink)_50%,transparent)]" : ""}`}>
-                  {s.pending === 0 ? "clear" : `${s.pending} pending`}
+                <span className={`font-extrabold${s.status === "clear" || s.status === "quiet" ? " text-[color-mix(in_srgb,var(--ink)_50%,transparent)]" : ""}`}>
+                  {s.status}
                 </span>
               </li>
             ))}
