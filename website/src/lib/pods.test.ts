@@ -52,8 +52,8 @@ test("roundComplete needs all four winners", () => {
 
 import {
   settleUp, perWinDeltas, unfrozenWins, effectiveStatus,
-  reportError, flagError, fireError, shouldPingLfg, clubDay,
-  LOBBY_TTL_MS, POD_TTL_MS, NO_SHOW_CLAIM_MS, POD_MIN, LFG_PING_COOLDOWN_MS,
+  reportError, flagError, fireError, shouldPingLfg, clubDay, staleSeats,
+  LOBBY_TTL_MS, POD_TTL_MS, NO_SHOW_CLAIM_MS, POD_MIN, LFG_PING_COOLDOWN_MS, SEAT_STALE_MS,
   type PodRow,
 } from "./pods.ts";
 
@@ -176,4 +176,28 @@ test("shouldPingLfg: pings when the last table is an hour old, or there is none"
   assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS + 1)], now), true);
   assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS - 1)], now), false);
   assert.equal(shouldPingLfg([at(LFG_PING_COOLDOWN_MS + 1), at(60_000)], now), false);
+});
+
+test("staleSeats flags only quiet seats in a filling pod", () => {
+  const now = new Date("2026-08-02T01:00:00Z");
+  const old = new Date(now.getTime() - SEAT_STALE_MS - 1).toISOString();
+  const p = pod({
+    status: "filling",
+    seats: [
+      { playerId: "p0", displayName: "Fresh join", joinedAt: now.toISOString() },
+      { playerId: "p1", displayName: "Quiet", joinedAt: old },
+      { playerId: "p2", displayName: "Heartbeat", joinedAt: old, lastSeenAt: now.toISOString() },
+      { playerId: "p3", displayName: "Stale heartbeat", joinedAt: old, lastSeenAt: old },
+    ],
+  });
+  assert.deepEqual(staleSeats(p, now).map((s) => s.playerId), ["p1", "p3"]);
+});
+
+test("staleSeats ignores non-filling pods", () => {
+  const old = new Date(Date.now() - SEAT_STALE_MS - 1).toISOString();
+  const p = pod({
+    status: "playing",
+    seats: [{ playerId: "p0", displayName: "P0", joinedAt: old }],
+  });
+  assert.deepEqual(staleSeats(p), []);
 });

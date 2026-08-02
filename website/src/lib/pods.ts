@@ -5,12 +5,20 @@ import { PODS_V1 } from "./scoring.ts";
 export const POD_SIZE = 8;
 export const POD_ROUNDS = 3;
 export const POD_MIN = 4;
-export const LOBBY_TTL_MS = 60 * 60 * 1000;      // filling > 60 min → abandoned
+export const LOBBY_TTL_MS = 30 * 60 * 1000;      // filling > 30 min → abandoned
 export const POD_TTL_MS = 4 * 60 * 60 * 1000;    // playing > 4 h → done as-is
 export const NO_SHOW_CLAIM_MS = 30 * 60 * 1000;  // claimable 30 min into a round
+export const SEAT_STALE_MS = 5 * 60 * 1000;      // no heartbeat for 5 min → stood up
+export const HEARTBEAT_MS = 60 * 1000;           // min gap between lastSeenAt stamps
 export const LFG_PING_COOLDOWN_MS = 60 * 60 * 1000; // one @LFG ping per hour
 
-export type Seat = { playerId: string; displayName: string; joinedAt: string; avatar?: string | null };
+export type Seat = {
+  playerId: string;
+  displayName: string;
+  joinedAt: string;
+  avatar?: string | null;
+  lastSeenAt?: string; // stamped by the /api/pod poll while the pod is filling
+};
 export type Match = {
   a: string;
   b: string;
@@ -119,6 +127,14 @@ export function effectiveStatus(pod: PodRow, now: Date = new Date()): PodStatus 
   if (pod.status === "filling" && age > LOBBY_TTL_MS) return "abandoned";
   if (pod.status === "playing" && age > POD_TTL_MS) return "done";
   return pod.status;
+}
+
+/** Seats in a filling pod whose heartbeat has gone quiet; readers stand them up lazily. */
+export function staleSeats(pod: PodRow, now: Date = new Date()): Seat[] {
+  if (pod.status !== "filling") return [];
+  return pod.seats.filter(
+    (s) => now.getTime() - Date.parse(s.lastSeenAt ?? s.joinedAt) > SEAT_STALE_MS,
+  );
 }
 
 /**
