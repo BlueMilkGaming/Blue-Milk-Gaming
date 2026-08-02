@@ -1,7 +1,7 @@
 "use server";
 import { auth, signIn } from "@/lib/auth";
 import { ensureAccount } from "@/lib/accounts";
-import { joinOrCreate, leavePod, reportResult, flagResult, firePod } from "@/lib/pods-db";
+import { joinOrCreate, removeSeat, reportResult, flagResult, firePod } from "@/lib/pods-db";
 
 type ActionResult = { error: string } | { ok: true };
 
@@ -30,7 +30,7 @@ export async function joinAction(): Promise<ActionResult> {
 export async function leaveAction(podId: string): Promise<ActionResult> {
   const session = await auth();
   if (!session) return { error: "Sign in first." };
-  return run(() => leavePod(session.user.discordUserId, podId));
+  return run(() => removeSeat(podId, session.user.discordUserId));
 }
 
 export async function reportAction(

@@ -259,12 +259,16 @@ export async function firePod(playerId: string, podId: string): Promise<void> {
     throw new Error("The table changed as you launched; look again.");
 }
 
-/** Leave a filling lobby. CAS on the seat set so a concurrent join is never dropped. */
-export async function leavePod(playerId: string, podId: string): Promise<void> {
+/**
+ * Stand a player up from a filling lobby. One path for player leave, the
+ * stale-seat sweep, and admin kick. CAS on the seat set so a concurrent
+ * join is never dropped.
+ */
+export async function removeSeat(podId: string, playerId: string): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt++) {
     const pod = await getPod(podId);
-    if (pod.status !== "filling") throw new Error("You can only leave while the table is filling.");
-    if (!pod.seatIds.has(playerId)) throw new Error("You are not seated there.");
+    if (pod.status !== "filling") throw new Error("The table is no longer filling.");
+    if (!pod.seatIds.has(playerId)) throw new Error("Not seated at that table.");
     const seats = pod.seats.filter((s) => s.playerId !== playerId);
     try {
       await doc.send(new TransactWriteCommand({ TransactItems: [
