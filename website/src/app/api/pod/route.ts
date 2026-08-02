@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getAccount } from "@/lib/accounts";
-import { tablesSnapshot, getPod } from "@/lib/pods-db";
+import { tablesSnapshot, getPod, touchSeat } from "@/lib/pods-db";
 import { paidToday } from "@/lib/ledger";
 import { clubDay, type PodRow } from "@/lib/pods";
 
@@ -33,6 +33,7 @@ export async function GET(req: Request) {
     // The pointer can outlive the pod state by one poll (lazy close in
     // flight); only show a live pod.
     if (pod && (pod.status === "filling" || pod.status === "playing")) you = pod;
+    if (you) await touchSeat(you, session.user.discordUserId);
     paid = await paidToday(session.user.discordUserId, clubDay());
   }
 

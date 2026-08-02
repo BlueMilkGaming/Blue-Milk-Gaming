@@ -9,7 +9,7 @@ import {
 import { Resource } from "sst";
 
 import {
-  POD_SIZE, POD_ROUNDS, POD_MIN, clubDay, dealRound, effectiveStatus, roundComplete,
+  POD_SIZE, POD_ROUNDS, POD_MIN, HEARTBEAT_MS, clubDay, dealRound, effectiveStatus, roundComplete,
   reportError, flagError, fireError, shouldPingLfg, unfrozenWins, settleUp, perWinDeltas,
   type PodRow, type Seat,
 } from "./pods.ts";
@@ -81,6 +81,29 @@ export async function getPod(podId: string, { consistent = false } = {}): Promis
   const res = await doc.send(new GetCommand({ TableName: POD(), Key: { podId }, ConsistentRead: consistent }));
   if (!res.Item) throw new Error(`no pod ${podId}`);
   return res.Item as PodRow;
+}
+
+/**
+ * Best-effort lastSeenAt stamp on the caller's seat, throttled to one write
+ * per HEARTBEAT_MS. Condition on the seat index still holding this player:
+ * if a leave shifted the list or the pod launched, skip; the next poll retries.
+ */
+export async function touchSeat(pod: PodRow, playerId: string): Promise<void> {
+  if (pod.status !== "filling") return;
+  const i = pod.seats.findIndex((s) => s.playerId === playerId);
+  if (i < 0) return;
+  const seat = pod.seats[i];
+  if (Date.now() - Date.parse(seat.lastSeenAt ?? seat.joinedAt) < HEARTBEAT_MS) return;
+  await doc.send(new UpdateCommand({
+    TableName: POD(),
+    Key: { podId: pod.podId },
+    UpdateExpression: `SET seats[${i}].lastSeenAt = :now`,
+    ConditionExpression: `#s = :filling AND seats[${i}].playerId = :pid`,
+    ExpressionAttributeNames: { "#s": "status" },
+    ExpressionAttributeValues: {
+      ":now": new Date().toISOString(), ":filling": "filling", ":pid": playerId,
+    },
+  })).catch(() => {});
 }
 
 async function byStatus(status: PodRow["status"]): Promise<PodRow[]> {
