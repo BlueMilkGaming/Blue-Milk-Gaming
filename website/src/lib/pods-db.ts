@@ -133,8 +133,8 @@ async function byDay(day: string): Promise<PodRow[]> {
  * Oldest open lobby first: overflow lobbies queue behind it by podId order.
  */
 export async function tablesSnapshot(): Promise<{ lobby: PodRow | null; playingCount: number }> {
-  let filling = await byStatus("filling");
-  const playing = await byStatus("playing");
+  // eslint-disable-next-line prefer-const -- filling is reassigned below after the sweep; destructuring both together reads clearest
+  let [filling, playing] = await Promise.all([byStatus("filling"), byStatus("playing")]);
   const staleLobbies = filling.filter((p) => effectiveStatus(p) === "abandoned");
   const stuckPods = playing.filter((p) => effectiveStatus(p) === "done");
   for (const pod of staleLobbies) await abandonPod(pod);
@@ -145,7 +145,8 @@ export async function tablesSnapshot(): Promise<{ lobby: PodRow | null; playingC
     if (effectiveStatus(pod) !== "filling") continue;
     for (const seat of staleSeats(pod)) {
       // Busy table (three lost CAS races) just waits for the next poll.
-      await removeSeat(pod.podId, seat.playerId).catch(() => {});
+      await removeSeat(pod.podId, seat.playerId).catch((err) =>
+        console.error(`sweep failed to remove ${seat.playerId} from ${pod.podId}`, err));
       swept = true;
     }
   }
@@ -299,6 +300,8 @@ export async function firePod(playerId: string, podId: string): Promise<void> {
  * Stand a player up from a filling lobby. One path for player leave, the
  * stale-seat sweep, and admin kick. CAS on the seat set so a concurrent
  * join is never dropped.
+ * Writes the whole seats array from its read snapshot, so it can revert a
+ * concurrent lastSeenAt stamp; the next poll re-stamps within seconds.
  */
 export async function removeSeat(podId: string, playerId: string): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -336,7 +339,7 @@ export async function removeSeat(podId: string, playerId: string): Promise<void>
       // Someone joined or left between read and write; re-read and retry.
     }
   }
-  throw new Error("The table is busy; try leaving again.");
+  throw new Error("The table is busy; try again.");
 }
 
 /** Lazy 60-minute expiry of an unfilled lobby. */
