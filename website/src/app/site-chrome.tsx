@@ -95,7 +95,9 @@ export function SiteFooter() {
         </nav>
         <p className="mt-8 max-w-2xl text-xs leading-relaxed text-[color-mix(in_srgb,var(--paper)_55%,transparent)]">
           Blue Milk Gaming is a fan-run Star Wars: Unlimited community, formed
-          2025. Star Wars: Unlimited is © its respective owners.
+          2025. We are not affiliated with or endorsed by Disney, Lucasfilm
+          Ltd., or Fantasy Flight Games. Star Wars: Unlimited cards, logos, and
+          art are property of Disney and/or Fantasy Flight Games.
         </p>
       </div>
     </footer>

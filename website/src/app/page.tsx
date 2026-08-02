@@ -441,8 +441,8 @@ function BackRoom() {
           </p>
           <ul className="mt-4 space-y-3">
             {[
-              ["554", "in the Discord"],
-              ["686", "subscribed on YouTube"],
+              ["560", "in the Discord"],
+              ["694", "subscribed on YouTube"],
               ["35", "backing on Patreon"],
             ].map(([n, label]) => (
               <li key={label} className="flex items-baseline gap-3 border-b-2 border-[color-mix(in_srgb,var(--ink)_12%,transparent)] pb-3">
