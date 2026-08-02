@@ -10,7 +10,7 @@ import { Resource } from "sst";
 
 import {
   POD_SIZE, POD_ROUNDS, POD_MIN, HEARTBEAT_MS, clubDay, dealRound, effectiveStatus, roundComplete,
-  reportError, flagError, fireError, shouldPingLfg, unfrozenWins, settleUp, perWinDeltas,
+  reportError, flagError, fireError, shouldPingLfg, unfrozenWins, settleUp, perWinDeltas, staleSeats,
   type PodRow, type Seat,
 } from "./pods.ts";
 import { ulid } from "./ulid.ts";
@@ -133,11 +133,24 @@ async function byDay(day: string): Promise<PodRow[]> {
  * Oldest open lobby first: overflow lobbies queue behind it by podId order.
  */
 export async function tablesSnapshot(): Promise<{ lobby: PodRow | null; playingCount: number }> {
-  const [filling, playing] = await Promise.all([byStatus("filling"), byStatus("playing")]);
+  let filling = await byStatus("filling");
+  const playing = await byStatus("playing");
   const staleLobbies = filling.filter((p) => effectiveStatus(p) === "abandoned");
   const stuckPods = playing.filter((p) => effectiveStatus(p) === "done");
   for (const pod of staleLobbies) await abandonPod(pod);
   for (const pod of stuckPods) await closePod(pod);
+
+  let swept = false;
+  for (const pod of filling) {
+    if (effectiveStatus(pod) !== "filling") continue;
+    for (const seat of staleSeats(pod)) {
+      // Busy table (three lost CAS races) just waits for the next poll.
+      await removeSeat(pod.podId, seat.playerId).catch(() => {});
+      swept = true;
+    }
+  }
+  if (swept) filling = await byStatus("filling");
+
   const lobbies = filling
     .filter((p) => effectiveStatus(p) === "filling" && p.seats.length > 0)
     .sort((a, b) => (a.podId < b.podId ? -1 : 1));
