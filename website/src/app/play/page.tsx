@@ -26,9 +26,10 @@ function SignedOut() {
     <div className="tilt-l taped paper mt-8 p-8">
       <h1 className="display text-4xl">Pull up a chair</h1>
       <p className="mt-4 leading-relaxed text-[color-mix(in_srgb,var(--ink)_80%,transparent)]">
-        Eight players sit down, the site runs three quick rounds, and every win
-        pays points toward the prize wall. Coordinate each match in Discord,
-        report here when you&apos;re done. Sign in with Discord to play.
+        Four to eight players sit down, the site runs three quick rounds, and
+        every win pays points toward the prize wall. Coordinate each match in
+        Discord, report here when you&apos;re done. Sign in with Discord to
+        play.
       </p>
       <form action={playSignInAction}>
         <button className="mt-6 cursor-pointer rounded-full bg-[var(--hot)] px-6 py-3 font-extrabold text-[var(--ink)] transition-transform hover:-rotate-2">

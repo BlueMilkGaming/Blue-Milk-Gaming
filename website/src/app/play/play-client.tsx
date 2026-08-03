@@ -87,6 +87,7 @@ function PlayNow({ snap, onJoin, pending }: { snap: Snapshot; onJoin: () => void
           : "Tables are quiet right now. First pod of the day opens when you sit down."}
         {snap.playingCount > 0 && ` ${snap.playingCount} pod${snap.playingCount > 1 ? "s" : ""} in play.`}
       </p>
+      <p className="mt-3 font-extrabold">Three Rounds, Best of 1. Should take about an hour.</p>
       <p className="nums mt-3 text-sm font-extrabold text-[color-mix(in_srgb,var(--ink)_60%,transparent)]">
         Earned today: {snap.paidToday} points. Your best two pods each day pay out.
       </p>

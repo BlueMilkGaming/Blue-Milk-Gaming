@@ -33,7 +33,7 @@ function seatBar(taken: number): string {
 }
 
 function fillingMessage(taken: number): string {
-  return `${seatBar(taken)}\nA table is filling at Blue Milk Gaming: ${taken} of ${POD_SIZE} chairs taken. The host can launch with ${POD_MIN} or 6; a full table of ${POD_SIZE} deals itself: <${SITE_URL}/play>`;
+  return `${seatBar(taken)}\nA table is filling now: ${taken} of ${POD_SIZE} chairs taken. 3 Rounds Bo1, about an hour. The pod can launch with ${POD_MIN} to ${POD_SIZE} players: <${SITE_URL}/play>`;
 }
 function launchedMessage(players: number): string {
   return `${[..."🟩".repeat(players)].join(" ")}\nPod launched with ${players} players at Blue Milk Gaming. Three rounds: coordinate in Discord, report on the site.`;
