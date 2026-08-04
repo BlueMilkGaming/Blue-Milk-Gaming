@@ -16,9 +16,14 @@ const hubotSans = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bluemilkgaming.com"),
   title: "Blue Milk Gaming",
   description:
     "Blue Milk Gaming is a Star Wars: Unlimited content org running the weekly Online Local tournament and a community leaderboard.",
+  openGraph: {
+    siteName: "Blue Milk Gaming",
+    images: ["/brand/og-banner.png"],
+  },
 };
 
 export default function RootLayout({
