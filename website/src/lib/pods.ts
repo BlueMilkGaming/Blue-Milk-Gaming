@@ -105,6 +105,9 @@ export function dealRound(
       best = matching;
     }
   }
+  // Table 1 gets the top pairing: array order is the table number everywhere.
+  const pairWins = ([a, b]: [string, string]) => (wins.get(a) ?? 0) + (wins.get(b) ?? 0);
+  best.sort((p, q) => pairWins(q) - pairWins(p));
   return best.map(([a, b]) => ({ a, b }));
 }
 

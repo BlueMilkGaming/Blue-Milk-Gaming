@@ -34,6 +34,14 @@ test("round 2 pairs winners with winners", () => {
   }
 });
 
+test("table 1 seats the top pairing", () => {
+  const r1 = round([["p0", "p1", "p0"], ["p2", "p3", "p2"], ["p4", "p5", "p4"], ["p6", "p7", "p6"]]);
+  const winners = new Set(["p0", "p2", "p4", "p6"]);
+  const [table1, ...rest] = dealRound(seats, [r1]);
+  assert.ok(winners.has(table1.a) && winners.has(table1.b), "table 1 must pair two winners");
+  assert.ok(rest.some((m) => !winners.has(m.a) && !winners.has(m.b)), "losers seat below");
+});
+
 test("round 3 never deals a rematch", () => {
   const r1 = round([["p0", "p1", "p0"], ["p2", "p3", "p2"], ["p4", "p5", "p4"], ["p6", "p7", "p6"]]);
   const r2 = round([["p0", "p2", "p0"], ["p4", "p6", "p4"], ["p1", "p3", "p1"], ["p5", "p7", "p5"]]);

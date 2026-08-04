@@ -189,7 +189,7 @@ function Playing({ pod, yourId, act, pending }: {
     <div className="space-y-6">
       <div className="tilt-l taped paper p-8">
         <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.22em] text-[color-mix(in_srgb,var(--ink)_65%,transparent)]">
-          Round {roundIndex + 1} of {POD_ROUNDS}
+          Round {roundIndex + 1} of {POD_ROUNDS}{matchIndex !== -1 && ` · Table ${matchIndex + 1}`}
         </p>
         <h1 className="display mt-2 text-4xl">Your match</h1>
         {match ? <MatchCard match={match} yourId={yourId} nameOf={nameOf} noShowOpen={noShowOpen}
@@ -227,7 +227,7 @@ function Playing({ pod, yourId, act, pending }: {
         <ul className="nums mt-3 space-y-1.5 text-sm font-extrabold">
           {round.pairings.map((m, i) => i !== matchIndex && (
             <li key={i}>
-              {nameOf(m.a)} vs {nameOf(m.b)}: {m.winner ? `${nameOf(m.winner)} won` : "playing"}
+              Table {i + 1}: {nameOf(m.a)} vs {nameOf(m.b)}: {m.winner ? `${nameOf(m.winner)} won` : "playing"}
               {m.flaggedBy && !m.flagResolution && " (flagged)"}
             </li>
           ))}
