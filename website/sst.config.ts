@@ -120,7 +120,7 @@ export default $config({
     // standard time. Melee has no webhooks and asks not to be polled, so once
     // a week is the whole strategy (ADR 0004).
     new sst.aws.Cron("MeleeSync", {
-      schedule: "cron(0 14 ? * MON *)",
+      schedule: "cron(0 12 ? * MON *)",
       function: {
         handler: "src/cron/sync-melee.handler",
         link: [player, tournament, placement, account, pointsLedger, playerBalance, meleeClientId, meleeClientSecret, adminWebhookUrl],
