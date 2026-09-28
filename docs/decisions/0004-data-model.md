@@ -38,7 +38,8 @@ Boundaries follow SWU set releases, and event counts per season vary — nothing
 |---|---|---|
 | 1 | 6 (SEC) | Online Local #1–9 |
 | 2 | 7 (LAW) | Online Local #10–20 |
-| 3 (current) | 8 (ASH) | Online Local #21–present |
+| 3 | 8 (ASH) | Online Local #21–35 |
+| 4 (current) | 9 (HMW) | Online Local #36–present |
 
 SWU's release cadence is changing, so season boundaries must be editable data rather than anything derived or hardcoded.
 

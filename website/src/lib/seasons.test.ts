@@ -18,8 +18,10 @@ test("season boundaries land where ADR 0004 says", () => {
   assert.equal(seasonFor(10)?.id, "s2");
   assert.equal(seasonFor(20)?.id, "s2");
   assert.equal(seasonFor(21)?.id, "s3");
-  assert.equal(seasonFor(28)?.id, "s3"); // still open
-  assert.equal(CURRENT_SEASON.id, "s3");
+  assert.equal(seasonFor(35)?.id, "s3");
+  assert.equal(seasonFor(36)?.id, "s4");
+  assert.equal(seasonFor(50)?.id, "s4"); // still open
+  assert.equal(CURRENT_SEASON.id, "s4");
 });
 
 test("no gaps or overlaps between consecutive seasons", () => {

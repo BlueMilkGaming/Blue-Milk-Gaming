@@ -23,7 +23,8 @@ export type Season = {
 export const SEASONS: Season[] = [
   { id: "s1", name: "Season 1", set: "Set 6 (SEC)", firstLocal: 1, lastLocal: 9 },
   { id: "s2", name: "Season 2", set: "Set 7 (LAW)", firstLocal: 10, lastLocal: 20 },
-  { id: "s3", name: "Season 3", set: "Set 8 (ASH)", firstLocal: 21, lastLocal: null },
+  { id: "s3", name: "Season 3", set: "Set 8 (ASH)", firstLocal: 21, lastLocal: 35 },
+  { id: "s4", name: "Season 4", set: "Set 9 (HMW)", firstLocal: 36, lastLocal: null },
 ];
 
 export const CURRENT_SEASON = SEASONS[SEASONS.length - 1];
